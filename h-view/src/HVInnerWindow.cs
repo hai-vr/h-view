@@ -83,6 +83,15 @@ public partial class HVInnerWindow
         {
             ImGui.BeginChild("scroll");
             ExpressionsTab(oscMessages);
+            HandleScrollOnDrag(ImGui.GetIO().MouseDelta, ImGuiMouseButton.Left);
+            ImGui.EndChild();
+            ImGui.EndTabItem();
+        }
+        if (ImGui.BeginTabItem("Shortcuts"))
+        {
+            ImGui.BeginChild("scroll");
+            ShortcutsTab(oscMessages);
+            // ScrollWhenDraggingOnVoid(ImGui.GetIO().MouseDelta, ImGuiMouseButton.Left);
             ImGui.EndChild();
             ImGui.EndTabItem();
         }

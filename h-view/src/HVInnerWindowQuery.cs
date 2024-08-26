@@ -155,15 +155,14 @@ public partial class HVInnerWindow
                 ImGui.PopStyleColor();
             }
             ImGui.TableSetColumnIndex(3);
-            BuildControls(oscItem, -1);
+            BuildControls(oscItem, -1, oscItem.Key);
         }
 
         ImGui.EndTable();
     }
 
-    private void BuildControls(HOscItem oscItem, float sliderMin)
+    private void BuildControls(HOscItem oscItem, float sliderMin, string key)
     {
-        var key = oscItem.Key;
         if (oscItem.IsWritable)
         {
             // Sometimes the OscType received through Query, and the received type do not agree.
@@ -172,7 +171,7 @@ public partial class HVInnerWindow
             if (oscItem.OscType == FloatOscTypeF && oscItem.WriteOnlyValueRef is float)
             {
                 float f = (float)oscItem.WriteOnlyValueRef;
-                if (ImGui.SliderFloat($"##{key}.slider", ref f, sliderMin, 1))
+                if (ImGui.SliderFloat($"###{key}.slider", ref f, sliderMin, 1))
                 {
                     _routine.UpdateMessage(oscItem.Key, f);
                 }
