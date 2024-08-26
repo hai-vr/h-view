@@ -106,7 +106,31 @@ public partial class HVInnerWindow
             ImGui.Text($"{item.type}");
             
             ImGui.TableSetColumnIndex(3);
-            if (hasOscItem)
+            if ((item.type == "Button" || item.type == "Toggle") && (!hasOscItem || (hasOscItem && oscItem.OscType == "i")))
+            {
+                var expected = (int)item.value;
+                var b = oscItem.WriteOnlyValueRef is int i && i == expected;
+                var doit = b;
+                if (doit) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
+                if (ImGui.Button($"= {expected}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f)))
+                {
+                    if (b)
+                    {
+                        _routine.UpdateMessage(oscItem.Key, 0);
+                    }
+                    else
+                    {
+                        _routine.UpdateMessage(oscItem.Key, expected);
+                    }
+                }
+                if (doit) ImGui.PopStyleColor();
+                // ImGui.SameLine();
+                // if (ImGui.Button($"{HoldLabel}##{key}.hold", new Vector2(50, 0f))) ;
+                // _routine.EmitOscFlipEventOnChange(oscItem.Key, ImGui.IsItemActive());
+
+                ImGui.SameLine();
+            }
+            else if (hasOscItem)
             {
                 BuildControls(oscItem, 0);
             }
