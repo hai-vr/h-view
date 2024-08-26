@@ -51,6 +51,7 @@ public partial class HVInnerWindow
         foreach (var item in menu)
         {
             var interestingParameter = item.type == "RadialPuppet" ? item.axis0.parameter : item.parameter;
+            if (interestingParameter == null) interestingParameter = ""; // FIXME: Why does this happen?
             
             var oscParam = OscParameterize(interestingParameter);
             var hasOscItem = oscMessages.TryGetValue(oscParam, out var oscItem);
