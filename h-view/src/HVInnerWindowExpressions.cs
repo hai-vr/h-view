@@ -1,11 +1,33 @@
-﻿using Hai.ExternalExpressionsMenu;
+﻿using System.Numerics;
+using Hai.ExternalExpressionsMenu;
 using Hai.HView.OSC;
 using ImGuiNET;
+using Veldrid.ImageSharp;
 
 namespace Hai.HView.Gui;
 
 public partial class HVInnerWindow
 {
+    private readonly Dictionary<string, IntPtr> _imageToPointers = new Dictionary<string, IntPtr>();
+    private Vector2 _imageSize = new Vector2(64, 64);
+
+    private IntPtr GetOrLoadImage(string base64png)
+    {
+        if (string.IsNullOrEmpty(base64png)) return 0;
+        if (_imageToPointers.TryGetValue(base64png, out var found)) return found;
+        
+        var pngBytes = Convert.FromBase64String(base64png);
+        using (var stream = new MemoryStream(pngBytes))
+        {
+            // https://github.com/ImGuiNET/ImGui.NET/issues/141#issuecomment-905927496
+            var img = new ImageSharpTexture(stream);
+            var deviceTexture = img.CreateDeviceTexture(_gd, _gd.ResourceFactory);
+            var pointer = _controller.GetOrCreateImGuiBinding(_gd.ResourceFactory, deviceTexture);
+            _imageToPointers.Add(base64png, pointer);
+            return pointer;
+        }
+    }
+    
     private void ExpressionsTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTable("/avatar/descriptor/menu/", 4);
@@ -37,6 +59,11 @@ public partial class HVInnerWindow
             
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
+            if (item.icon != "")
+            {
+                ImGui.Image(GetOrLoadImage(item.icon), _imageSize);
+                ImGui.SameLine();
+            }
             ImGui.Text(item.label);
             
             if (hasParameter && ImGui.IsItemHovered())

@@ -21,6 +21,7 @@
         <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Veldrid" Version="4.9.0" />
+        <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
         <PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0" />
         <PackageReference Include="VRChat.OSCQuery" Version="0.0.7" />
     </ItemGroup>
