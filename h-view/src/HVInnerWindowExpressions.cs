@@ -341,27 +341,29 @@ public partial class HVInnerWindow
     private void ShortcutsTab(Dictionary<string, HOscItem> oscMessages)
     {
         var id = 0;
-        if (_manifestNullable != null)
+        if (_shortcutsNullable != null)
         {
-            PrintShortcuts(_manifestNullable.menu, oscMessages, ref id, _manifestNullable.icons, null);
+            PrintShortcuts(_shortcutsNullable, oscMessages, ref id, _manifestNullable.icons, null);
         }
         ImGui.Text("");
         ImGui.Text("");
     }
 
-    private void PrintShortcuts(EMMenu[] menu, Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, EMMenu subMenuNullable)
+    private void PrintShortcuts(HVShortcutHost host, Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVShortcut parentMenuOrNullIfRoot)
     {
-        if (subMenuNullable != null)
+        if (parentMenuOrNullIfRoot != null)
         {
-            ImGui.SeparatorText(subMenuNullable.label);
-            if (subMenuNullable.icon != -1)
+            ImGui.SeparatorText(parentMenuOrNullIfRoot.label);
+            if (parentMenuOrNullIfRoot.icon != -1)
             {
-                ImGui.Image(GetOrLoadImage(icons, subMenuNullable.icon), _imageSize);
+                ImGui.Image(GetOrLoadImage(icons, parentMenuOrNullIfRoot.icon), _imageSize);
                 ImGui.SameLine();
             }
             else
             {
-                ImGui.Dummy(new Vector2(1, 1));
+                // TODO: We might need to pull a default menu icon if none is provided, to hide the weird indent
+                ImGui.Dummy(_imageSize);
+                ImGui.SameLine();
             }
         }
         else
@@ -369,42 +371,66 @@ public partial class HVInnerWindow
             ImGui.SeparatorText("Expressions Menu");
         }
 
-        // TODO: This wastes an array each loop, we really need to pre-process the EMMenu first during acquisition
-        // FIXME: This should be partitioning instead of sorting
-        var orderedMenuItems = menu
-            .Where(item => !(string.IsNullOrWhiteSpace(item.label) && (item.type == "Toggle" || item.type == "Button") && string.IsNullOrEmpty(item.parameter)))
-            .OrderByDescending(item => item.type == "Button" || item.type == "Toggle")
-            .ThenBy(item => item.type == "SubMenu")
-            .ToArray();
+        IterateThrough(oscMessages, ref id, icons, host.pressables, true);
+        if (host.pressables.Length > 0 && host.slidables.Length > 0)
+        {
+            ImGui.Dummy(_imageSize);
+            ImGui.SameLine();
+        }
+        IterateThrough(oscMessages, ref id, icons, host.slidables, false);
+        IterateThrough(oscMessages, ref id, icons, host.subs, false);
+    }
 
-        // TODO: We should sort the menu items/do two passes on the menu so that all sub-menus are displayed first
-        // TODO: We should show all buttons/toggles before showing sliders (as sliders are on their own line)
+    private void IterateThrough(Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVShortcut[] orderedMenuItems, bool allOnSameLine)
+    {
         for (var inx = 0; inx < orderedMenuItems.Length; inx++)
         {
             var item = orderedMenuItems[inx];
+            var isLastItemOfThatList = inx == orderedMenuItems.Length - 1;
             
-            var interestingParameter = item.type == "RadialPuppet" ? item.axis0.parameter : item.parameter;
-            if (interestingParameter == null) interestingParameter = ""; // FIXME: Why does this happen?
+            var interestingParameter = item.type == HVShortcutType.RadialPuppet ? item.axis0.parameter : item.parameter;
 
             var oscParam = OscParameterize(interestingParameter);
             var hasOscItem = oscMessages.TryGetValue(oscParam, out var oscItem);
-            var isSubMenu = item.type == "SubMenu";
+            var isSubMenu = item.type == HVShortcutType.SubMenu;
             var hasParameter = interestingParameter != "";
 
-            if (item.icon != -1)
+            if (!isSubMenu)
             {
-                if (!isSubMenu)
+                ImGui.BeginGroup();
+                
+                // FIXME: This works worse than the "Menu" tab.
+                var expected = (int)item.value;
+                var b = oscItem.WriteOnlyValueRef is int i && i == expected;
+                var doit = b;
+                if (doit) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
+                bool button;
+                if (item.icon != -1)
                 {
-                    ImGui.BeginGroup();
-                    
-                    // FIXME: This works worse than the "Menu" tab.
-                    var expected = (int)item.value;
-                    var b = oscItem.WriteOnlyValueRef is int i && i == expected;
-                    var doit = b;
-                    if (doit) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
-                    if (ImGui.ImageButton($"###{id}", GetOrLoadImage(icons, item.icon), _imageSize) && item.type == "Toggle")
+                    button = ImGui.ImageButton($"###{id}", GetOrLoadImage(icons, item.icon), _imageSize);
+                }
+                else
+                {
+                    button = ImGui.Button($"?###{id}", _imageSize);
+                }
+                if (button && item.type == HVShortcutType.Toggle)
+                {
+                    if (!doit)
                     {
-                        if (!doit)
+                        _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? (int)item.value : item.value > 0.5f);
+                    }
+                    else
+                    {
+                        _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? 0 : false);
+                    }
+                }
+                if (item.type == HVShortcutType.Button)
+                {
+                    _clicks.TryGetValue(id, out var isPressed); // The return value does not matter in this scenario
+                    var isActive = ImGui.IsItemActive();
+                    if (isPressed != isActive)
+                    {
+                        if (isActive)
                         {
                             _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? (int)item.value : item.value > 0.5f);
                         }
@@ -412,79 +438,42 @@ public partial class HVInnerWindow
                         {
                             _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? 0 : false);
                         }
+                        _clicks[id] = isActive;
                     }
-                    if (item.type == "Button")
+                }
+
+                if (doit) ImGui.PopStyleColor();
+                
+                // FIXME: Can't find a way to limit the text width
+                // ImGui.PushItemWidth(64);
+                ImGui.TextWrapped($"{item.label}");
+                // ImGui.PopItemWidth();
+                ImGui.EndGroup();
+
+                if (item.type == HVShortcutType.RadialPuppet)
+                {
+                    ImGui.SameLine();
+                    // ImGui.PushStyleVar(ImGuiStyleVar.ScrollbarSize, 100);
+                    BuildControls(oscItem, 0f, $"kk{id}");
+                    // ImGui.PopStyleVar();
+                }
+
+                if (!isLastItemOfThatList)
+                {
+                    if (allOnSameLine)
                     {
-                        _clicks.TryGetValue(id, out var isPressed); // The return value does not matter in this scenario
-                        var isActive = ImGui.IsItemActive();
-                        if (isPressed != isActive)
-                        {
-                            if (isActive)
-                            {
-                                _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? (int)item.value : item.value > 0.5f);
-                            }
-                            else
-                            {
-                                _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? 0 : false);
-                            }
-                            _clicks[id] = isActive;
-                        }
+                        ImGui.SameLine();
                     }
                     else
                     {
-                        
-                    }
-                    if (doit) ImGui.PopStyleColor();
-                    
-                    // FIXME: Can't find a way to limit the text width
-                    // ImGui.PushItemWidth(64);
-                    ImGui.TextWrapped($"{item.label}");
-                    // ImGui.PopItemWidth();
-                    ImGui.EndGroup();
-                    
-                    // FIXME: This "SameLine" situation is a disaster.
-                    if (item.type == "RadialPuppet")
-                    {
+                        ImGui.Dummy(_imageSize);
                         ImGui.SameLine();
-                        // ImGui.PushStyleVar(ImGuiStyleVar.ScrollbarSize, 100);
-                        BuildControls(oscItem, 0f, $"kk{id}");
-                        // ImGui.PopStyleVar();
-                        
-                        if (inx != orderedMenuItems.Length - 1 && orderedMenuItems[inx + 1].type != "SubMenu")
-                        {
-                            ImGui.Dummy(_imageSize);
-                            ImGui.SameLine();
-                        }
                     }
-                    else if (inx != orderedMenuItems.Length - 1)
-                    {
-                        var nextType = orderedMenuItems[inx + 1].type;
-                        if (nextType != "RadialPuppet" && nextType != "SubMenu")
-                        {
-                            ImGui.SameLine();
-                        }
-                        else
-                        {
-                            ImGui.Dummy(_imageSize);
-                            ImGui.SameLine();
-                        }
-                    }
-                }
-                else
-                {
-                    ImGui.Dummy(new Vector2(1, 1));
                 }
             }
             else
             {
-                // FIXME: If there's no icon we still need a button
-            }
-
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                ImGui.TextUnformatted(item.label);
-                ImGui.EndTooltip();
+                ImGui.Dummy(new Vector2(1, 1));
             }
 
             var key = $"{id}";
@@ -502,10 +491,10 @@ public partial class HVInnerWindow
             }
 
             id++;
-            if (item.subMenu != null)
+            if (item.subs != null)
             {
                 ImGui.Indent();
-                PrintShortcuts(item.subMenu, oscMessages, ref id, icons, item);
+                PrintShortcuts(item.subs, oscMessages, ref id, icons, item);
                 ImGui.Unindent();
             }
         }
