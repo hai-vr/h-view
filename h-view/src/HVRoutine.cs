@@ -18,7 +18,10 @@ public class HVRoutine
     
     private readonly Regex _avoidPathTraversalInAvtrPipelineName = new Regex(@"^avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
-    public EMManifest ExpressionsManifest { get; private set; }
+    public event OnManifestChangeEvent OnManifestChanged;
+    public delegate void OnManifestChangeEvent(EMManifest newManifest);
+
+    private EMManifest _expressionsManifest;
 
     public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox)
     {
@@ -72,7 +75,8 @@ public class HVRoutine
         if (externalNullable != null)
         {
             Console.WriteLine("Found external menu");
-            ExpressionsManifest = JsonConvert.DeserializeObject<EMManifest>(File.ReadAllText(externalNullable, Encoding.UTF8));
+            _expressionsManifest = JsonConvert.DeserializeObject<EMManifest>(File.ReadAllText(externalNullable, Encoding.UTF8));
+            OnManifestChanged?.Invoke(_expressionsManifest);
         }
     }
 

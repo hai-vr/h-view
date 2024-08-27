@@ -2,6 +2,7 @@
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.OSC;
 using ImGuiNET;
+using Veldrid;
 using Veldrid.ImageSharp;
 
 namespace Hai.HView.Gui;
@@ -18,19 +19,33 @@ public partial class HVInnerWindow
         }
     }
     
-    // FIXME: We can't store by index, because this cache is not cleared when another avatar manifest gets loaded.
-    private readonly Dictionary<string, IntPtr> _indexToPointers = new Dictionary<string, IntPtr>();
-    private Vector2 _imageSize = new Vector2(64.02f, 64.02f);
+    private readonly Dictionary<int, IntPtr> _indexToPointers = new Dictionary<int, IntPtr>();
+    private readonly List<Texture> _loadedTextures = new List<Texture>();
+    
+    private readonly Vector2 _imageSize = new Vector2(64.02f, 64.02f);
     private readonly Dictionary<int, bool> _clicks = new Dictionary<int, bool>();
+
+    /// Free allocated images. This needs to be called from the UI thread.
+    private void FreeImagesFromMemory()
+    {
+        // TODO: This may still leak within the custom ImGui controller.
+        Console.WriteLine("Freeing images from memory");
+        foreach (var loadedTexture in _loadedTextures)
+        {
+            loadedTexture.Dispose();
+        }
+        _loadedTextures.Clear();
+        _indexToPointers.Clear();
+    }
 
     private IntPtr GetOrLoadImage(string[] icons, int index)
     {
+        // TODO: Should we pre-load all the icons immediately, instead of doing it on request?
+        if (_indexToPointers.TryGetValue(index, out var found)) return found;
+        
         if (index == -1) return 0;
         if (index >= icons.Length) return 0;
         var base64png = icons[index];
-        
-        // TODO: Should we pre-load all the icons immediately, instead of doing it on request?
-        if (_indexToPointers.TryGetValue(base64png, out var found)) return found;
         
         var pngBytes = Convert.FromBase64String(base64png);
         using (var stream = new MemoryStream(pngBytes))
@@ -38,8 +53,9 @@ public partial class HVInnerWindow
             // https://github.com/ImGuiNET/ImGui.NET/issues/141#issuecomment-905927496
             var img = new ImageSharpTexture(stream, true);
             var deviceTexture = img.CreateDeviceTexture(_gd, _gd.ResourceFactory);
+            _loadedTextures.Add(deviceTexture);
             var pointer = _controller.GetOrCreateImGuiBinding(_gd.ResourceFactory, deviceTexture);
-            _indexToPointers.Add(base64png, pointer);
+            _indexToPointers.Add(index, pointer);
             return pointer;
         }
     }
@@ -54,10 +70,9 @@ public partial class HVInnerWindow
         ImGui.TableHeadersRow();
 
         var id = 0;
-        var manifest = _routine.ExpressionsManifest;
-        if (manifest != null)
+        if (_manifestNullable != null)
         {
-            PrintThatMenu(manifest, manifest.menu, oscMessages, ref id);
+            PrintThatMenu(_manifestNullable, _manifestNullable.menu, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -178,10 +193,9 @@ public partial class HVInnerWindow
         ImGui.TableHeadersRow();
         
         var id = 0;
-        var manifest = _routine.ExpressionsManifest;
-        if (manifest != null)
+        if (_manifestNullable != null)
         {
-            PrintContacts(manifest, oscMessages, ref id);
+            PrintContacts(_manifestNullable, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -237,10 +251,9 @@ public partial class HVInnerWindow
         ImGui.TableHeadersRow();
         
         var id = 0;
-        var manifest = _routine.ExpressionsManifest;
-        if (manifest != null)
+        if (_manifestNullable != null)
         {
-            PrintPhysBones(manifest, oscMessages, ref id);
+            PrintPhysBones(_manifestNullable, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -328,10 +341,9 @@ public partial class HVInnerWindow
     private void ShortcutsTab(Dictionary<string, HOscItem> oscMessages)
     {
         var id = 0;
-        var manifest = _routine.ExpressionsManifest;
-        if (manifest != null)
+        if (_manifestNullable != null)
         {
-            PrintShortcuts(manifest.menu, oscMessages, ref id, manifest.icons, null);
+            PrintShortcuts(_manifestNullable.menu, oscMessages, ref id, _manifestNullable.icons, null);
         }
         ImGui.Text("");
         ImGui.Text("");

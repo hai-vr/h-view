@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using Hai.ExternalExpressionsMenu;
 using Hai.HView.Core;
 using ImGuiNET;
 using Veldrid;
@@ -9,7 +11,7 @@ using Vector3 = System.Numerics.Vector3;
 
 namespace Hai.HView.Gui;
 
-public partial class HVInnerWindow
+public partial class HVInnerWindow : IDisposable
 {
     private const int BorderWidth = 0;
     private const int BorderHeight = BorderWidth;
@@ -32,6 +34,9 @@ public partial class HVInnerWindow
 
     private CustomImGuiController _controller;
 
+    private EMManifest _manifestNullable;
+    private readonly ConcurrentQueue<Action> _queuedForUi = new ConcurrentQueue<Action>();
+
     // UI state
     private readonly Vector3 _clearColor = new(0.45f, 0.55f, 0.6f);
     private byte[] _chatboxBuffer = new byte[10_000];
@@ -41,10 +46,28 @@ public partial class HVInnerWindow
     public HVInnerWindow(HVRoutine routine)
     {
         _routine = routine;
+        routine.OnManifestChanged += OnManifestChanged;
     }
-        
+
+    public void Dispose()
+    {
+        // TODO: This class may need a setup/teardown.
+        _routine.OnManifestChanged -= OnManifestChanged;
+    }
+
+    private void OnManifestChanged(EMManifest newManifest) => _queuedForUi.Enqueue(() =>
+    {
+        _manifestNullable = newManifest;
+        FreeImagesFromMemory();
+    });
+
     private void SubmitUI()
     {
+        while (_queuedForUi.TryDequeue(out var action))
+        {
+            action.Invoke();
+        }
+        
         var windowHeight = _window.Height - BorderHeight * 2;
         ImGui.SetNextWindowPos(new Vector2(BorderWidth, BorderHeight), ImGuiCond.Always);
         ImGui.SetNextWindowSize(new Vector2(_window.Width - BorderWidth * 2, windowHeight), ImGuiCond.Always);
