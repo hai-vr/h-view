@@ -18,14 +18,18 @@ public partial class HVInnerWindow
         }
     }
     
-    private readonly Dictionary<string, IntPtr> _imageToPointers = new Dictionary<string, IntPtr>();
+    private readonly Dictionary<int, IntPtr> _indexToPointers = new Dictionary<int, IntPtr>();
     private Vector2 _imageSize = new Vector2(64.02f, 64.02f);
     private readonly Dictionary<int, bool> _clicks = new Dictionary<int, bool>();
 
-    private IntPtr GetOrLoadImage(string base64png)
+    private IntPtr GetOrLoadImage(string[] icons, int index)
     {
-        if (string.IsNullOrEmpty(base64png)) return 0;
-        if (_imageToPointers.TryGetValue(base64png, out var found)) return found;
+        // TODO: Should we pre-load all the icons immediately, instead of doing it on request?
+        if (_indexToPointers.TryGetValue(index, out var found)) return found;
+        
+        if (index == -1) return 0;
+        if (index >= icons.Length) return 0;
+        var base64png = icons[index];
         
         var pngBytes = Convert.FromBase64String(base64png);
         using (var stream = new MemoryStream(pngBytes))
@@ -34,7 +38,7 @@ public partial class HVInnerWindow
             var img = new ImageSharpTexture(stream, true);
             var deviceTexture = img.CreateDeviceTexture(_gd, _gd.ResourceFactory);
             var pointer = _controller.GetOrCreateImGuiBinding(_gd.ResourceFactory, deviceTexture);
-            _imageToPointers.Add(base64png, pointer);
+            _indexToPointers.Add(index, pointer);
             return pointer;
         }
     }
@@ -71,9 +75,9 @@ public partial class HVInnerWindow
             
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
-            if (item.icon != "")
+            if (item.icon != -1)
             {
-                ImGui.Image(GetOrLoadImage(item.icon), _imageSize);
+                ImGui.Image(GetOrLoadImage(manifest.icons, item.icon), _imageSize);
                 ImGui.SameLine();
             }
             ImGui.Text(item.label);
@@ -326,20 +330,20 @@ public partial class HVInnerWindow
         var manifest = _routine.ExpressionsManifest;
         if (manifest != null)
         {
-            PrintShortcuts(manifest.menu, oscMessages, ref id, null);
+            PrintShortcuts(manifest.menu, oscMessages, ref id, manifest.icons, null);
         }
         ImGui.Text("");
         ImGui.Text("");
     }
 
-    private void PrintShortcuts(EMMenu[] menu, Dictionary<string, HOscItem> oscMessages, ref int id, EMMenu subMenuNullable)
+    private void PrintShortcuts(EMMenu[] menu, Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, EMMenu subMenuNullable)
     {
         if (subMenuNullable != null)
         {
             ImGui.SeparatorText(subMenuNullable.label);
-            if (subMenuNullable.icon != "")
+            if (subMenuNullable.icon != -1)
             {
-                ImGui.Image(GetOrLoadImage(subMenuNullable.icon), _imageSize);
+                ImGui.Image(GetOrLoadImage(icons, subMenuNullable.icon), _imageSize);
                 ImGui.SameLine();
             }
             else
@@ -374,7 +378,7 @@ public partial class HVInnerWindow
             var isSubMenu = item.type == "SubMenu";
             var hasParameter = interestingParameter != "";
 
-            if (item.icon != "")
+            if (item.icon != -1)
             {
                 if (!isSubMenu)
                 {
@@ -385,7 +389,7 @@ public partial class HVInnerWindow
                     var b = oscItem.WriteOnlyValueRef is int i && i == expected;
                     var doit = b;
                     if (doit) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
-                    if (ImGui.ImageButton($"###{id}", GetOrLoadImage(item.icon), _imageSize) && item.type == "Toggle")
+                    if (ImGui.ImageButton($"###{id}", GetOrLoadImage(icons, item.icon), _imageSize) && item.type == "Toggle")
                     {
                         if (!doit)
                         {
@@ -488,7 +492,7 @@ public partial class HVInnerWindow
             if (item.subMenu != null)
             {
                 ImGui.Indent();
-                PrintShortcuts(item.subMenu, oscMessages, ref id, item);
+                PrintShortcuts(item.subMenu, oscMessages, ref id, icons, item);
                 ImGui.Unindent();
             }
         }
