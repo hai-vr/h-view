@@ -18,18 +18,19 @@ public partial class HVInnerWindow
         }
     }
     
-    private readonly Dictionary<int, IntPtr> _indexToPointers = new Dictionary<int, IntPtr>();
+    // FIXME: We can't store by index, because this cache is not cleared when another avatar manifest gets loaded.
+    private readonly Dictionary<string, IntPtr> _indexToPointers = new Dictionary<string, IntPtr>();
     private Vector2 _imageSize = new Vector2(64.02f, 64.02f);
     private readonly Dictionary<int, bool> _clicks = new Dictionary<int, bool>();
 
     private IntPtr GetOrLoadImage(string[] icons, int index)
     {
-        // TODO: Should we pre-load all the icons immediately, instead of doing it on request?
-        if (_indexToPointers.TryGetValue(index, out var found)) return found;
-        
         if (index == -1) return 0;
         if (index >= icons.Length) return 0;
         var base64png = icons[index];
+        
+        // TODO: Should we pre-load all the icons immediately, instead of doing it on request?
+        if (_indexToPointers.TryGetValue(base64png, out var found)) return found;
         
         var pngBytes = Convert.FromBase64String(base64png);
         using (var stream = new MemoryStream(pngBytes))
@@ -38,7 +39,7 @@ public partial class HVInnerWindow
             var img = new ImageSharpTexture(stream, true);
             var deviceTexture = img.CreateDeviceTexture(_gd, _gd.ResourceFactory);
             var pointer = _controller.GetOrCreateImGuiBinding(_gd.ResourceFactory, deviceTexture);
-            _indexToPointers.Add(index, pointer);
+            _indexToPointers.Add(base64png, pointer);
             return pointer;
         }
     }
