@@ -59,6 +59,7 @@ public partial class HVInnerWindow : IDisposable
     {
         _manifestNullable = newManifest;
         FreeImagesFromMemory();
+        RebuildManifestAsShortcuts(newManifest);
     });
 
     private void SubmitUI()
