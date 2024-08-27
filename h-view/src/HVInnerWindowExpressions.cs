@@ -23,7 +23,7 @@ public partial class HVInnerWindow
     private readonly List<Texture> _loadedTextures = new List<Texture>();
     
     private readonly Vector2 _imageSize = new Vector2(64.02f, 64.02f);
-    private readonly Dictionary<int, bool> _clicks = new Dictionary<int, bool>();
+    private readonly Dictionary<int, bool> _buttonPressState = new Dictionary<int, bool>();
 
     /// Free allocated images. This needs to be called from the UI thread.
     private void FreeImagesFromMemory()
@@ -399,11 +399,9 @@ public partial class HVInnerWindow
             {
                 ImGui.BeginGroup();
                 
-                // FIXME: This works worse than the "Menu" tab.
-                var expected = (int)item.value;
-                var b = oscItem.WriteOnlyValueRef is int i && i == expected;
-                var doit = b;
-                if (doit) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
+                var isMatch = hasOscItem && IsControlMatchingOscValue(item, oscItem);
+                if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
+                
                 bool button;
                 if (item.icon != -1)
                 {
@@ -415,34 +413,20 @@ public partial class HVInnerWindow
                 }
                 if (button && item.type == HVShortcutType.Toggle)
                 {
-                    if (!doit)
-                    {
-                        _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? (int)item.value : item.value > 0.5f);
-                    }
-                    else
-                    {
-                        _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? 0 : false);
-                    }
+                    _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, !isMatch ? item.value : 0f));
                 }
                 if (item.type == HVShortcutType.Button)
                 {
-                    _clicks.TryGetValue(id, out var isPressed); // The return value does not matter in this scenario
-                    var isActive = ImGui.IsItemActive();
-                    if (isPressed != isActive)
+                    _buttonPressState.TryGetValue(id, out var wasPressed); // The return value does not matter in this scenario
+                    var isPressed = ImGui.IsItemActive();
+                    if (wasPressed != isPressed)
                     {
-                        if (isActive)
-                        {
-                            _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? (int)item.value : item.value > 0.5f);
-                        }
-                        else
-                        {
-                            _routine.UpdateMessage(oscItem.Key, oscItem.OscType == "i" ? 0 : false);
-                        }
-                        _clicks[id] = isActive;
+                        _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, isPressed ? item.value : 0f));
+                        _buttonPressState[id] = isPressed;
                     }
                 }
 
-                if (doit) ImGui.PopStyleColor();
+                if (isMatch) ImGui.PopStyleColor();
                 
                 // FIXME: Can't find a way to limit the text width
                 // ImGui.PushItemWidth(64);
@@ -497,6 +481,40 @@ public partial class HVInnerWindow
                 PrintShortcuts(item.subs, oscMessages, ref id, icons, item);
                 ImGui.Unindent();
             }
+        }
+    }
+
+    private object TransformFloatToType(HVReferencedParameterType referencedType, float itemValue)
+    {
+        switch (referencedType)
+        {
+            case HVReferencedParameterType.Unresolved:
+                return itemValue;
+            case HVReferencedParameterType.Float:
+                return itemValue;
+            case HVReferencedParameterType.Int:
+                return (int)itemValue;
+            case HVReferencedParameterType.Bool:
+                return itemValue > 0.5f;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(referencedType), referencedType, null);
+        }
+    }
+
+    private static bool IsControlMatchingOscValue(HVShortcut item, HOscItem oscItem)
+    {
+        switch (item.referencedParameterType)
+        {
+            case HVReferencedParameterType.Unresolved:
+                return false;
+            case HVReferencedParameterType.Float:
+                return oscItem.WriteOnlyValueRef is float f && f == item.value;
+            case HVReferencedParameterType.Int:
+                return oscItem.WriteOnlyValueRef is int i && i == (int)item.value;
+            case HVReferencedParameterType.Bool:
+                return oscItem.WriteOnlyValueRef is bool b && b == (item.value > 0.5f);
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 }
