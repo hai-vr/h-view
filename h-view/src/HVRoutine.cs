@@ -55,8 +55,33 @@ public class HVRoutine
     {
         Thread.Sleep(20);
 
+        var queryMessages = _query.PullMessages();
+        ProcessQueryEvents(queryMessages);
+
         var messages = _osc.PullMessages();
         ProcessOscEvents(messages);
+    }
+
+    private void ProcessQueryEvents(List<object> queryMessages)
+    {
+        foreach (var msg in queryMessages)
+        {
+            if (msg is HQuery.HQueryMessageEvent messageEvent)
+            {
+                _messageBox.ReceivedQuery(messageEvent.Node);
+            }
+            else if (msg is HQuery.HQueryCompleteEvent)
+            {
+                if (_expressionsManifest == null)
+                {
+                    if (_messageBox.TryGet("/avatar/change", out var avatar))
+                    {
+                        Console.WriteLine("Trying to load avatar from OSC Query response");
+                        TryDeserializeExternalExpressionsMenu(avatar.Values[0] as string);
+                    }
+                }
+            }
+        }
     }
 
     private void ProcessOscEvents(List<SimpleOSC.OSCMessage> oscMessages)
@@ -69,8 +94,9 @@ public class HVRoutine
             {
                 Console.WriteLine("Detected avatar change");
                 _query.Refresh();
+                _messageBox.Reset();
 
-                TryDeserializeExternalExpressionsMenu(result);
+                TryDeserializeExternalExpressionsMenu(result.arguments[0] as string);
             }
         }
     }
@@ -80,9 +106,9 @@ public class HVRoutine
         LoadManifestFromFile(safeFileName);
     }
 
-    private void TryDeserializeExternalExpressionsMenu(SimpleOSC.OSCMessage result)
+    private void TryDeserializeExternalExpressionsMenu(string unsafePipelineId_Nullable)
     {
-        var file = GetExternalExpressionsMenuFilenameOrNull(result);
+        var file = GetExternalExpressionsMenuFilenameOrNull(unsafePipelineId_Nullable);
         if (file != null)
         {
             Console.WriteLine("Found external menu");
@@ -104,14 +130,13 @@ public class HVRoutine
         OnManifestChanged?.Invoke(_expressionsManifest);
     }
 
-    private string GetExternalExpressionsMenuFilenameOrNull(SimpleOSC.OSCMessage result)
+    private string GetExternalExpressionsMenuFilenameOrNull(string unsafeArgumentNullable)
     {
-        var unsafeArgument = result.arguments[0] as string;
-        if (unsafeArgument == null) return null;
-        if (!_avoidPathTraversalInAvtrPipelineName.IsMatch(unsafeArgument)) return null;
-        if (ContainsPathTraversalElements(unsafeArgument)) return null;
+        if (unsafeArgumentNullable == null) return null;
+        if (!_avoidPathTraversalInAvtrPipelineName.IsMatch(unsafeArgumentNullable)) return null;
+        if (ContainsPathTraversalElements(unsafeArgumentNullable)) return null;
 
-        var safeAvatarId = unsafeArgument;
+        var safeAvatarId = unsafeArgumentNullable;
         var searchPattern = $"{EEMPrefix}{safeAvatarId}{JsonSuffix}";
         var found = GetFilesInLocalLowVRChatDirectories(searchPattern);
 

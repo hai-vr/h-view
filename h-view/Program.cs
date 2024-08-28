@@ -3,14 +3,14 @@ using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.OSC;
 
-var messageBox = new HMessageBox();
 var oscPort = HOsc.RandomOscPort();
 var queryPort = HQuery.RandomQueryPort();
 
 var oscClient = new HOsc(oscPort);
-var oscQuery = new HQuery(oscPort, queryPort, messageBox);
+var oscQuery = new HQuery(oscPort, queryPort);
 oscQuery.OnVrcOscPortFound += vrcOscPort => oscClient.SetReceiverOscPort(vrcOscPort);
 
+var messageBox = new HMessageBox();
 var routine = new HVRoutine(oscClient, oscQuery, messageBox);
 
 oscClient.Start();

@@ -141,6 +141,11 @@ public class HMessageBox
         }
     }
 
+    public bool TryGet(string key, out HOscItem result)
+    {
+        return _messages.TryGetValue(key, out result);
+    }
+
     // Tracks the change of a held down button.
     // On change, inverts the value of the key, keeping track of whether that is being held down.
     // Returns the change event that happened, and outputs the value of the state when it started.

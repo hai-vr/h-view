@@ -1,4 +1,5 @@
-﻿using Hai.HView.Core;
+﻿using System.Collections.Concurrent;
+using Hai.HView.Core;
 using VRC.OSCQuery;
 
 namespace Hai.HView.OSC;
@@ -10,17 +11,15 @@ public class HQuery
     public event VrcOscPortFound OnVrcOscPortFound;
     public delegate void VrcOscPortFound(int oscPort);
     
+    private readonly ConcurrentQueue<object> _queue = new ConcurrentQueue<object>();
     private readonly int _port;
-    private readonly HMessageBox _messageBox;
     private readonly int _queryPort;
-    
     private OSCQueryService _ourService;
     private OSCQueryServiceProfile _vrcQueryNullable;
 
-    public HQuery(int oscPort, int queryPort, HMessageBox messageBox)
+    public HQuery(int oscPort, int queryPort)
     {
         _port = oscPort;
-        _messageBox = messageBox;
         _queryPort = queryPort;
     }
 
@@ -75,8 +74,12 @@ public class HQuery
                 .ToArray();
             foreach (var parameter in all)
             {
-                _messageBox.ReceivedQuery(parameter);
+                _queue.Enqueue(new HQueryMessageEvent
+                {
+                    Node = parameter
+                });
             }
+            _queue.Enqueue(new HQueryCompleteEvent());
         }
         catch (Exception e)
         {
@@ -99,16 +102,35 @@ public class HQuery
             );
     }
 
+    public List<object> PullMessages()
+    {
+        var pulled = new List<object>();
+        while (_queue.TryDequeue(out var obj))
+        {
+            pulled.Add(obj);
+        }
+
+        return pulled;
+    }
+
     public void Refresh()
     {
         if (_vrcQueryNullable == null) return;
         
-        _messageBox.Reset();
         AsyncGetService(_vrcQueryNullable);
     }
 
     public void Finish()
     {
         _ourService.Dispose();
+    }
+
+    public struct HQueryMessageEvent
+    {
+        public OSCQueryNode Node;
+    }
+
+    public struct HQueryCompleteEvent
+    {
     }
 }
