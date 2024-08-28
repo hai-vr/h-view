@@ -46,14 +46,14 @@ public partial class HVInnerWindow
             SendRandomAvatarParameters(filtered);
         }
         MakeOscTable(AvatarParametersPath, filtered.Where(item => item.Key.StartsWith(AvatarParametersPath)
-                                                                  && !item.Key.StartsWith(ThirdParty_FaceTrackingPath)));
+                                                                  && !item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _manifestNullable != null);
         MakeOscTable(RootPath, filtered.Where(item => !PathRoots.Any(path => item.Key.StartsWith(path))));
     }
     
     private void FaceTrackingTab(Dictionary<string, HOscItem> messages)
     {
         var filtered = messages.Values.Where(item => !item.IsDisabled).ToArray();
-        MakeOscTable(ThirdParty_FaceTrackingPath, filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)));
+        MakeOscTable(ThirdParty_FaceTrackingPath, filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _manifestNullable != null);
     }
 
     private void InputTab(Dictionary<string, HOscItem> messages)
@@ -90,10 +90,14 @@ public partial class HVInnerWindow
         }
     }
 
-    private void MakeOscTable(string title, IEnumerable<HOscItem> enumerable)
+    private void MakeOscTable(string title, IEnumerable<HOscItem> enumerable, bool showIsLocal = false)
     {
-        ImGui.BeginTable(title, 4);
+        ImGui.BeginTable(title, showIsLocal ? 5 : 4);
         ImGui.TableSetupColumn(title, ImGuiTableColumnFlags.WidthStretch);
+        if (showIsLocal)
+        {
+            ImGui.TableSetupColumn("=", ImGuiTableColumnFlags.WidthFixed, 40);
+        }
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 20);
         ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 45);
         ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
@@ -104,8 +108,9 @@ public partial class HVInnerWindow
             .ToArray();
         foreach (HOscItem oscItem in items)
         {
+            var id = 0;
             ImGui.TableNextRow();
-            ImGui.TableSetColumnIndex(0);
+            ImGui.TableSetColumnIndex(id++);
             var key = oscItem.Key;
             var shortstring = key.Substring(title.Length);
             var onlyChangedOnce = oscItem.IsReadable && oscItem.DifferentValueCount <= 1;
@@ -135,7 +140,15 @@ public partial class HVInnerWindow
                 }
                 ImGui.EndPopup();
             }
-            ImGui.TableSetColumnIndex(1);
+
+            if (showIsLocal)
+            {
+                _isLocal.TryGetValue(oscItem.Key.Substring(AvatarParametersPath.Length), out var isLocal);
+                ImGui.TableSetColumnIndex(id++);
+                ImGui.Text(isLocal ? "local" : "");
+            }
+            
+            ImGui.TableSetColumnIndex(id++);
             
             // We don't know whether parameters not received through Query are writable.
             var r = oscItem.IsReadable ? "r" : " ";
@@ -143,7 +156,7 @@ public partial class HVInnerWindow
             
             
             ImGui.Text($"{r}{w}");
-            ImGui.TableSetColumnIndex(2);
+            ImGui.TableSetColumnIndex(id++);
             if (oscItem.OscType.Length == 1)
             {
                 ImGui.Text($"{MakeOscTypeReadable(oscItem)}");
@@ -154,7 +167,7 @@ public partial class HVInnerWindow
                 ImGui.Text($"{oscItem.OscType}");
                 ImGui.PopStyleColor();
             }
-            ImGui.TableSetColumnIndex(3);
+            ImGui.TableSetColumnIndex(id++);
             BuildControls(oscItem, -1, oscItem.Key);
         }
 

@@ -39,6 +39,7 @@ public partial class HVInnerWindow : IDisposable
 
     private EMManifest _manifestNullable;
     private readonly ConcurrentQueue<Action> _queuedForUi = new ConcurrentQueue<Action>();
+    private Dictionary<string, bool> _isLocal = new Dictionary<string, bool>();
 
     // UI state
     private readonly Vector3 _clearColor = new(0.45f, 0.55f, 0.6f);
@@ -63,7 +64,16 @@ public partial class HVInnerWindow : IDisposable
         _manifestNullable = newManifest;
         FreeImagesFromMemory();
         RebuildManifestAsShortcuts(newManifest);
+        BuildIsLocalTable(newManifest);
     });
+
+    private void BuildIsLocalTable(EMManifest manifest)
+    {
+        foreach (var param in manifest.expressionParameters)
+        {
+            _isLocal[param.parameter] = !param.synced;
+        }
+    }
 
     private void SubmitUI()
     {
