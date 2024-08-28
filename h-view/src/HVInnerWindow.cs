@@ -20,11 +20,14 @@ public partial class HVInnerWindow : IDisposable
     private const ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoResize;
     private const ImGuiWindowFlags WindowFlagsNoCollapse = WindowFlags | ImGuiWindowFlags.NoCollapse;
     private const string AvatarTabLabel = "Avatar";
-    private const string InputTabLabel = "Input";
-    private const string TrackingTabLabel = "Tracking";
-    private const string MenuTabLabel = "Menu";
     private const string ContactsTabLabel = "Contacts";
+    private const string FaceTrackingTabLabel = "Face Tracking";
+    private const string InputTabLabel = "Input";
+    private const string MenuTabLabel = "Menu";
     private const string PhysBonesLabel = "PhysBones";
+    private const string ShortcutsTabLabel = "Shortcuts";
+    private const string TrackingTabLabel = "Tracking";
+    private const string UtilityTabLabel = "Utility";
 
     private readonly HVRoutine _routine;
 
@@ -75,64 +78,15 @@ public partial class HVInnerWindow : IDisposable
         ImGui.Begin($"{HVApp.AppTitleTab} {VERSION.version}", WindowFlagsNoCollapse);
         ImGui.BeginTabBar("##tabs");
         var oscMessages = _routine.UiOscMessages();
-        if (ImGui.BeginTabItem(AvatarTabLabel))
-        {
-            ImGui.BeginChild("scroll");
-            AvatarTab(oscMessages);
-            ImGui.EndChild();
-            ImGui.EndTabItem();
-        }
-        if (ImGui.BeginTabItem("Face Tracking"))
-        {
-            ImGui.BeginChild("scroll");
-            FaceTrackingTab(oscMessages);
-            ImGui.EndChild();
-            ImGui.EndTabItem();
-        }
-        if (ImGui.BeginTabItem(InputTabLabel))
-        {
-            ImGui.BeginChild("scroll");
-            InputTab(oscMessages);
-            ImGui.EndChild();
-            ImGui.EndTabItem();
-        }
-        if (ImGui.BeginTabItem(TrackingTabLabel))
-        {
-            ImGui.BeginChild("scroll");
-            TrackingTab(oscMessages);
-            ImGui.EndChild();
-            ImGui.EndTabItem();
-        }
-        if (ImGui.BeginTabItem(MenuTabLabel))
-        {
-            ImGui.BeginChild("scroll");
-            ExpressionsTab(oscMessages);
-            HandleScrollOnDrag(ImGui.GetIO().MouseDelta, ImGuiMouseButton.Left);
-            ImGui.EndChild();
-            ImGui.EndTabItem();
-        }
-        if (ImGui.BeginTabItem("Shortcuts"))
-        {
-            ImGui.BeginChild("scroll");
-            ShortcutsTab(oscMessages);
-            // ScrollWhenDraggingOnVoid(ImGui.GetIO().MouseDelta, ImGuiMouseButton.Left);
-            ImGui.EndChild();
-            ImGui.EndTabItem();
-        }
-        if (ImGui.BeginTabItem(ContactsTabLabel))
-        {
-            ImGui.BeginChild("scroll");
-            ContactsTab(oscMessages);
-            ImGui.EndChild();
-            ImGui.EndTabItem();
-        }
-        if (ImGui.BeginTabItem(PhysBonesLabel))
-        {
-            ImGui.BeginChild("scroll");
-            PhysBonesTab(oscMessages);
-            ImGui.EndChild();
-            ImGui.EndTabItem();
-        }
+        MakeTab(AvatarTabLabel, false, () => AvatarTab(oscMessages));
+        MakeTab(FaceTrackingTabLabel, false, () => FaceTrackingTab(oscMessages));
+        MakeTab(InputTabLabel, false, () => InputTab(oscMessages));
+        MakeTab(TrackingTabLabel, false, () => TrackingTab(oscMessages));
+        MakeTab(MenuTabLabel, true, () => ExpressionsTab(oscMessages));
+        MakeTab(ShortcutsTabLabel, false, () => ShortcutsTab(oscMessages));
+        MakeTab(ContactsTabLabel, false, () => ContactsTab(oscMessages));
+        MakeTab(PhysBonesLabel, false, () => PhysBonesTab(oscMessages));
+        MakeTab(UtilityTabLabel, false, () => UtilityTab(oscMessages));
         ImGui.End();
 
         // 3. Show the ImGui demo window. Most of the sample code is in ImGui.ShowDemoWindow(). Read its code to learn more about Dear ImGui!
@@ -143,6 +97,21 @@ public partial class HVInnerWindow : IDisposable
             ImGui.SetNextWindowPos(new Vector2(650, 20), ImGuiCond.FirstUseEver);
             var _showImGuiDemoWindow = false;
             ImGui.ShowDemoWindow(ref _showImGuiDemoWindow);
+        }
+    }
+
+    private void MakeTab(string tabLabel, bool dragScrolls, Action action)
+    {
+        if (ImGui.BeginTabItem(tabLabel))
+        {
+            ImGui.BeginChild("scroll");
+            action.Invoke();
+            if (dragScrolls)
+            {
+                HandleScrollOnDrag(ImGui.GetIO().MouseDelta, ImGuiMouseButton.Left);
+            }
+            ImGui.EndChild();
+            ImGui.EndTabItem();
         }
     }
 
