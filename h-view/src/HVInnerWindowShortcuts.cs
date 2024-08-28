@@ -8,25 +8,26 @@ TODO:
 ## Shortcut rework
 
 - Read the current avatar ID through OSC Query for when the application loads.
-- When the manifest changes (make an event listener).
-    - Free the allocated icons and clear the icon cache.
-        - Switch the icon cache back to indices only.
-    - Process the manifest to create a new model with the following information:
+- When the manifest changes:
+    - (DONE) (Make an event listener for the manifest changes) 
+    - (DONE) Free the allocated icons and clear the icon cache.
+        - (DONE) Switch the icon cache back to indices only.
+    - (PARTIAL) Process the manifest to create a new model with the following information:
         - Store whether the parameter associated with a control is local or synced.
-        - Store the Expression Parameter type of a control, so that we can get and submit the correct value type
+        - (DONE) Store the Expression Parameter type of a control, so that we can get and submit the correct value type
           through OSC without having to rely on the Message Box.
-        - Ignore controls of type Button or Toggle that have both an empty parameter AND a whitespace-only label.
-        - Partition the controls into 3 groups:
+        - (DONE) Ignore controls of type Button or Toggle that have both an empty parameter AND a whitespace-only label.
+        - (DONE) Partition the controls into 3 groups:
             - Toggles and Buttons.
             - Radials and Axis Puppets.
             - Sub Menus.
 - On menu display:
-    - Show all Toggles and Buttons on the same line, if any exists.
-    - Show every individual Radials and Axis Puppets on their own lines.
-    - Show all Sub Menus at the end.
-- On control display:
-    - Get the current state of the control through the OSC Message Box.
-    - Add a way to track press/releasing a non-boolean control (i.e. Toggle sets parameter to value 126).
+    - (DONE) Show all Toggles and Buttons on the same line, if any exists.
+    - (PARTIAL) Show every individual Radials and Axis Puppets on their own lines.
+    - (DONE) Show all Sub Menus at the end.
+- (DONE) On control display:
+    - (DONE) Get the current state of the control through the OSC Message Box.
+    - (DONE) Add a way to track press/releasing a non-boolean control (i.e. Toggle sets parameter to value 126).
 
     */
 public partial class HVInnerWindow
