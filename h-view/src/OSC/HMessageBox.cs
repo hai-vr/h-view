@@ -79,14 +79,14 @@ public class HMessageBox
 
         if (!_messages.TryGetValue(oscKey, out var oscItem))
         {
-            oscItem = new HOscItem
-            {
-                // Only write values if it's a new item.
-                // Values obtained from OSC have priority
-                Values = RewriteValues(parameter.Value),
-                WriteOnlyValueRef = RewriteWriteOnlyValueRef(parameter.Value)
-            };
+            oscItem = new HOscItem();
         }
+
+        // We used to ignore values obtained from OSC Query because they were incorrect at initialization.
+        // This should no longer be an issue since mid-2024 or something around that.
+        // Accept the values as being the current state of the avatar.
+        oscItem.Values = RewriteValues(parameter.Value);
+        oscItem.WriteOnlyValueRef = RewriteWriteOnlyValueRef(parameter.Value);
 
         oscItem.Key = oscKey;
         oscItem.OscType = parameter.OscType ?? "";
