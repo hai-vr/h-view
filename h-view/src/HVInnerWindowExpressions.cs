@@ -456,8 +456,9 @@ public partial class HVInnerWindow
                 }
                 else
                 {
-                    ImGui.BeginTable("ignored", orderedMenuItems.Length);
+                    ImGui.BeginTable("ignored", 2);
                     ImGui.TableSetupColumn("ignored", ImGuiTableColumnFlags.WidthFixed, ButtonTableWidth);
+                    ImGui.TableSetupColumn("ignored", ImGuiTableColumnFlags.WidthStretch, ButtonTableWidth);
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
                     
@@ -465,16 +466,20 @@ public partial class HVInnerWindow
                     var ignored = DrawButtonFor(id, icons, item);
                     ImGui.TextWrapped($"{item.label}");
                     ImGui.EndGroup();
+
+                    ImGui.TableSetColumnIndex(1);
+                    if (item.type == HVShortcutType.RadialPuppet)
+                    {
+                        // FIXME: The control won't show up if the OSC Query module isn't working.
+                        // It should always be shown, regardless of the OSC Query availability, because we have all the information needed to display it.
+                        BuildControls(oscItem, 0f, $"kk{id}");
+                    }
+                    else
+                    {
+                        ImGui.Text("");
+                    }
                     
                     ImGui.EndTable();
-                }
-
-                if (item.type == HVShortcutType.RadialPuppet)
-                {
-                    ImGui.SameLine();
-                    // FIXME: The control won't show up if the OSC Query module isn't working.
-                    // It should always be shown, regardless of the OSC Query availability, because we have all the information needed to display it.
-                    BuildControls(oscItem, 0f, $"kk{id}");
                 }
 
                 if (!isLastItemOfThatList)
