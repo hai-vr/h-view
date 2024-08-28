@@ -26,6 +26,7 @@ public partial class HVInnerWindow
     private const int ImageWidth = 64;
     private const int ImageHeight = 64;
     private readonly Vector2 _imageSize = new Vector2(ImageWidth, ImageHeight);
+    private readonly Vector2 _imagelessButtonSize = new Vector2(ImageWidth + 6, ImageHeight + 6);
     private const int ButtonTableWidth = ImageWidth + 6;
 
     /// Free allocated images. This needs to be called from the UI thread.
@@ -534,7 +535,7 @@ public partial class HVInnerWindow
         }
         else
         {
-            button = ImGui.Button($"?###{id}", _imageSize);
+            button = ImGui.Button($"?###{id}", _imagelessButtonSize);
         }
 
         return button;
