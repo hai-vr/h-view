@@ -15,7 +15,7 @@ public class HVWindow
 
     public void Run()
     {
-        new HVInnerWindow(_routine).Run();
+        new HVInnerWindow(_routine).UiLoop(); // This call blocks until the user closes the window.
         _whenWindowClosed();
     }
 }

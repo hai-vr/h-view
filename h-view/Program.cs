@@ -31,4 +31,4 @@ var uiThread = new Thread(() => new HVWindow(routine, WhenWindowClosed).Run())
 };
 uiThread.Start();
 
-routine.Execute();
+routine.MainLoop(); // This call does not return until routine.Finish() is called.

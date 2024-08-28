@@ -146,7 +146,7 @@ public partial class HVInnerWindow : IDisposable
         }
     }
 
-    public void Run()
+    public void UiLoop()
     {
         // Create window, GraphicsDevice, and all resources necessary for the demo.
         VeldridStartup.CreateWindowAndGraphicsDevice(

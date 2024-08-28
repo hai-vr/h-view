@@ -37,15 +37,15 @@ public class HVRoutine
         _timer.Start();
     }
 
-    public void Execute()
+    public void MainLoop()
     {
         while (!_exitRequested)
         {
-            ExecuteInternal();
+            Loop();
         }
     }
-    
-    public void ExecuteInternal()
+
+    private void Loop()
     {
         Thread.Sleep(20);
 

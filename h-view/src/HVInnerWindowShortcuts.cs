@@ -143,6 +143,9 @@ public partial class HVInnerWindow
 
     public enum HVReferencedParameterType
     {
+        // Type is unresolved if the parameter name is empty, or somehow doesn't exist in the Expression Parameters.
+        // In theory "Somehow doesn't exist" only happens when the avatar being built is invalid, as there are post-process checks
+        // to ensure that all Expression Menu parameters are covered by Expression Parameters.
         Unresolved,
         Float,
         Int,
