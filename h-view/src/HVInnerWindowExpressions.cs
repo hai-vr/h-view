@@ -340,6 +340,16 @@ public partial class HVInnerWindow
 
     private void ShortcutsTab(Dictionary<string, HOscItem> oscMessages)
     {
+        var safeFilePaths = _routine.UiManifestSafeFilePaths();
+        var names = new[] { " " }.Concat(safeFilePaths.Select(Path.GetFileName)).ToArray();
+        var current = 0;
+        var changed = ImGui.Combo("File", ref current, names, names.Length);
+        if (changed && current != 0)
+        {
+            var actualIndex = current - 1;
+            _routine.ManuallyLoadManifestFromFile(safeFilePaths[actualIndex]);
+        }
+        
         var id = 0;
         if (_shortcutsNullable != null)
         {

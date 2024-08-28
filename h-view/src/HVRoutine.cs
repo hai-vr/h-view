@@ -10,6 +10,8 @@ namespace Hai.HView.Core;
 
 public class HVRoutine
 {
+    private const string EEMPrefix = "ExternalExpressionsMenu_";
+    private const string JsonSuffix = ".json";
     private Stopwatch _timer;
     private bool _exitRequested;
     private readonly HQuery _query;
@@ -22,6 +24,7 @@ public class HVRoutine
     public delegate void OnManifestChangeEvent(EMManifest newManifest);
 
     private EMManifest _expressionsManifest;
+    private string[] _manifestFiles = new string[0];
 
     public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox)
     {
@@ -35,6 +38,9 @@ public class HVRoutine
         _osc.Start();
         _timer = new Stopwatch();
         _timer.Start();
+
+        var notARegex = $"{EEMPrefix}*.json";
+        _manifestFiles = GetFilesInLocalLowVRChatDirectories(notARegex);
     }
 
     public void MainLoop()
@@ -69,23 +75,33 @@ public class HVRoutine
         }
     }
 
+    public void ManuallyLoadManifestFromFile(string safeFileName)
+    {
+        LoadManifestFromFile(safeFileName);
+    }
+
     private void TryDeserializeExternalExpressionsMenu(SimpleOSC.OSCMessage result)
     {
-        var externalNullable = GetExternalExpressionsMenuFilenameOrNull(result);
-        if (externalNullable != null)
+        var file = GetExternalExpressionsMenuFilenameOrNull(result);
+        if (file != null)
         {
             Console.WriteLine("Found external menu");
-            _expressionsManifest = JsonConvert.DeserializeObject<EMManifest>(File.ReadAllText(externalNullable, Encoding.UTF8));
-            
-            // Fix quirk in JSON files generated in 1.0.0-beta.4 where it could contain empty parameters.
-            // This can be a problem when we're trying to get information about a parameter,
-            // but that parameter name happens to be the empty string.
-            _expressionsManifest.expressionParameters = _expressionsManifest.expressionParameters
-                .Where(expression => expression.parameter != "")
-                .ToArray();
-            
-            OnManifestChanged?.Invoke(_expressionsManifest);
+            LoadManifestFromFile(file);
         }
+    }
+
+    private void LoadManifestFromFile(string safeFileName)
+    {
+        _expressionsManifest = JsonConvert.DeserializeObject<EMManifest>(File.ReadAllText(safeFileName, Encoding.UTF8));
+            
+        // Fix quirk in JSON files generated in 1.0.0-beta.4 where it could contain empty parameters.
+        // This can be a problem when we're trying to get information about a parameter,
+        // but that parameter name happens to be the empty string.
+        _expressionsManifest.expressionParameters = _expressionsManifest.expressionParameters
+            .Where(expression => expression.parameter != "")
+            .ToArray();
+            
+        OnManifestChanged?.Invoke(_expressionsManifest);
     }
 
     private string GetExternalExpressionsMenuFilenameOrNull(SimpleOSC.OSCMessage result)
@@ -96,13 +112,20 @@ public class HVRoutine
         if (ContainsPathTraversalElements(unsafeArgument)) return null;
 
         var safeAvatarId = unsafeArgument;
-        var usersFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "LocalLow", "VRChat", "vrchat");
-        var found = Directory.GetFiles(usersFolder, $"ExternalExpressionsMenu_{safeAvatarId}.json", SearchOption.AllDirectories);
+        var searchPattern = $"{EEMPrefix}{safeAvatarId}{JsonSuffix}";
+        var found = GetFilesInLocalLowVRChatDirectories(searchPattern);
 
         if (found.Length == 0) return null;
         if (found.Length == 1) return found[0];
         
         return found.MaxBy(File.GetLastWriteTime);
+    }
+
+    private static string[] GetFilesInLocalLowVRChatDirectories(string searchPattern)
+    {
+        var usersFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "LocalLow", "VRChat", "vrchat");
+        var found = Directory.GetFiles(usersFolder, searchPattern, SearchOption.AllDirectories);
+        return found;
     }
 
     private static bool ContainsPathTraversalElements(string susStr)
@@ -118,6 +141,11 @@ public class HVRoutine
     public Dictionary<string, HOscItem> UiOscMessages()
     {
         return _messageBox.CopyForUi();
+    }
+
+    public string[] UiManifestSafeFilePaths()
+    {
+        return _manifestFiles.ToArray();
     }
 
     // Given a key and the state of a hold-to-toggle button,
