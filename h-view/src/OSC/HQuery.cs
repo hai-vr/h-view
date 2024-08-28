@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using Hai.HView.Core;
 using VRC.OSCQuery;
 
 namespace Hai.HView.OSC;
@@ -16,11 +15,13 @@ public class HQuery
     private readonly int _queryPort;
     private OSCQueryService _ourService;
     private OSCQueryServiceProfile _vrcQueryNullable;
+    private readonly string _serviceName;
 
-    public HQuery(int oscPort, int queryPort)
+    public HQuery(int oscPort, int queryPort, string serviceName)
     {
         _port = oscPort;
         _queryPort = queryPort;
+        _serviceName = serviceName;
     }
 
     public static int RandomQueryPort()
@@ -31,7 +32,7 @@ public class HQuery
     public void Start()
     {
         var qPort = _queryPort;
-        _ourService = new OSCQueryServiceBuilder().WithServiceName($"{HVApp.AppName}-Overlay")
+        _ourService = new OSCQueryServiceBuilder().WithServiceName(_serviceName)
             .WithTcpPort(qPort)
             .WithUdpPort(_port)
             .WithDiscovery(new MeaModDiscovery())

@@ -7,6 +7,8 @@
         <RootNamespace>Hai.HView</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Configurations>Debug;Release;Debug OVERLAY;Release OVERLAY</Configurations>
+        <Platforms>AnyCPU</Platforms>
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -15,6 +17,14 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <DefineConstants>TRACE</DefineConstants>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug OVERLAY' ">
+        <DefineConstants>TRACE;INCLUDES_OVERLAY;HV_DEBUG</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release OVERLAY' ">
+        <DefineConstants>TRACE;INCLUDES_OVERLAY</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,6 +46,16 @@
         <EmbeddedResource Include="src/ImGui/Shaders/Metal/imgui-vertex.metallib" LogicalName="imgui-vertex.metallib" />
         <EmbeddedResource Include="src/ImGui/Shaders/Metal/imgui-frag.metallib" LogicalName="imgui-frag.metallib" />
     </ItemGroup>
+
+    <Choose>
+        <When Condition="$(DefineConstants.Contains('INCLUDES_OVERLAY'))">
+            <ItemGroup>
+                <None Update="openvr_api.dll">
+                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                </None>
+            </ItemGroup>
+        </When>
+    </Choose>
 
     <ItemGroup>
       <None Update="THIRDPARTY.md">

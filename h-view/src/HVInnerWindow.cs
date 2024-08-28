@@ -46,7 +46,12 @@ public partial class HVInnerWindow : IDisposable
     private byte[] _chatboxBuffer = new byte[10_000];
     private bool _chatboxB;
     private bool _chatboxN;
-        
+    
+    // Overlay only
+    private Texture _overlayTexture;
+    private Texture _depthTexture;
+    private Framebuffer _overlayFramebuffer;
+
     public HVInnerWindow(HVRoutine routine)
     {
         _routine = routine;
@@ -173,4 +178,110 @@ public partial class HVInnerWindow : IDisposable
         _cl.Dispose();
         _gd.Dispose();
     }
+
+    #region Support for SteamVR Overlay
+    
+    public void SetupWindowlessUi()
+    {
+        VeldridStartup.CreateWindowAndGraphicsDevice(
+            new WindowCreateInfo(50, 50, TotalWindowWidth, TotalWindowHeight, WindowState.Hidden, $"{HVApp.AppTitle}"),
+            new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
+            // I am forcing this to Direct3D11, because my current implementation requires
+            // that GetOverlayTexturePointer / GetTexturePointer would get the IntPtr from D3D11.
+            // It may be possible later to use OpenGL or something else as long as we make sure that
+            // the GetOverlayTexturePointer can follow along.
+            GraphicsBackend.Direct3D11,
+            out _window,
+            out _gd);
+        _window.Resized += () =>
+        {
+            // FIXME: It might not be necessary to resize the swapchain, since we don't use that.
+            // Actually, we don't ever resize the window either.
+            _gd.MainSwapchain.Resize((uint)_window.Width, (uint)_window.Height);
+            
+            TeardownFramebuffer();
+            SetupFramebuffer();
+            _controller.WindowResized(_window.Width, _window.Height);
+        };
+        _cl = _gd.ResourceFactory.CreateCommandList();
+
+        SetupFramebuffer();
+
+        // I've wasted several hours of dev because I forgot to pass our own framebuffer OutputDescription to this thing.
+        _controller = new CustomImGuiController(_gd, _overlayFramebuffer.OutputDescription, _window.Width, _window.Height);
+    }
+
+    private void SetupFramebuffer()
+    {
+        // I am creating a new framebuffer, because I think the _gd.MainSwapchain uses format B8_G8_R8_A8_UNorm,
+        // instead of R8_G8_B8_A8_UNorm, which causes OpenVR.SetOverlayTexture to return InvalidTexture?
+        // Not sure if there's a better way to do this that wouldn't require creating our own custom framebuffer.
+        // There's a lot of trial and error involved below, I'm new to this framebuffer business.
+        _overlayTexture = _gd.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
+            width: (uint)_window.Width,
+            height: (uint)_window.Height,
+            mipLevels: 1, 
+            arrayLayers: 1, 
+            // format: PixelFormat.B8_G8_R8_A8_UNorm, 
+            format: PixelFormat.R8_G8_B8_A8_UNorm,
+            usage: TextureUsage.RenderTarget | TextureUsage.Sampled
+        ));
+        _depthTexture = _gd.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
+            width: (uint)_window.Width,
+            height: (uint)_window.Height,
+            mipLevels: 1, 
+            arrayLayers: 1, 
+            format: PixelFormat.R16_UNorm, 
+            usage: TextureUsage.DepthStencil
+        ));
+        _overlayFramebuffer = _gd.ResourceFactory.CreateFramebuffer(new FramebufferDescription(_depthTexture, _overlayTexture));
+    }
+
+    private void TeardownFramebuffer()
+    {
+        // Not sure if that's the correct way to dispose of those resources, I'm winging it.
+        _overlayTexture.Dispose();
+        _depthTexture.Dispose();
+        _overlayFramebuffer.Dispose();
+    }
+
+    public IntPtr GetOverlayTexturePointer()
+    {
+        return _gd.GetD3D11Info().GetTexturePointer(_overlayTexture);
+    }
+
+    public InputSnapshot DoPumpEvents()
+    {
+        return _window.PumpEvents();
+    }
+
+    public void UpdateAndRender(Stopwatch stopwatch, InputSnapshot snapshot)
+    {
+        var deltaTime = stopwatch.ElapsedTicks / (float)Stopwatch.Frequency;
+        stopwatch.Restart();
+        
+        _controller.Update(deltaTime, snapshot);
+        
+        SubmitUI();
+        
+        _cl.Begin();
+        _cl.SetFramebuffer(_overlayFramebuffer);
+        _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
+        _controller.Render(_gd, _cl);
+        _cl.End();
+        _gd.SubmitCommands(_cl);
+    }
+
+    public void TeardownWindowlessUi()
+    {
+        TeardownFramebuffer();
+        
+        // Clean up Veldrid resources
+        _gd.WaitForIdle();
+        _controller.Dispose();
+        _cl.Dispose();
+        _gd.Dispose();
+    }
+    
+    #endregion
 }

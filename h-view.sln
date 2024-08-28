@@ -6,11 +6,17 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Debug OVERLAY|Any CPU = Debug OVERLAY|Any CPU
+		Release OVERLAY|Any CPU = Release OVERLAY|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Debug OVERLAY|Any CPU.ActiveCfg = Debug OVERLAY|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Debug OVERLAY|Any CPU.Build.0 = Debug OVERLAY|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Release OVERLAY|Any CPU.ActiveCfg = Release OVERLAY|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Release OVERLAY|Any CPU.Build.0 = Release OVERLAY|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal
