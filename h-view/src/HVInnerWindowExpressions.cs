@@ -21,9 +21,12 @@ public partial class HVInnerWindow
     
     private readonly Dictionary<int, IntPtr> _indexToPointers = new Dictionary<int, IntPtr>();
     private readonly List<Texture> _loadedTextures = new List<Texture>();
-    
-    private readonly Vector2 _imageSize = new Vector2(64.02f, 64.02f);
     private readonly Dictionary<int, bool> _buttonPressState = new Dictionary<int, bool>();
+    
+    private const int ImageWidth = 64;
+    private const int ImageHeight = 64;
+    private readonly Vector2 _imageSize = new Vector2(ImageWidth, ImageHeight);
+    private const int ButtonTableWidth = ImageWidth + 6;
 
     /// Free allocated images. This needs to be called from the UI thread.
     private void FreeImagesFromMemory()
@@ -391,10 +394,26 @@ public partial class HVInnerWindow
         IterateThrough(oscMessages, ref id, icons, host.subs, false);
     }
 
-    private void IterateThrough(Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVShortcut[] orderedMenuItems, bool allOnSameLine)
+    private void IterateThrough(Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVShortcut[] orderedMenuItems, bool isPressables)
     {
+        if (orderedMenuItems.Length == 0) return;
+
+        if (isPressables)
+        {
+            ImGui.BeginTable("ignored", orderedMenuItems.Length);
+            for (var i = 0; i < orderedMenuItems.Length; i++)
+            {
+                ImGui.TableSetupColumn($"ignored {i}", ImGuiTableColumnFlags.WidthFixed, ButtonTableWidth);
+            }
+            ImGui.TableNextRow();
+        }
+        
         for (var inx = 0; inx < orderedMenuItems.Length; inx++)
         {
+            if (isPressables)
+            {
+                ImGui.TableSetColumnIndex(inx);
+            }
             var item = orderedMenuItems[inx];
             var isLastItemOfThatList = inx == orderedMenuItems.Length - 1;
             
@@ -407,58 +426,60 @@ public partial class HVInnerWindow
 
             if (!isSubMenu)
             {
-                ImGui.BeginGroup();
-                
-                var isMatch = hasOscItem && IsControlMatchingOscValue(item, oscItem);
-                if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
-                
-                bool button;
-                if (item.icon != -1)
+                if (item.type is not HVShortcutType.RadialPuppet and not HVShortcutType.TwoAxisPuppet and not HVShortcutType.FourAxisPuppet)
                 {
-                    button = ImGui.ImageButton($"###{id}", GetOrLoadImage(icons, item.icon), _imageSize);
+                    ImGui.BeginGroup();
+
+                    var isMatch = hasOscItem && IsControlMatchingOscValue(item, oscItem);
+                    if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
+
+                    var button = DrawButtonFor(id, icons, item);
+                    if (button && item.type == HVShortcutType.Toggle)
+                    {
+                        _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, !isMatch ? item.value : 0f));
+                    }
+                    if (item.type == HVShortcutType.Button)
+                    {
+                        _buttonPressState.TryGetValue(id, out var wasPressed); // The return value does not matter in this scenario
+                        var isPressed = ImGui.IsItemActive();
+                        if (wasPressed != isPressed)
+                        {
+                            _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, isPressed ? item.value : 0f));
+                            _buttonPressState[id] = isPressed;
+                        }
+                    }
+
+                    if (isMatch) ImGui.PopStyleColor();
+                
+                    ImGui.TextWrapped($"{item.label}");
+                    ImGui.EndGroup();
                 }
                 else
                 {
-                    button = ImGui.Button($"?###{id}", _imageSize);
+                    ImGui.BeginTable("ignored", orderedMenuItems.Length);
+                    ImGui.TableSetupColumn("ignored", ImGuiTableColumnFlags.WidthFixed, ButtonTableWidth);
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    
+                    ImGui.BeginGroup();
+                    var ignored = DrawButtonFor(id, icons, item);
+                    ImGui.TextWrapped($"{item.label}");
+                    ImGui.EndGroup();
+                    
+                    ImGui.EndTable();
                 }
-                if (button && item.type == HVShortcutType.Toggle)
-                {
-                    _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, !isMatch ? item.value : 0f));
-                }
-                if (item.type == HVShortcutType.Button)
-                {
-                    _buttonPressState.TryGetValue(id, out var wasPressed); // The return value does not matter in this scenario
-                    var isPressed = ImGui.IsItemActive();
-                    if (wasPressed != isPressed)
-                    {
-                        _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, isPressed ? item.value : 0f));
-                        _buttonPressState[id] = isPressed;
-                    }
-                }
-
-                if (isMatch) ImGui.PopStyleColor();
-                
-                // FIXME: Can't find a way to limit the text width
-                // ImGui.PushItemWidth(64);
-                ImGui.TextWrapped($"{item.label}");
-                // ImGui.PopItemWidth();
-                ImGui.EndGroup();
 
                 if (item.type == HVShortcutType.RadialPuppet)
                 {
                     ImGui.SameLine();
-                    // ImGui.PushStyleVar(ImGuiStyleVar.ScrollbarSize, 100);
+                    // FIXME: The control won't show up if the OSC Query module isn't working.
+                    // It should always be shown, regardless of the OSC Query availability, because we have all the information needed to display it.
                     BuildControls(oscItem, 0f, $"kk{id}");
-                    // ImGui.PopStyleVar();
                 }
 
                 if (!isLastItemOfThatList)
                 {
-                    if (allOnSameLine)
-                    {
-                        ImGui.SameLine();
-                    }
-                    else
+                    if (!isPressables)
                     {
                         ImGui.Dummy(_imageSize);
                         ImGui.SameLine();
@@ -492,6 +513,26 @@ public partial class HVInnerWindow
                 ImGui.Unindent();
             }
         }
+
+        if (isPressables)
+        {
+            ImGui.EndTable();
+        }
+    }
+
+    private bool DrawButtonFor(int id, string[] icons, HVShortcut item)
+    {
+        bool button;
+        if (item.icon != -1)
+        {
+            button = ImGui.ImageButton($"###{id}", GetOrLoadImage(icons, item.icon), _imageSize);
+        }
+        else
+        {
+            button = ImGui.Button($"?###{id}", _imageSize);
+        }
+
+        return button;
     }
 
     private object TransformFloatToType(HVReferencedParameterType referencedType, float itemValue)
