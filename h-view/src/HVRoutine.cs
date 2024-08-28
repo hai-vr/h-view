@@ -76,6 +76,14 @@ public class HVRoutine
         {
             Console.WriteLine("Found external menu");
             _expressionsManifest = JsonConvert.DeserializeObject<EMManifest>(File.ReadAllText(externalNullable, Encoding.UTF8));
+            
+            // Fix quirk in JSON files generated in 1.0.0-beta.4 where it could contain empty parameters.
+            // This can be a problem when we're trying to get information about a parameter,
+            // but that parameter name happens to be the empty string.
+            _expressionsManifest.expressionParameters = _expressionsManifest.expressionParameters
+                .Where(expression => expression.parameter != "")
+                .ToArray();
+            
             OnManifestChanged?.Invoke(_expressionsManifest);
         }
     }
