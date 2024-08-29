@@ -17,8 +17,8 @@ public partial class HVInnerWindow : IDisposable
     private const int BorderHeight = BorderWidth;
     private const int TotalWindowWidth = 600;
     private const int TotalWindowHeight = 510;
-    private const int TotalWindowlessViewportWidth = TotalWindowWidth;
-    private const int TotalWindowlessViewportHeight = TotalWindowWidth;
+    private const int TotalWindowlessViewportWidth = 800;
+    private const int TotalWindowlessViewportHeight = 800;
     private const ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoResize;
     private const ImGuiWindowFlags WindowFlagsNoCollapse = WindowFlags | ImGuiWindowFlags.NoCollapse;
     private const string AvatarTabLabel = "Avatar";
@@ -54,6 +54,7 @@ public partial class HVInnerWindow : IDisposable
     private Texture _overlayTexture;
     private Texture _depthTexture;
     private Framebuffer _overlayFramebuffer;
+    private bool _anyHighlightLastFrame;
 
     public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle)
     {
@@ -97,20 +98,24 @@ public partial class HVInnerWindow : IDisposable
         var flags = WindowFlagsNoCollapse;
         if (_isWindowlessStyle)
         {
-            flags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground;
+            flags |= ImGuiWindowFlags.NoTitleBar;
         }
         ImGui.Begin($"{HVApp.AppTitleTab} {VERSION.version}", flags);
         ImGui.BeginTabBar("##tabs");
         var oscMessages = _routine.UiOscMessages();
-        MakeTab(AvatarTabLabel, false, () => AvatarTab(oscMessages));
-        MakeTab(FaceTrackingTabLabel, false, () => FaceTrackingTab(oscMessages));
-        MakeTab(InputTabLabel, false, () => InputTab(oscMessages));
-        MakeTab(TrackingTabLabel, false, () => TrackingTab(oscMessages));
+        MakeTab(AvatarTabLabel, _isWindowlessStyle, () => AvatarTab(oscMessages));
+        MakeTab(FaceTrackingTabLabel, _isWindowlessStyle, () => FaceTrackingTab(oscMessages));
+        MakeTab(InputTabLabel, _isWindowlessStyle, () => InputTab(oscMessages));
+        MakeTab(TrackingTabLabel, _isWindowlessStyle, () => TrackingTab(oscMessages));
         MakeTab(MenuTabLabel, true, () => ExpressionsTab(oscMessages));
-        MakeTab(ShortcutsTabLabel, false, () => ShortcutsTab(oscMessages));
-        MakeTab(ContactsTabLabel, false, () => ContactsTab(oscMessages));
-        MakeTab(PhysBonesLabel, false, () => PhysBonesTab(oscMessages));
-        MakeTab(UtilityTabLabel, false, () => UtilityTab(oscMessages));
+        MakeTab(ShortcutsTabLabel, _isWindowlessStyle, () => ShortcutsTab(oscMessages));
+        MakeTab(ContactsTabLabel, _isWindowlessStyle, () => ContactsTab(oscMessages));
+        MakeTab(PhysBonesLabel, _isWindowlessStyle, () => PhysBonesTab(oscMessages));
+        MakeTab(UtilityTabLabel, _isWindowlessStyle, () => UtilityTab(oscMessages));
+        
+        // FIXME: This might not be working as intended
+        _anyHighlightLastFrame = ImGui.IsAnyItemActive() || ImGui.IsAnyItemFocused();
+        
         ImGui.End();
 
         // 3. Show the ImGui demo window. Most of the sample code is in ImGui.ShowDemoWindow(). Read its code to learn more about Dear ImGui!
@@ -263,7 +268,13 @@ public partial class HVInnerWindow : IDisposable
 
     public IntPtr GetOverlayTexturePointer()
     {
+        // For more info, check https://github.com/ValveSoftware/openvr/blob/master/headers/openvr.h#L126C30-L126C40 (ETextureType definition)
+        // - TextureType_DirectX = 0, // Handle is an ID3D11Texture
         return _gd.GetD3D11Info().GetTexturePointer(_overlayTexture);
+        
+        // TODO: Support other graphics backends
+        // - TextureType_OpenGL = 1,  // Handle is an OpenGL texture name or an OpenGL render buffer name, depending on submit flags
+        // - TextureType_Vulkan = 2, // Handle is a pointer to a VRVulkanTextureData_t structure
     }
 
     public InputSnapshot DoPumpEvents()
@@ -300,4 +311,9 @@ public partial class HVInnerWindow : IDisposable
     }
     
     #endregion
+
+    public Vector2 WindowSize()
+    {
+        return new Vector2(_window.Width, _window.Height);
+    }
 }

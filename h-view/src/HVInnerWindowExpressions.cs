@@ -9,9 +9,21 @@ namespace Hai.HView.Gui;
 
 public partial class HVInnerWindow
 {
+    private bool _isScrollDragging;
     private void HandleScrollOnDrag(Vector2 delta, ImGuiMouseButton mouseButton)
     {
+        // FIXME: This might not be working as intended
+        if (!_isScrollDragging && _anyHighlightLastFrame) return;
+        
         var held = ImGui.IsMouseDown(mouseButton);
+        if (held)
+        {
+            _isScrollDragging = true;
+        }
+        else
+        {
+            _isScrollDragging = false;
+        }
 
         if (held && delta.Y != 0.0f)
         {
@@ -435,7 +447,7 @@ public partial class HVInnerWindow
                     if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
 
                     var button = DrawButtonFor(id, icons, item);
-                    if (button && item.type == HVShortcutType.Toggle)
+                    if (hasOscItem && button && item.type == HVShortcutType.Toggle)
                     {
                         _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, !isMatch ? item.value : 0f));
                     }
@@ -445,7 +457,10 @@ public partial class HVInnerWindow
                         var isPressed = ImGui.IsItemActive();
                         if (wasPressed != isPressed)
                         {
-                            _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, isPressed ? item.value : 0f));
+                            if (hasOscItem)
+                            {
+                                _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, isPressed ? item.value : 0f));
+                            }
                             _buttonPressState[id] = isPressed;
                         }
                     }

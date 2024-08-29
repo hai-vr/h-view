@@ -35,10 +35,6 @@ void WhenWindowClosed()
     routine.Finish();
     oscQuery.Finish();
     oscClient.Finish();
-    if (isSteamVROverlay)
-    {
-        OpenVR.Shutdown();
-    }
 }
 
 var uiThread = new Thread(() =>
