@@ -17,6 +17,8 @@ public partial class HVInnerWindow : IDisposable
     private const int BorderHeight = BorderWidth;
     private const int TotalWindowWidth = 600;
     private const int TotalWindowHeight = 510;
+    private const int TotalWindowlessViewportWidth = TotalWindowWidth;
+    private const int TotalWindowlessViewportHeight = TotalWindowWidth;
     private const ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoResize;
     private const ImGuiWindowFlags WindowFlagsNoCollapse = WindowFlags | ImGuiWindowFlags.NoCollapse;
     private const string AvatarTabLabel = "Avatar";
@@ -30,6 +32,7 @@ public partial class HVInnerWindow : IDisposable
     private const string UtilityTabLabel = "Utility";
 
     private readonly HVRoutine _routine;
+    private readonly bool _isWindowlessStyle;
 
     private Sdl2Window _window;
     private GraphicsDevice _gd;
@@ -52,9 +55,10 @@ public partial class HVInnerWindow : IDisposable
     private Texture _depthTexture;
     private Framebuffer _overlayFramebuffer;
 
-    public HVInnerWindow(HVRoutine routine)
+    public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle)
     {
         _routine = routine;
+        _isWindowlessStyle = isWindowlessStyle;
         routine.OnManifestChanged += OnManifestChanged;
     }
 
@@ -90,7 +94,12 @@ public partial class HVInnerWindow : IDisposable
         var windowHeight = _window.Height - BorderHeight * 2;
         ImGui.SetNextWindowPos(new Vector2(BorderWidth, BorderHeight), ImGuiCond.Always);
         ImGui.SetNextWindowSize(new Vector2(_window.Width - BorderWidth * 2, windowHeight), ImGuiCond.Always);
-        ImGui.Begin($"{HVApp.AppTitleTab} {VERSION.version}", WindowFlagsNoCollapse);
+        var flags = WindowFlagsNoCollapse;
+        if (_isWindowlessStyle)
+        {
+            flags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground;
+        }
+        ImGui.Begin($"{HVApp.AppTitleTab} {VERSION.version}", flags);
         ImGui.BeginTabBar("##tabs");
         var oscMessages = _routine.UiOscMessages();
         MakeTab(AvatarTabLabel, false, () => AvatarTab(oscMessages));
@@ -133,11 +142,17 @@ public partial class HVInnerWindow : IDisposable
     public void UiLoop()
     {
         // Create window, GraphicsDevice, and all resources necessary for the demo.
+        var width = _isWindowlessStyle ? TotalWindowlessViewportWidth : TotalWindowWidth;
+        var height = _isWindowlessStyle ? TotalWindowlessViewportHeight : TotalWindowHeight;
         VeldridStartup.CreateWindowAndGraphicsDevice(
-            new WindowCreateInfo(50, 50, TotalWindowWidth, TotalWindowHeight, WindowState.Normal, $"{HVApp.AppTitle}"),
+            new WindowCreateInfo(50, 50, width, height, WindowState.Normal, $"{HVApp.AppTitle}"),
             new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
             out _window,
             out _gd);
+        if (_isWindowlessStyle)
+        {
+            _window.Resizable = false;
+        }
         _window.Resized += () =>
         {
             _gd.MainSwapchain.Resize((uint)_window.Width, (uint)_window.Height);
@@ -184,7 +199,7 @@ public partial class HVInnerWindow : IDisposable
     public void SetupWindowlessUi()
     {
         VeldridStartup.CreateWindowAndGraphicsDevice(
-            new WindowCreateInfo(50, 50, TotalWindowWidth, TotalWindowHeight, WindowState.Hidden, $"{HVApp.AppTitle}"),
+            new WindowCreateInfo(50, 50, TotalWindowlessViewportWidth, TotalWindowlessViewportHeight, WindowState.Hidden, $"{HVApp.AppTitle}"),
             new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
             // I am forcing this to Direct3D11, because my current implementation requires
             // that GetOverlayTexturePointer / GetTexturePointer would get the IntPtr from D3D11.
@@ -193,6 +208,7 @@ public partial class HVInnerWindow : IDisposable
             GraphicsBackend.Direct3D11,
             out _window,
             out _gd);
+        _window.Resizable = false;
         _window.Resized += () =>
         {
             // FIXME: It might not be necessary to resize the swapchain, since we don't use that.

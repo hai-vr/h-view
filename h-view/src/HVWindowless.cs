@@ -16,7 +16,7 @@ public class HVWindowless
 
     public void Run()
     {
-        var innerWindow = new HVInnerWindow(_routine);
+        var innerWindow = new HVInnerWindow(_routine, true);
         innerWindow.SetupWindowlessUi();
         
         var overlay = new HVOverlay(innerWindow);

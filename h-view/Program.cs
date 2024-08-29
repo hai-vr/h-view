@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using Hai.HView;
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.OSC;
@@ -9,6 +8,10 @@ var isSteamVROverlay = false;
 #if INCLUDES_OVERLAY
 isSteamVROverlay = args.Contains("--overlay");
 #endif
+
+// Create a desktop window stylized as being the overlay version.
+// This does nothing when the --overlay arg is set.
+var simulateWindowlessStyle = args.Contains("--simulate-windowless");
 
 // Allow this app to run in both Overlay and Normal mode as separately managed instances.
 var serviceName = isSteamVROverlay ? $"{HVApp.AppName}-Overlay" : $"{HVApp.AppName}-Windowed";
@@ -42,7 +45,7 @@ var uiThread = new Thread(() =>
 {
     if (!isSteamVROverlay)
     {
-        new HVWindow(routine, WhenWindowClosed).Run();
+        new HVWindow(routine, WhenWindowClosed, simulateWindowlessStyle).Run();
     }
     else
     {
