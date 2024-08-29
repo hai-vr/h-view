@@ -113,8 +113,7 @@ public partial class HVInnerWindow : IDisposable
         MakeTab(PhysBonesLabel, _isWindowlessStyle, () => PhysBonesTab(oscMessages));
         MakeTab(UtilityTabLabel, _isWindowlessStyle, () => UtilityTab(oscMessages));
         
-        // FIXME: This might not be working as intended
-        _anyHighlightLastFrame = ImGui.IsAnyItemActive() || ImGui.IsAnyItemFocused();
+        _anyHighlightLastFrame = ImGui.IsAnyItemActive() || ImGui.IsAnyItemHovered();
         
         ImGui.End();
 

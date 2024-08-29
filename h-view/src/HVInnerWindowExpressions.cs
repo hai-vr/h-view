@@ -12,7 +12,6 @@ public partial class HVInnerWindow
     private bool _isScrollDragging;
     private void HandleScrollOnDrag(Vector2 delta, ImGuiMouseButton mouseButton)
     {
-        // FIXME: This might not be working as intended
         if (!_isScrollDragging && _anyHighlightLastFrame) return;
         
         var held = ImGui.IsMouseDown(mouseButton);
