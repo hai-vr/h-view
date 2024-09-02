@@ -2,7 +2,6 @@
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.OSC;
-using Valve.VR;
 
 var isSteamVROverlay = false;
 #if INCLUDES_OVERLAY

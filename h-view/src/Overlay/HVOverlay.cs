@@ -9,26 +9,29 @@ namespace Hai.HView.Overlay;
 
 public class HVOverlay
 {
-    private const string OverlayKey = "hview-overlay";
     private readonly uint _sizeOfVrEvent = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(VREvent_t));
-    private HmdMatrix34_t _identity = new HmdMatrix34_t {
-        m0 = 1f, m1 = 0f, m2 = 0f, m3 = 0f,
-        m4 = 0f, m5 = 1f, m6 = 0f, m7 = 0f,
-        m8 = 0f, m9 = 0f, m10 = 1f, m11 = 0f
-    };
     
+    // Specific to this overlay window
+    private const string OverlayKey = "hview-overlay";
     private readonly HVInnerWindow _innerWindow;
     private readonly HOverlayInputSnapshot _inputSnapshot;
+    private readonly HVOverlayMovement _movement;
     
     private ulong _handle;
     private Texture_t _vrTexture;
     
+    // Overlay management
+    private readonly HVPoseData _mgtPoseData = new HVPoseData
+    {
+        Poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount]
+    };
     private bool _exitRequested;
 
     public HVOverlay(HVInnerWindow innerWindow)
     {
         _innerWindow = innerWindow;
         _inputSnapshot = new HOverlayInputSnapshot();
+        _movement = new HVOverlayMovement();
     }
 
     public bool Start()
@@ -70,7 +73,8 @@ public class HVOverlay
         var stopwatch = new Stopwatch();
         while (!_exitRequested) // TODO: Nothing changes the state of _exitRequested
         {
-            InLoop(stopwatch);
+            ProcessOverlayManagement();
+            ProcessThatOverlay(stopwatch);
         }
 
         OpenVR.Overlay.DestroyOverlay(_handle);
@@ -86,27 +90,32 @@ public class HVOverlay
             vMin = 0, vMax = 1
         };
         OpenVR.Overlay.SetOverlayTextureBounds(_handle, ref bounds);
-        OpenVR.Overlay.SetOverlayWidthInMeters(_handle, 0.5f);
+        OpenVR.Overlay.SetOverlayWidthInMeters(_handle, 0.35f);
         OpenVR.Overlay.SetOverlayAlpha(_handle, 1f);
         OpenVR.Overlay.SetOverlayColor(_handle, 1f, 1f, 1f);
         OpenVR.Overlay.SetOverlayInputMethod(_handle, VROverlayInputMethod.Mouse);
         OpenVR.Overlay.SetOverlayFlag(_handle, VROverlayFlags.SendVRSmoothScrollEvents, true);
         OpenVR.Overlay.SetOverlayCurvature(_handle, 0.2f);
-        OpenVR.Overlay.SetOverlayTransformAbsolute(_handle, ETrackingUniverseOrigin.TrackingUniverseStanding, ref _identity);
-        
-        // FIXME: This breaks OVR Advanced Settings motion / playspace mover!
-        OpenVR.Overlay.SetOverlayFlag(_handle, VROverlayFlags.MakeOverlaysInteractiveIfVisible, true);
         
         OpenVR.Overlay.ShowOverlay(_handle);
     }
 
-    private void InLoop(Stopwatch stopwatch)
+    private void ProcessOverlayManagement()
+    {
+        // TODO: These are related to the management of overlays (plural) in general.
+        // Eventually we'll have to separate the concept of managing overlays, and managing that specific overlay bound to that ImGui window.
+        OverlayManagementPollVREvents();
+        OverlayManagementFillPose();
+    }
+
+    private void ProcessThatOverlay(Stopwatch stopwatch)
     {
 #if HV_DEBUG
         // In HV_DEBUG mode (applied when the config is a debug build), apply the overlay properties all the time for live editing.
         // Comment this out if not needed in debug mode.
         ApplyOverlayProps();
 #endif
+        _movement.Evaluate(_handle, _mgtPoseData);
         
         // FIXME: For now, this prevents the window (that we're not even using) from freezing.
         // Now that the window is hidden, maybe this is no longer necessary? Not sure, if the task manager or other
@@ -115,7 +124,6 @@ public class HVOverlay
 
         _inputSnapshot.Deaccumulate();
         _inputSnapshot.SetWindowSize(_innerWindow.WindowSize());
-        PollVREvents();
         PollOverlayEvents();
         // TODO: Open the VR keyboard whenever a text field in ImGui asks for input capture.
         // TODO: Figure out how to make third-party keyboard apps like XSOverlay still able to write text into our windowless instance.
@@ -131,7 +139,19 @@ public class HVOverlay
         // FIXME: We don't want to have unlimited refresh rate for that overlay, add some throttling (see above).
     }
 
-    private void PollVREvents()
+    private void OverlayManagementFillPose()
+    {
+        // Fill the pose data
+            
+        // TODO: Proper predicted seconds info
+        var fPredictedSecondsToPhotonsFromNow = 0f;
+        // TODO: Proper tracking universe
+        OpenVR.System.GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin.TrackingUniverseStanding, fPredictedSecondsToPhotonsFromNow, _mgtPoseData.Poses);
+        _mgtPoseData.LeftHandDeviceIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.LeftHand);
+        _mgtPoseData.RightHandDeviceIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.RightHand);
+    }
+
+    private void OverlayManagementPollVREvents()
     {
         VREvent_t evt = default;
         while (OpenVR.System.PollNextEvent(ref evt, _sizeOfVrEvent))

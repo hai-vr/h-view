@@ -16,6 +16,18 @@ public class HVWindowless
 
     public void Run()
     {
+/* TODO
+        Maybe we should decouple the following for future evolutions:
+        - In Windowless mode, consider the instantiation of multiple ImGui windows, so that we can have multiple overlays.
+          - There may be multiple overlays for the same window (???).
+          - A single window may be used to render the UI of multiple overlays, provided they are given a different data model.
+          - Overlay mouse events may be on a per-overlay basis, rather than be on a per-window basis.
+          - Consider processing mouse events and rendering all visible window UIs at once, and then run the overlay logic.
+        - We could separate the window update from the overlay update.
+          - Some windows may not need to have their UI contents updated when their corresponding overlay is not visible.
+          - Is there a need to decouple the overlay logic update rate from the UI update rate? (overlay position changes faster than the UI renders)
+          - Should each window have a different update render rate?
+*/
         var innerWindow = new HVInnerWindow(_routine, true);
         innerWindow.SetupWindowlessUi();
         

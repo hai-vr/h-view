@@ -31,6 +31,7 @@ public class HOverlayInputSnapshot : InputSnapshot
     public void Deaccumulate()
     {
         WheelDelta = 0f;
+        _mouseEvents.Clear();
     }
 
     public void Scrolling(float delta)
