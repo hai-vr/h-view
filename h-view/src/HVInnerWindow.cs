@@ -30,6 +30,9 @@ public partial class HVInnerWindow : IDisposable
     private const string ShortcutsTabLabel = "Shortcuts";
     private const string TrackingTabLabel = "Tracking";
     private const string UtilityTabLabel = "Utility";
+    
+    private const int RefreshFramesPerSecondWhenUnfocused = 100;
+    private const int RefreshEventPollPerSecondWhenMinimized = 15;
 
     private readonly HVRoutine _routine;
     private readonly bool _isWindowlessStyle;
@@ -173,6 +176,21 @@ public partial class HVInnerWindow : IDisposable
         // Main application loop
         while (_window.Exists)
         {
+            if (!_window.Focused)
+            {
+                Thread.Sleep(1000 / RefreshFramesPerSecondWhenUnfocused);
+            }
+            // else: Do not limit framerate.
+            
+            while (_window.WindowState == WindowState.Minimized)
+            {
+                Thread.Sleep(1000 / RefreshEventPollPerSecondWhenMinimized);
+                
+                // TODO: We need to know when the window is no longer minimized.
+                // How to properly poll events while minimized?
+                _window.PumpEvents();
+            }
+            
             deltaTime = stopwatch.ElapsedTicks / (float)Stopwatch.Frequency;
             stopwatch.Restart();
             var snapshot = _window.PumpEvents();

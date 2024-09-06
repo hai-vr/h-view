@@ -75,6 +75,14 @@ public class HVOverlay
         {
             ProcessOverlayManagement();
             ProcessThatOverlay(stopwatch);
+            if (OpenVR.Applications.GetSceneApplicationState() == EVRSceneApplicationState.Running)
+            {
+                OpenVR.Overlay.WaitFrameSync(1000 / 30);
+            }
+            else
+            {
+                Thread.Sleep(1000 / 60);
+            }
         }
 
         OpenVR.Overlay.DestroyOverlay(_handle);
