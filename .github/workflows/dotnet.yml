@@ -1,0 +1,58 @@
+# This file is a mashup of several sources, including:
+# - https://patriksvensson.se/posts/2020/03/creating-release-artifacts-with-github-actions
+# - https://github.com/vrchat-community/template-package/blob/main/.github/workflows/release.yml
+# - and some improv
+
+name: .NET
+
+on:
+  workflow_dispatch:
+
+env:
+  outputAppFolder: "H-View~" ## The tilde at the end is so that Unity doesn't scan the folder to create .meta files
+  netProject: "h-view"
+  netCsProj: "h-view/h-view.csproj"
+  packageName: "dev.hai-vr.app.h-view"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: get version
+        id: version
+        uses: notiz-dev/github-action-json-property@7c8cf5cc36eb85d8d287a8086a39dac59628eb31
+        with:
+          path: "Packages/${{env.packageName}}/package.json"
+          prop_path: "version"
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Build
+        shell: bash
+        run: |
+          dotnet publish ${{env.netCsProj}} --runtime "${{ matrix.target }}" -c Release -o "Packages/${{env.packageName}}/${{env.outputAppFolder}}"
+
+      - name: Create Zip
+        uses: thedoctor0/zip-release@09336613be18a8208dfa66bd57efafd9e2685657
+        with:
+          type: "zip"
+          directory: "Packages/${{env.packageName}}/"
+          filename: "../../${{ env.packageName }}-${{ steps.version.outputs.prop }}.zip" # make the zip file two directories up, since we start two directories in above
+
+      - name: Make Release
+        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        with:
+          tag_name: ${{ steps.version.outputs.prop }}
+          files: |
+            ${{ env.packageName }}-${{ steps.version.outputs.prop }}.zip
+            Packages/${{ env.packageName }}/package.json

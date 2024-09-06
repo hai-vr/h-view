@@ -1,0 +1,17 @@
+{
+  "name": "dev.hai-vr.app.h-view",
+  "displayName": "Haï ~ App - H-View",
+  "version": "0.0.9",
+  "unity": "2019.4",
+  "description": "(Contains .exe) H-View https://docs.hai-vr.dev/docs/products/h-view",
+  "vrchatVersion" : "2022.1.1",
+  "author" : {
+    "name" : "Haï~"
+  },
+  "vpmDependencies": {
+  },
+  "url" : "https://docs.hai-vr.dev/docs/products/h-view",
+  "documentationUrl": "https://docs.hai-vr.dev/docs/products/h-view",
+  "changelogUrl": "https://docs.hai-vr.dev/docs/changelogs/h-view",
+  "license": "MIT"
+}
