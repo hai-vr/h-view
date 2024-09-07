@@ -9,30 +9,11 @@ namespace Hai.HView.Gui;
 
 public partial class HVInnerWindow
 {
-    private bool _isScrollDragging;
-    private void HandleScrollOnDrag(Vector2 delta, ImGuiMouseButton mouseButton)
-    {
-        if (!_isScrollDragging && _anyHighlightLastFrame) return;
-        
-        var held = ImGui.IsMouseDown(mouseButton);
-        if (held)
-        {
-            _isScrollDragging = true;
-        }
-        else
-        {
-            _isScrollDragging = false;
-        }
-
-        if (held && delta.Y != 0.0f)
-        {
-            ImGui.SetScrollY(ImGui.GetScrollY() - delta.Y);
-        }
-    }
-    
     private readonly Dictionary<int, IntPtr> _indexToPointers = new Dictionary<int, IntPtr>();
     private readonly List<Texture> _loadedTextures = new List<Texture>();
     private readonly Dictionary<int, bool> _buttonPressState = new Dictionary<int, bool>();
+    
+    private readonly Dictionary<string, IntPtr> _pathToPointers = new Dictionary<string, IntPtr>();
     
     private const int ImageWidth = 64;
     private const int ImageHeight = 64;
@@ -51,6 +32,8 @@ public partial class HVInnerWindow
         }
         _loadedTextures.Clear();
         _indexToPointers.Clear();
+        // TODO: Don't free avatar pictures that were loaded from disk.
+        _pathToPointers.Clear();
     }
 
     private IntPtr GetOrLoadImage(string[] icons, int index)
@@ -65,20 +48,38 @@ public partial class HVInnerWindow
         var pngBytes = Convert.FromBase64String(base64png);
         using (var stream = new MemoryStream(pngBytes))
         {
-            // https://github.com/ImGuiNET/ImGui.NET/issues/141#issuecomment-905927496
-            var img = new ImageSharpTexture(stream, true);
-            var deviceTexture = img.CreateDeviceTexture(_gd, _gd.ResourceFactory);
-            _loadedTextures.Add(deviceTexture);
-            var pointer = _controller.GetOrCreateImGuiBinding(_gd.ResourceFactory, deviceTexture);
+            var pointer = LoadTextureFromStream(stream);
             _indexToPointers.Add(index, pointer);
             return pointer;
         }
     }
-    
+
+    internal IntPtr GetOrLoadImage(string path)
+    {
+        if (_pathToPointers.TryGetValue(path, out var found)) return found;
+
+        using (var stream = new FileStream(path, FileMode.Open))
+        {
+            var pointer = LoadTextureFromStream(stream);
+            _pathToPointers.Add(path, pointer);
+            return pointer;
+        }
+    }
+
+    private IntPtr LoadTextureFromStream(Stream stream)
+    {
+        // https://github.com/ImGuiNET/ImGui.NET/issues/141#issuecomment-905927496
+        var img = new ImageSharpTexture(stream, true);
+        var deviceTexture = img.CreateDeviceTexture(_gd, _gd.ResourceFactory);
+        _loadedTextures.Add(deviceTexture);
+        var pointer = _controller.GetOrCreateImGuiBinding(_gd.ResourceFactory, deviceTexture);
+        return pointer;
+    }
+
     private void ExpressionsTab(Dictionary<string, HOscItem> oscMessages)
     {
-        ImGui.BeginTable("/avatar/descriptor/menu/", 4);
-        ImGui.TableSetupColumn("/avatar/descriptor/menu/", ImGuiTableColumnFlags.WidthStretch);
+        ImGui.BeginTable("Menu", 4);
+        ImGui.TableSetupColumn("Menu", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
         ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
         ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
@@ -200,8 +201,8 @@ public partial class HVInnerWindow
 
     private void ContactsTab(Dictionary<string, HOscItem> oscMessages)
     {
-        ImGui.BeginTable("/avatar/descriptor/contacts/", 4);
-        ImGui.TableSetupColumn("/avatar/descriptor/contacts/", ImGuiTableColumnFlags.WidthStretch);
+        ImGui.BeginTable("Contacts", 4);
+        ImGui.TableSetupColumn("Contacts", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
         ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
         ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
@@ -258,8 +259,8 @@ public partial class HVInnerWindow
 
     private void PhysBonesTab(Dictionary<string, HOscItem> oscMessages)
     {
-        ImGui.BeginTable("/avatar/descriptor/physbones/", 4);
-        ImGui.TableSetupColumn("/avatar/descriptor/physbones/", ImGuiTableColumnFlags.WidthStretch);
+        ImGui.BeginTable("PhysBones", 4);
+        ImGui.TableSetupColumn("PhysBones", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
         ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
         ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);

@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.Core;
+using Hai.HView.Gui.Tab;
+using Hai.HView.Ui;
 using ImGuiNET;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -33,6 +35,7 @@ public partial class HVInnerWindow : IDisposable
     
     private const int RefreshFramesPerSecondWhenUnfocused = 100;
     private const int RefreshEventPollPerSecondWhenMinimized = 15;
+    private const string CostumesTabLabel = "Costumes";
 
     private readonly HVRoutine _routine;
     private readonly bool _isWindowlessStyle;
@@ -49,7 +52,7 @@ public partial class HVInnerWindow : IDisposable
 
     // UI state
     private readonly Vector3 _clearColor = new(0.45f, 0.55f, 0.6f);
-    private byte[] _chatboxBuffer = new byte[10_000];
+    private string _chatboxBuffer = "";
     private bool _chatboxB;
     private bool _chatboxN;
     
@@ -57,13 +60,18 @@ public partial class HVInnerWindow : IDisposable
     private Texture _overlayTexture;
     private Texture _depthTexture;
     private Framebuffer _overlayFramebuffer;
-    private bool _anyHighlightLastFrame;
+    
+    // Tabs
+    private readonly UiScrollManager _scrollManager = new UiScrollManager();
+    private readonly UiCostumes _costumesTab;
 
     public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle)
     {
         _routine = routine;
         _isWindowlessStyle = isWindowlessStyle;
         routine.OnManifestChanged += OnManifestChanged;
+
+        _costumesTab = new UiCostumes(this, _scrollManager);
     }
 
     public void Dispose()
@@ -106,17 +114,26 @@ public partial class HVInnerWindow : IDisposable
         ImGui.Begin($"{HVApp.AppTitleTab} {VERSION.version}", flags);
         ImGui.BeginTabBar("##tabs");
         var oscMessages = _routine.UiOscMessages();
-        MakeTab(AvatarTabLabel, _isWindowlessStyle, () => AvatarTab(oscMessages));
-        MakeTab(FaceTrackingTabLabel, _isWindowlessStyle, () => FaceTrackingTab(oscMessages));
-        MakeTab(InputTabLabel, _isWindowlessStyle, () => InputTab(oscMessages));
-        MakeTab(TrackingTabLabel, _isWindowlessStyle, () => TrackingTab(oscMessages));
-        MakeTab(MenuTabLabel, true, () => ExpressionsTab(oscMessages));
-        MakeTab(ShortcutsTabLabel, _isWindowlessStyle, () => ShortcutsTab(oscMessages));
-        MakeTab(ContactsTabLabel, _isWindowlessStyle, () => ContactsTab(oscMessages));
-        MakeTab(PhysBonesLabel, _isWindowlessStyle, () => PhysBonesTab(oscMessages));
-        MakeTab(UtilityTabLabel, _isWindowlessStyle, () => UtilityTab(oscMessages));
-        
-        _anyHighlightLastFrame = ImGui.IsAnyItemActive() || ImGui.IsAnyItemHovered();
+
+        _scrollManager.MakeTab(ShortcutsTabLabel, () => ShortcutsTab(oscMessages));
+        _scrollManager.MakeTab(CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
+        if (ImGui.BeginTabItem("Parameters"))
+        {
+            ImGui.BeginTabBar("##tabs_parameters");
+            _scrollManager.MakeTab(AvatarTabLabel, () => AvatarTab(oscMessages));
+            _scrollManager.MakeTab(FaceTrackingTabLabel, () => FaceTrackingTab(oscMessages));
+            _scrollManager.MakeTab(InputTabLabel, () => InputTab(oscMessages));
+            _scrollManager.MakeTab(TrackingTabLabel, () => TrackingTab(oscMessages));
+            _scrollManager.MakeTab(ContactsTabLabel, () => ContactsTab(oscMessages));
+            _scrollManager.MakeTab(PhysBonesLabel, () => PhysBonesTab(oscMessages));
+            _scrollManager.MakeTab(MenuTabLabel, () => ExpressionsTab(oscMessages));
+            ImGui.EndTabBar();
+            ImGui.EndTabItem();
+        }
+        _scrollManager.MakeTab(UtilityTabLabel, () => UtilityTab(oscMessages));
+        ImGui.EndTabBar();
+
+        _scrollManager.StoreIfAnyItemHovered();
         
         ImGui.End();
 
@@ -128,21 +145,6 @@ public partial class HVInnerWindow : IDisposable
             ImGui.SetNextWindowPos(new Vector2(650, 20), ImGuiCond.FirstUseEver);
             var _showImGuiDemoWindow = false;
             ImGui.ShowDemoWindow(ref _showImGuiDemoWindow);
-        }
-    }
-
-    private void MakeTab(string tabLabel, bool dragScrolls, Action action)
-    {
-        if (ImGui.BeginTabItem(tabLabel))
-        {
-            ImGui.BeginChild("scroll");
-            action.Invoke();
-            if (dragScrolls)
-            {
-                HandleScrollOnDrag(ImGui.GetIO().MouseDelta, ImGuiMouseButton.Left);
-            }
-            ImGui.EndChild();
-            ImGui.EndTabItem();
         }
     }
 

@@ -146,7 +146,7 @@ public class HVRoutine
         return found.MaxBy(File.GetLastWriteTime);
     }
 
-    private static string[] GetFilesInLocalLowVRChatDirectories(string searchPattern)
+    public static string[] GetFilesInLocalLowVRChatDirectories(string searchPattern)
     {
         var usersFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "LocalLow", "VRChat", "vrchat");
         var found = Directory.GetFiles(usersFolder, searchPattern, SearchOption.AllDirectories);

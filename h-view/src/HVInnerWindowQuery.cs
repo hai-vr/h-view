@@ -24,7 +24,6 @@ public partial class HVInnerWindow
     private const string BoolOscTypeT = "T";
     private const string IntOscTypeI = "i";
     private const string ChatboxOscSpecialtyTypeSTT = "sTT";
-    private const string VRCAvatarUrlFormat = "https://vrchat.com/home/avatar/{0}";
     private const string RandomizeAllAvatarParametersLabel = "Randomize all avatar parameters";
     private readonly Vector4 _redColor = new Vector4(1, 0, 0, 0.75f);
     
@@ -34,7 +33,7 @@ public partial class HVInnerWindow
     private const string CopyLabel = "Copy";
     private const string HoldLabel = "Hold";
     private const string KeyboardLabel = "Keyboard";
-    private const string OpenBrowserLabel = "Open browser";
+    internal const string OpenBrowserLabel = "Open browser";
     private const string SendLabel = "Send";
     private const string TypeLabel = "Type";
     private const string ValueLabel = "Value";
@@ -282,13 +281,13 @@ public partial class HVInnerWindow
             }
             else if (oscItem.OscType == ChatboxOscSpecialtyTypeSTT)
             {
-                ImGui.InputText($"##{oscItem.Key}.input", _chatboxBuffer, (uint)_chatboxBuffer.Length);
+                ImGui.InputText($"##{oscItem.Key}.input", ref _chatboxBuffer, 10_000);
                 ImGui.SameLine();
                 if (ImGui.Button(_chatboxB ? $"{SendLabel}##{oscItem.Key}.press" : $"{KeyboardLabel}##{oscItem.Key}.press"))
                 {
-                    var xxx = Encoding.UTF8.GetString(_chatboxBuffer).TrimEnd((Char)0); // FIXME: This is really suspicious
-                    Console.WriteLine(xxx);
-                    _routine.UpdateMessageMultivalue(oscItem.Key, new object[] {xxx, _chatboxB, _chatboxN});
+                    var userinput_message = _chatboxBuffer;
+                    Console.WriteLine(userinput_message);
+                    _routine.UpdateMessageMultivalue(oscItem.Key, new object[] {userinput_message, _chatboxB, _chatboxN});
                 }
                 ImGui.Checkbox($"Send##{oscItem.Key}.check_b", ref _chatboxB);
                 ImGui.SameLine();
@@ -311,10 +310,10 @@ public partial class HVInnerWindow
             }
             else if (oscItem.Key == AvatarChangePath)
             {
-                var avatarIdStr = oscItem.Values[0];
+                var avatarIdStr = (string)oscItem.Values[0];
                 if (ImGui.Button($"{OpenBrowserLabel} ({avatarIdStr})"))
                 {
-                    OpenUrl(string.Format(VRCAvatarUrlFormat, avatarIdStr));
+                    UiUtil.OpenAvatarUrl(avatarIdStr);
                 }
             }
             else if (IsSpecial(oscItem.Key))
@@ -425,36 +424,6 @@ public partial class HVInnerWindow
                 }
             default:
                 return "?";
-        }
-    }
-
-    // https://stackoverflow.com/a/43232486
-    private void OpenUrl(string url)
-    {
-        try
-        {
-            Process.Start(url);
-        }
-        catch
-        {
-            // hack because of this: https://github.com/dotnet/corefx/issues/10361
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                url = url.Replace("&", "^&");
-                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", url);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", url);
-            }
-            else
-            {
-                throw;
-            }
         }
     }
 }
