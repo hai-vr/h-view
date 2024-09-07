@@ -9,6 +9,7 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Configurations>Debug;Release;Debug OVERLAY;Release OVERLAY</Configurations>
         <Platforms>AnyCPU</Platforms>
+        <AssemblyVersion>$(ASSEMBLY_VERSION)</AssemblyVersion>
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
