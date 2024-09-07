@@ -9,6 +9,10 @@ This repository is mostly a personal learning project and has three main functio
   I made specifically for this purpose ([learn more](https://docs.hai-vr.dev/docs/products/h-view)).
 - In addition to the desktop window, it also has an implementation of the ImGui.NET window [being rendered into a SteamVR overlay](https://github.com/hai-vr/h-view/commit/cb1b35057a2f3ced0becdf9f013ef11b3de78291)
   using the OpenVR API and Veldrid, and some [basic overlay mouse input](https://github.com/hai-vr/h-view/commit/697f7e61808f3b857940bcd24be05e67b9d3f774).
+- If you choose to log-in into the VRChat account, it can switch between avatars. The code responsible for all VRChat account actions [can be inspected here](https://github.com/hai-vr/h-view/blob/main/h-view/src/VRCLogin/HVVrcSession.cs).
+    - Logging into the VRChat account `Login(username, password)` ([API docs](https://vrchatapi.github.io/docs/api/#get-/auth/user))
+    - Sending a 2FA code to VRChat `VerifyTwofer(code, method)` ([API docs](https://vrchatapi.github.io/docs/api/#post-/auth/twofactorauth/emailotp/verify))
+    - Switching avatars `SelectAvatar(avatarId)` ([API docs](https://vrchatapi.github.io/docs/api/#put-/avatars/-avatarId-/select))
 
 For more information, [open the website page](https://docs.hai-vr.dev/docs/products/h-view).
 
