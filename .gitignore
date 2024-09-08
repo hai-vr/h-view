@@ -1,3 +1,4 @@
 .idea
 h-view/bin
 h-view/obj
+**/hview.cookies.txt

@@ -202,10 +202,10 @@ public partial class HVInnerWindow
     private void ContactsTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTable("Contacts", 4);
-        ImGui.TableSetupColumn("Contacts", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
         ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
         ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
+        ImGui.TableSetupColumn("Contacts", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableHeadersRow();
         
         var id = 0;
@@ -224,7 +224,21 @@ public partial class HVInnerWindow
             var hasOscItem = oscMessages.TryGetValue(oscParam, out var oscItem);
 
             ImGui.TableNextRow();
-            ImGui.TableSetColumnIndex(0);
+            var i = 0;
+
+            ImGui.TableSetColumnIndex(i++);
+            ImGui.Text($"{item.radius}");
+
+            ImGui.TableSetColumnIndex(i++);
+            ImGui.Text(item.receiverType);
+
+            ImGui.TableSetColumnIndex(i++);
+            if (hasOscItem)
+            {
+                BuildControls(oscItem, 0, oscItem.Key);
+            }
+            
+            ImGui.TableSetColumnIndex(i++);
             ImGui.Text(item.parameter);
 
             var key = $"{id}";
@@ -241,18 +255,6 @@ public partial class HVInnerWindow
                 ImGui.EndPopup();
             }
 
-            ImGui.TableSetColumnIndex(1);
-            ImGui.Text($"{item.radius}");
-
-            ImGui.TableSetColumnIndex(2);
-            ImGui.Text(item.receiverType);
-
-            ImGui.TableSetColumnIndex(3);
-            if (hasOscItem)
-            {
-                BuildControls(oscItem, 0, oscItem.Key);
-            }
-
             id++;
         }
     }
@@ -260,10 +262,10 @@ public partial class HVInnerWindow
     private void PhysBonesTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTable("PhysBones", 4);
-        ImGui.TableSetupColumn("PhysBones", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
         ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
         ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
+        ImGui.TableSetupColumn("PhysBones", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableHeadersRow();
         
         var id = 0;
@@ -287,24 +289,9 @@ public partial class HVInnerWindow
                 var hasOscItem = oscMessages.TryGetValue(oscParam, out var oscItem);
 
                 ImGui.TableNextRow();
-                ImGui.TableSetColumnIndex(0);
-                ImGui.Text(optionName);
+                int i = 0;
 
-                var key = $"{id}";
-                if (ImGui.BeginPopupContextItem($"a popup##{key}"))
-                {
-                    if (ImGui.Selectable($"{CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
-                    if (ImGui.Selectable($"{CopyLabel} \"{optionName}\"")) ImGui.SetClipboardText(optionName);
-                    if (hasOscItem && oscItem.Values != null)
-                    {
-                        var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
-                        if (ImGui.Selectable($"{CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
-                    }
-
-                    ImGui.EndPopup();
-                }
-
-                ImGui.TableSetColumnIndex(1);
+                ImGui.TableSetColumnIndex(i++);
                 if (option == "_Stretch")
                 {
                     ImGui.Text($"{item.maxStretch}");
@@ -333,7 +320,7 @@ public partial class HVInnerWindow
                     ImGui.Text("");
                 }
 
-                ImGui.TableSetColumnIndex(2);
+                ImGui.TableSetColumnIndex(i++);
                 if (option == "_Angle")
                 {
                     ImGui.Text($"{item.limitType}");
@@ -343,10 +330,27 @@ public partial class HVInnerWindow
                     ImGui.Text($"{option.Substring(1)}");
                 }
 
-                ImGui.TableSetColumnIndex(3);
+                ImGui.TableSetColumnIndex(i++);
                 if (hasOscItem)
                 {
                     BuildControls(oscItem, 0, oscItem.Key);
+                }
+                
+                ImGui.TableSetColumnIndex(i++);
+                ImGui.Text(optionName);
+
+                var key = $"{id}";
+                if (ImGui.BeginPopupContextItem($"a popup##{key}"))
+                {
+                    if (ImGui.Selectable($"{CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
+                    if (ImGui.Selectable($"{CopyLabel} \"{optionName}\"")) ImGui.SetClipboardText(optionName);
+                    if (hasOscItem && oscItem.Values != null)
+                    {
+                        var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
+                        if (ImGui.Selectable($"{CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
+                    }
+
+                    ImGui.EndPopup();
                 }
 
                 id++;

@@ -25,7 +25,16 @@ public class HOverlayInputSnapshot : InputSnapshot
 
     public void MouseMove(Vector2 relativeCoords)
     {
-        MousePosition = relativeCoords * _windowSize;
+        if (_windowSize.X != _windowSize.Y)
+        {
+            var rescaled = relativeCoords;
+            rescaled.Y = Math.Clamp((rescaled.Y - 0.5f) / (_windowSize.Y / _windowSize.X) + 0.5f, 0f, 1f);
+            MousePosition = rescaled * _windowSize;
+        }
+        else
+        {
+            MousePosition = relativeCoords * _windowSize;
+        }
     }
 
     public void Deaccumulate()
@@ -36,20 +45,17 @@ public class HOverlayInputSnapshot : InputSnapshot
 
     public void Scrolling(float delta)
     {
-        Console.WriteLine($"Scrolling event {delta}");
         WheelDelta += delta;
     }
 
     public void MouseDown(MouseButton veldridButton)
     {
-        Console.WriteLine($"MouseDown event {veldridButton}");
         _mouseEvents.Add(new MouseEvent(veldridButton, true));
         _mouseDown[(int)veldridButton] = true;
     }
 
     public void MouseUp(MouseButton veldridButton)
     {
-        Console.WriteLine($"MouseUp event {veldridButton}");
         _mouseEvents.Add(new MouseEvent(veldridButton, false));
         _mouseDown[(int)veldridButton] = false;
     }

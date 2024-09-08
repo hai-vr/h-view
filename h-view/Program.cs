@@ -2,10 +2,12 @@
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.OSC;
+using Hai.HView.OVR;
 
-var isSteamVROverlay = false;
-#if INCLUDES_OVERLAY
-isSteamVROverlay = args.Contains("--overlay");
+#if INCLUDES_OPENVR
+var isOverlay = !args.Contains("--no-overlay");
+#else
+var isOverlay = false;
 #endif
 
 // Create a desktop window stylized as being the overlay version.
@@ -13,7 +15,7 @@ isSteamVROverlay = args.Contains("--overlay");
 var simulateWindowlessStyle = args.Contains("--simulate-windowless");
 
 // Allow this app to run in both Overlay and Normal mode as separately managed instances.
-var serviceName = isSteamVROverlay ? $"{HVApp.AppName}-Overlay" : $"{HVApp.AppName}-Windowed";
+var serviceName = isOverlay ? $"{HVApp.AppName}-Overlay" : $"{HVApp.AppName}-Windowed";
 
 var oscPort = HOsc.RandomOscPort();
 var queryPort = HQuery.RandomQueryPort();
@@ -23,35 +25,54 @@ var oscQuery = new HQuery(oscPort, queryPort, serviceName);
 oscQuery.OnVrcOscPortFound += vrcOscPort => oscClient.SetReceiverOscPort(vrcOscPort);
 
 var messageBox = new HMessageBox();
-var routine = new HVRoutine(oscClient, oscQuery, messageBox);
+var externalService = new HVExternalService();
+var routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService);
 
+var ovrThread = new HVOpenVRThread(routine);
+
+// Start services
 oscClient.Start();
 oscQuery.Start();
 routine.Start();
+externalService.Start();
 
 void WhenWindowClosed()
 {
     routine.Finish();
     oscQuery.Finish();
     oscClient.Finish();
+    ovrThread.Finish();
 }
 
-var uiThread = new Thread(() =>
+if (isOverlay)
 {
-    if (!isSteamVROverlay)
+    Console.WriteLine("Starting as a hybrid desktop / VR app.");
+    // TODO: Allow the user to completely disable OpenVR integration.
+    StartNewThread(() =>
+    {
+        ovrThread.Run(); // Loops until desktop window is closed.
+        WhenWindowClosed();
+    }, "VR-Thread");
+}
+else
+{
+    Console.WriteLine("Starting as a desktop window.");
+    StartNewThread(() =>
     {
         new HVWindow(routine, WhenWindowClosed, simulateWindowlessStyle).Run();
-    }
-    else
-    {
-        Console.WriteLine("Overlay mode is enabled (--overlay)");
-        new HVWindowless(routine, WhenWindowClosed).Run();
-    }
-})
-{
-    CurrentCulture = CultureInfo.InvariantCulture, // We don't want locale-specific numbers
-    CurrentUICulture = CultureInfo.InvariantCulture
-};
-uiThread.Start();
+    }, "UI-Thread");
+}
 
+void StartNewThread(ThreadStart threadStart1, string threadName)
+{
+    var thread = new Thread(threadStart1)
+    {
+        CurrentCulture = CultureInfo.InvariantCulture, // We don't want locale-specific numbers
+        CurrentUICulture = CultureInfo.InvariantCulture,
+        Name = threadName
+    };
+    thread.Start();
+}
+
+// Main loop
 routine.MainLoop(); // This call does not return until routine.Finish() is called.

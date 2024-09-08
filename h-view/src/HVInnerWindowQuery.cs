@@ -93,7 +93,6 @@ public partial class HVInnerWindow
     private void MakeOscTable(string title, IEnumerable<HOscItem> enumerable, bool showIsLocal = false, string copyPrefixNullable = null)
     {
         ImGui.BeginTable(title, showIsLocal ? 5 : 4);
-        ImGui.TableSetupColumn(title, ImGuiTableColumnFlags.WidthStretch);
         if (showIsLocal)
         {
             ImGui.TableSetupColumn("=", ImGuiTableColumnFlags.WidthFixed, 40);
@@ -101,6 +100,7 @@ public partial class HVInnerWindow
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 20);
         ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 45);
         ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
+        ImGui.TableSetupColumn(title, ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableHeadersRow();
         var items = enumerable
             .OrderBy(item => !item.IsWritable)
@@ -110,45 +110,6 @@ public partial class HVInnerWindow
         {
             var id = 0;
             ImGui.TableNextRow();
-            ImGui.TableSetColumnIndex(id++);
-            var key = oscItem.Key;
-            var shortstring = key.Substring(title.Length);
-            var parameterCopyStringNullable = copyPrefixNullable != null ? key.Substring(copyPrefixNullable.Length) : null;
-            var onlyChangedOnce = oscItem.IsReadable && oscItem.DifferentValueCount <= 1;
-            if (onlyChangedOnce) // Color near-unchanged values to help finding out "unused" or "frozen value (updated once)" parameters.
-            {
-                ImGui.PushStyleColor(ImGuiCol.Text, _redColor);
-            }
-            ImGui.Text($"{shortstring}");
-            if (onlyChangedOnce)
-            {
-                ImGui.PopStyleColor();
-            }
-            if (oscItem.Description != "" && ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                ImGui.TextUnformatted(oscItem.Description);
-                ImGui.EndTooltip();
-            }
-            if (ImGui.BeginPopupContextItem($"a popup##{key}"))
-            {
-                if (ImGui.Selectable($"{CopyLabel} \"{key}\" ({AddressLabel})")) ImGui.SetClipboardText(key);
-                if (parameterCopyStringNullable != null)
-                {
-                    // For the face tracking address, we want to copy the parameter name, including the FT/ prefix.
-                    if (ImGui.Selectable($"{CopyLabel} \"{parameterCopyStringNullable}\"")) ImGui.SetClipboardText(parameterCopyStringNullable);
-                }
-                else
-                {
-                    if (ImGui.Selectable($"{CopyLabel} \"{shortstring}\"")) ImGui.SetClipboardText(shortstring);
-                }
-                if (oscItem.Values != null)
-                {
-                    var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
-                    if (ImGui.Selectable($"{CopyLabel} \"{join}\" ({ValueLabel})")) ImGui.SetClipboardText(join);
-                }
-                ImGui.EndPopup();
-            }
 
             if (showIsLocal)
             {
@@ -178,9 +139,54 @@ public partial class HVInnerWindow
             }
             ImGui.TableSetColumnIndex(id++);
             BuildControls(oscItem, -1, oscItem.Key);
+            
+            ImGui.TableSetColumnIndex(id++);
+            ComputeNameColumn(title, copyPrefixNullable, oscItem);
         }
 
         ImGui.EndTable();
+    }
+
+    private void ComputeNameColumn(string title, string copyPrefixNullable, HOscItem oscItem)
+    {
+        var key = oscItem.Key;
+        var shortstring = key.Substring(title.Length);
+        var parameterCopyStringNullable = copyPrefixNullable != null ? key.Substring(copyPrefixNullable.Length) : null;
+        var onlyChangedOnce = oscItem.IsReadable && oscItem.DifferentValueCount <= 1;
+        if (onlyChangedOnce) // Color near-unchanged values to help finding out "unused" or "frozen value (updated once)" parameters.
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, _redColor);
+        }
+        ImGui.Text($"{shortstring}");
+        if (onlyChangedOnce)
+        {
+            ImGui.PopStyleColor();
+        }
+        if (oscItem.Description != "" && ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.TextUnformatted(oscItem.Description);
+            ImGui.EndTooltip();
+        }
+        if (ImGui.BeginPopupContextItem($"a popup##{key}"))
+        {
+            if (ImGui.Selectable($"{CopyLabel} \"{key}\" ({AddressLabel})")) ImGui.SetClipboardText(key);
+            if (parameterCopyStringNullable != null)
+            {
+                // For the face tracking address, we want to copy the parameter name, including the FT/ prefix.
+                if (ImGui.Selectable($"{CopyLabel} \"{parameterCopyStringNullable}\"")) ImGui.SetClipboardText(parameterCopyStringNullable);
+            }
+            else
+            {
+                if (ImGui.Selectable($"{CopyLabel} \"{shortstring}\"")) ImGui.SetClipboardText(shortstring);
+            }
+            if (oscItem.Values != null)
+            {
+                var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
+                if (ImGui.Selectable($"{CopyLabel} \"{join}\" ({ValueLabel})")) ImGui.SetClipboardText(join);
+            }
+            ImGui.EndPopup();
+        }
     }
 
     private void BuildControls(HOscItem oscItem, float sliderMin, string key)

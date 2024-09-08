@@ -16,6 +16,7 @@ public class HVRoutine
     private bool _exitRequested;
     private readonly HQuery _query;
     private readonly HMessageBox _messageBox;
+    private readonly HVExternalService _externalService;
     private readonly HOsc _osc;
     
     private readonly Regex _avoidPathTraversalInAvtrPipelineName = new Regex(@"^avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
@@ -26,11 +27,12 @@ public class HVRoutine
     private EMManifest _expressionsManifest;
     private string[] _manifestFiles = new string[0];
 
-    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox)
+    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService)
     {
         _osc = osc;
         _query = query;
         _messageBox = messageBox;
+        _externalService = externalService;
     }
 
     public void Start()
@@ -60,6 +62,8 @@ public class HVRoutine
 
         var messages = _osc.PullMessages();
         ProcessOscEvents(messages);
+
+        _externalService.ProcessTaskCompletion();
     }
 
     private void ProcessQueryEvents(List<object> queryMessages)
@@ -171,6 +175,12 @@ public class HVRoutine
     public string[] UiManifestSafeFilePaths()
     {
         return _manifestFiles.ToArray();
+    }
+
+    public HVExternalService UiExternalService()
+    {
+        // TODO: Review how the service calls are threaded.
+        return _externalService;
     }
 
     // Given a key and the state of a hold-to-toggle button,

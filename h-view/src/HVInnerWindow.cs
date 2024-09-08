@@ -17,10 +17,6 @@ public partial class HVInnerWindow : IDisposable
 {
     private const int BorderWidth = 0;
     private const int BorderHeight = BorderWidth;
-    private const int TotalWindowWidth = 600;
-    private const int TotalWindowHeight = 510;
-    private const int TotalWindowlessViewportWidth = 800;
-    private const int TotalWindowlessViewportHeight = 800;
     private const ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoResize;
     private const ImGuiWindowFlags WindowFlagsNoCollapse = WindowFlags | ImGuiWindowFlags.NoCollapse;
     private const string AvatarTabLabel = "Avatar";
@@ -64,14 +60,23 @@ public partial class HVInnerWindow : IDisposable
     // Tabs
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
     private readonly UiCostumes _costumesTab;
+    private readonly int _windowWidth;
+    private readonly int _windowHeight;
+    private readonly int _trimWidth;
+    private readonly int _trimHeight;
 
-    public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle)
+    public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight)
     {
         _routine = routine;
         _isWindowlessStyle = isWindowlessStyle;
         routine.OnManifestChanged += OnManifestChanged;
 
-        _costumesTab = new UiCostumes(this, _scrollManager);
+        _windowWidth = windowWidth;
+        _windowHeight = windowHeight;
+        _trimWidth = (windowWidth - innerWidth) / 2;
+        _trimHeight = (windowHeight - innerHeight) / 2;
+
+        _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle);
     }
 
     public void Dispose()
@@ -104,8 +109,8 @@ public partial class HVInnerWindow : IDisposable
         }
         
         var windowHeight = _window.Height - BorderHeight * 2;
-        ImGui.SetNextWindowPos(new Vector2(BorderWidth, BorderHeight), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(new Vector2(_window.Width - BorderWidth * 2, windowHeight), ImGuiCond.Always);
+        ImGui.SetNextWindowPos(new Vector2(BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new Vector2(_window.Width - BorderWidth * 2 - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
         var flags = WindowFlagsNoCollapse;
         if (_isWindowlessStyle)
         {
@@ -116,7 +121,7 @@ public partial class HVInnerWindow : IDisposable
         var oscMessages = _routine.UiOscMessages();
 
         _scrollManager.MakeTab(ShortcutsTabLabel, () => ShortcutsTab(oscMessages));
-        _scrollManager.MakeTab(CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
+        _scrollManager.MakeUnscrollableTab(CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
         if (ImGui.BeginTabItem("Parameters"))
         {
             ImGui.BeginTabBar("##tabs_parameters");
@@ -148,11 +153,39 @@ public partial class HVInnerWindow : IDisposable
         }
     }
 
+    public bool UpdateIteration(Stopwatch stopwatch)
+    {
+        if (_window.WindowState == WindowState.Minimized)
+        {
+            _window.PumpEvents();
+            return true;
+        }
+        SetAsActiveContext();
+
+        var deltaTime = stopwatch.ElapsedTicks / (float)Stopwatch.Frequency;
+        var snapshot = _window.PumpEvents();
+        if (!_window.Exists) return false;
+
+        _controller.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
+
+        SubmitUI();
+
+        _cl.Begin();
+        _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);
+        _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
+        _controller.Render(_gd, _cl);
+        _cl.End();
+        _gd.SubmitCommands(_cl);
+        _gd.SwapBuffers(_gd.MainSwapchain);
+            
+        return true;
+    }
+
     public void UiLoop()
     {
         // Create window, GraphicsDevice, and all resources necessary for the demo.
-        var width = _isWindowlessStyle ? TotalWindowlessViewportWidth : TotalWindowWidth;
-        var height = _isWindowlessStyle ? TotalWindowlessViewportHeight : TotalWindowHeight;
+        var width = _windowWidth;
+        var height = _windowHeight;
         VeldridStartup.CreateWindowAndGraphicsDevice(
             new WindowCreateInfo(50, 50, width, height, WindowState.Normal, $"{HVApp.AppTitle}"),
             new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
@@ -168,8 +201,7 @@ public partial class HVInnerWindow : IDisposable
             _controller.WindowResized(_window.Width, _window.Height);
         };
         _cl = _gd.ResourceFactory.CreateCommandList();
-        _controller = new CustomImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width,
-            _window.Height);
+        _controller = new CustomImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
 
         var timer = Stopwatch.StartNew();
         timer.Start();
@@ -220,10 +252,10 @@ public partial class HVInnerWindow : IDisposable
 
     #region Support for SteamVR Overlay
     
-    public void SetupWindowlessUi()
+    public void SetupUi(bool actuallyWindowless)
     {
         VeldridStartup.CreateWindowAndGraphicsDevice(
-            new WindowCreateInfo(50, 50, TotalWindowlessViewportWidth, TotalWindowlessViewportHeight, WindowState.Hidden, $"{HVApp.AppTitle}"),
+            new WindowCreateInfo(50, 50, _windowWidth, _windowHeight, actuallyWindowless ? WindowState.Hidden : WindowState.Normal, actuallyWindowless ? $"{HVApp.AppTitle}-Windowless" : HVApp.AppTitle),
             new GraphicsDeviceOptions(true, null, true, ResourceBindingModel.Improved, true, true),
             // I am forcing this to Direct3D11, because my current implementation requires
             // that GetOverlayTexturePointer / GetTexturePointer would get the IntPtr from D3D11.
@@ -232,23 +264,29 @@ public partial class HVInnerWindow : IDisposable
             GraphicsBackend.Direct3D11,
             out _window,
             out _gd);
-        _window.Resizable = false;
+        _window.Resizable = !actuallyWindowless;
         _window.Resized += () =>
         {
             // FIXME: It might not be necessary to resize the swapchain, since we don't use that.
             // Actually, we don't ever resize the window either.
             _gd.MainSwapchain.Resize((uint)_window.Width, (uint)_window.Height);
-            
-            TeardownFramebuffer();
-            SetupFramebuffer();
+
+            if (actuallyWindowless)
+            {
+                TeardownFramebuffer();
+                SetupFramebuffer();
+            }
             _controller.WindowResized(_window.Width, _window.Height);
         };
         _cl = _gd.ResourceFactory.CreateCommandList();
 
-        SetupFramebuffer();
+        if (actuallyWindowless)
+        {
+            SetupFramebuffer();
+        }
 
         // I've wasted several hours of dev because I forgot to pass our own framebuffer OutputDescription to this thing.
-        _controller = new CustomImGuiController(_gd, _overlayFramebuffer.OutputDescription, _window.Width, _window.Height);
+        _controller = new CustomImGuiController(_gd, actuallyWindowless ? _overlayFramebuffer.OutputDescription : _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
     }
 
     private void SetupFramebuffer()
@@ -304,7 +342,6 @@ public partial class HVInnerWindow : IDisposable
     public void UpdateAndRender(Stopwatch stopwatch, InputSnapshot snapshot)
     {
         var deltaTime = stopwatch.ElapsedTicks / (float)Stopwatch.Frequency;
-        stopwatch.Restart();
         
         _controller.Update(deltaTime, snapshot);
         
@@ -318,9 +355,12 @@ public partial class HVInnerWindow : IDisposable
         _gd.SubmitCommands(_cl);
     }
 
-    public void TeardownWindowlessUi()
+    public void TeardownWindowlessUi(bool actuallyWindowless)
     {
-        TeardownFramebuffer();
+        if (actuallyWindowless)
+        {
+            TeardownFramebuffer();
+        }
         
         // Clean up Veldrid resources
         _gd.WaitForIdle();
@@ -334,5 +374,32 @@ public partial class HVInnerWindow : IDisposable
     public Vector2 WindowSize()
     {
         return new Vector2(_window.Width, _window.Height);
+    }
+
+    public void SetAsActiveContext()
+    {
+        _controller.SetAsActiveContext();
+    }
+
+    public bool HandleSleep()
+    {
+        if (_window.WindowState == WindowState.Minimized)
+        {
+            Thread.Sleep(1000 / RefreshEventPollPerSecondWhenMinimized);
+                
+            // TODO: We need to know when the window is no longer minimized.
+            // How to properly poll events while minimized?
+            _window.PumpEvents();
+
+            return false;
+        }
+
+        if (!_window.Focused)
+        {
+            Thread.Sleep(1000 / RefreshFramesPerSecondWhenUnfocused);
+        }
+        // else: Do not limit framerate.
+        
+        return true;
     }
 }

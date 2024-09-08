@@ -46,6 +46,7 @@ namespace ImGuiNET
         private readonly Dictionary<IntPtr, ResourceSetInfo> _viewsById = new Dictionary<IntPtr, ResourceSetInfo>();
         private readonly List<IDisposable> _ownedResources = new List<IDisposable>();
         private int _lastAssignedID = 100;
+        private readonly IntPtr _context;
 
         /// <summary>
         /// Constructs a new ImGuiController.
@@ -56,7 +57,8 @@ namespace ImGuiNET
             _windowWidth = width;
             _windowHeight = height;
 
-            ImGui.CreateContext();
+            _context = ImGui.CreateContext();
+            ImGui.SetCurrentContext(_context);
             var io = ImGui.GetIO();
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
             io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard |
@@ -73,6 +75,11 @@ namespace ImGuiNET
         {
             _windowWidth = width;
             _windowHeight = height;
+        }
+
+        public void SetAsActiveContext()
+        {
+            ImGui.SetCurrentContext(_context);
         }
 
         public void DestroyDeviceObjects()

@@ -4,6 +4,10 @@ using System.Text;
 using System.Web;
 using Hai.HView.Core;
 using Newtonsoft.Json.Linq;
+// ReSharper disable once RedundantUsingDirective
+using Newtonsoft.Json; // Used by COOKIES_SUPPORTED
+// ReSharper disable once RedundantUsingDirective
+using JsonSerializer = System.Text.Json.JsonSerializer; // Used by COOKIES_SUPPORTED
 
 namespace Hai.HView.VRCLogin;
 
@@ -13,18 +17,77 @@ public class HVVrcSession
 {
     private const string RootUrl = "https://vrchat.com/api/1";
     private const string AuthUrl = RootUrl + "/auth/user";
+    private const string LogoutUrl = RootUrl + "/logout";
     private const string EmailOtpUrl = RootUrl + "/auth/twofactorauth/emailotp/verify";
     private const string OtpUrl = RootUrl + "/auth/twofactorauth/otp/verify";
+    public bool IsLoggedIn => _isLoggedIn;
+
     private static string SwitchAvatarUrl(string safe_avatarId) => $"{RootUrl}/avatars/{safe_avatarId}/select";
     
     // TODO: Persist the auth cookie / the twofer cookie across app restarts
-    private readonly HttpClient _client;
+    private CookieContainer _cookies;
+    private HttpClient _client;
     private bool _isLoggedIn;
 
     public HVVrcSession()
     {
-        _client = new HttpClient();
+        _cookies = new CookieContainer();
+        var handler = new HttpClientHandler
+        {
+            CookieContainer = _cookies
+        };
+        _client = new HttpClient(handler);
         _client.DefaultRequestHeaders.UserAgent.ParseAdd($"Hai.HView/{VERSION.version} (docs.hai-vr.dev/docs/products/h-view)");
+    }
+
+    // FIXME: Cookie saving is not working 
+    public string GetAllCookies__Sensitive()
+    {
+#if COOKIES_SUPPORTED
+        // return JsonConvert.SerializeObject(_cookies.GetAllCookies());
+        return System.Text.Json.JsonSerializer.Serialize(_cookies.GetAllCookies());
+#else
+        throw new ArgumentException(); // Don't even call me!
+#endif
+    }
+
+    // FIXME: Cookie loading is not working
+    public void ProvideCookies(string userinput_cookies__sensitive)
+    {
+#if COOKIES_SUPPORTED
+        _cookies = new CookieContainer();
+        // _cookies.Add(JsonConvert.DeserializeObject<CookieCollection>(userinput_cookies__sensitive));
+        _cookies.Add(JsonSerializer.Deserialize<CookieCollection>(userinput_cookies__sensitive));
+        var handler = new HttpClientHandler
+        {
+            CookieContainer = _cookies
+        };
+        _client = new HttpClient(handler);
+        _client.DefaultRequestHeaders.UserAgent.ParseAdd($"Hai.HView/{VERSION.version} (docs.hai-vr.dev/docs/products/h-view)");
+        
+        // Assume that if the user has cookies, then they're logged in.
+        // There is a route to check if the token is still valid, but for privacy, we don't want the application to send a request
+        // to VRChat's server every time we start.
+        // VRChat should only be privileged to know when a user is actively using HView when that user is actively
+        // using the avatar switching function.
+        _isLoggedIn = true;
+#endif
+    }
+
+    public async Task<LogoutResponseStatus> Logout()
+    {
+        if (!_isLoggedIn) return LogoutResponseStatus.NotLoggedIn;
+        _isLoggedIn = false;
+        
+        var request = new HttpRequestMessage(HttpMethod.Put, LogoutUrl);
+        
+        var response = await _client.SendAsync(request);
+        return response.StatusCode switch
+        {
+            HttpStatusCode.OK => LogoutResponseStatus.Success,
+            HttpStatusCode.Unauthorized => LogoutResponseStatus.Unauthorized,
+            _ => LogoutResponseStatus.OutsideProtocol
+        };
     }
     
     public async Task<LoginResponse> Login(string userinput_account__sensitive, string userinput_password__sensitive)
@@ -128,6 +191,11 @@ public class HVVrcSession
         var bytes__sensitive = Encoding.UTF8.GetBytes(basicToken__sensitive);
         var result__sensitive = Convert.ToBase64String(bytes__sensitive);
         return result__sensitive;
+    }
+
+    public enum LogoutResponseStatus
+    {
+        Unresolved, OutsideProtocol, Success, Unauthorized, NotLoggedIn
     }
 
     public struct LoginResponse

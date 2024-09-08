@@ -10,19 +10,12 @@ namespace Hai.HView.Gui.Tab;
 public class UiCostumes
 {
     private readonly HVInnerWindow _inner;
+    private readonly HVRoutine _routine;
     private readonly UiScrollManager _scrollManager;
+    private readonly bool _noLogin;
     private readonly string[] _files;
     private readonly string[] _fileNames;
-
-    private readonly HVVrcSession _vrcSession = new HVVrcSession(); // FIXME: This should be in Routine, or a separate class. Not in UI
     
-    private Task<HVVrcSession.LoginResponse> _loginTaskNullable;
-    private HVVrcSession.LoginResponseStatus _loginStatus = HVVrcSession.LoginResponseStatus.Unresolved;
-    private bool _needsTwofer;
-    private HVVrcSession.TwoferMethod _twoferMethod = HVVrcSession.TwoferMethod.Other;
-    
-    private Task<HVVrcSession.SwitchAvatarResponseStatus> _selectingAvatarTaskNullable;
-    private HVVrcSession.SwitchAvatarResponseStatus _switchResult;
     private readonly Vector2 _portraitSize = new Vector2(256, 768);
 
     private const string LoginLabel = "Login";
@@ -30,45 +23,45 @@ public class UiCostumes
     private const string SwitchAvatarLabel = "Switch avatar";
     private const string LoginToVrchatLabel = "Login to VRChat";
     private const string LoggedInMsg = "You are logged in.";
-    private const string CostumesLabel = "Costumes";
     private const string CurrentAvatarLabel = "Current avatar";
     private const uint MaxLength = 10_000;
-    
+    private const string LogoutLabel = "Logout";
+
     private string _accountNameBuffer__sensitive = "";
     private string _accountPasswordBuffer__sensitive = "";
     private string _twoferBuffer__sensitive = "";
     private string _avatarIdBuffer = "";
 
-    public UiCostumes(HVInnerWindow inner, UiScrollManager scrollManager)
+    public UiCostumes(HVInnerWindow inner, HVRoutine routine, UiScrollManager scrollManager, bool noLogin)
     {
         _inner = inner;
+        _routine = routine;
         _scrollManager = scrollManager;
+        _noLogin = noLogin;
         _files = HVRoutine.GetFilesInLocalLowVRChatDirectories("avtr_*.png");
         _fileNames = _files.Select(Path.GetFileNameWithoutExtension).ToArray();
     }
 
     internal void CostumesTab(Dictionary<string, HOscItem> oscMessages)
     {
+        var uiExternalService = _routine.UiExternalService();
         var currentAvi = oscMessages.TryGetValue("/avatar/change", out var c) ? (string)c.Values[0] : "";
 
-        if (_loginStatus != HVVrcSession.LoginResponseStatus.Success)
+        if (!uiExternalService.IsLoggedIn)
         {
             ImGui.SeparatorText(LoginToVrchatLabel);
-            LoginScreen();
+            LoginScreen(uiExternalService);
             ImGui.Text("");
         }
         
         ImGui.BeginTabBar("##tabs_costumes");
-        _scrollManager.MakeTab("Costumes", () => Costumes(currentAvi));
-        _scrollManager.MakeTab("Switch", () => SwitchAvatar(currentAvi));
-        if (_loginStatus == HVVrcSession.LoginResponseStatus.Success) _scrollManager.MakeTab("Login", LoginScreen);
+        _scrollManager.MakeTab("Costumes", () => Costumes(uiExternalService, currentAvi));
+        _scrollManager.MakeTab("Switch", () => SwitchAvatar(uiExternalService, currentAvi));
+        if (uiExternalService.IsLoggedIn) _scrollManager.MakeTab("Login", () => LoginScreen(uiExternalService));
         ImGui.EndTabBar();
-
-        // TODO: This should be on the Routine side.
-        EvalTasks();
     }
 
-    private void SwitchAvatar(string currentAvi)
+    private void SwitchAvatar(HVExternalService uiExternalService, string currentAvi)
     {
         ImGui.SeparatorText(CurrentAvatarLabel);
         ImGui.Text(currentAvi);
@@ -85,27 +78,26 @@ public class UiCostumes
         
         ImGui.SeparatorText(SwitchAvatarLabel);
         
-        ImGui.BeginDisabled(_selectingAvatarTaskNullable != null);
+        ImGui.BeginDisabled(uiExternalService.IsProcessingSwitchAvatar);
         ImGui.InputText("Avatar ID##avatarid.input", ref _avatarIdBuffer, MaxLength);
         if (ImGui.Button(SwitchAvatarLabel))
         {
             var userinput_avatarId = _avatarIdBuffer;
-            _selectingAvatarTaskNullable = _vrcSession.SelectAvatar(userinput_avatarId);
+            uiExternalService.SelectAvatar(userinput_avatarId);
         }
         ImGui.EndDisabled();
 
         ImGui.SameLine();
-        ImGui.Text("Status: " + Enum.GetName(_switchResult));
+        ImGui.Text("Status: " + Enum.GetName(uiExternalService.SwitchStatus));
         ImGui.Text("");
     }
 
-    private void Costumes(string currentAvi)
+    private void Costumes(HVExternalService uiExternalService, string currentAvi)
     {
-        ImGui.SeparatorText(CostumesLabel);
         var acc = 0f;
         for (var i = 0; i < _files.Length; i++)
         {
-            DrawAviButton(_fileNames[i], _files[i], currentAvi);
+            DrawAviButton(_fileNames[i], _files[i], uiExternalService, currentAvi);
             acc += _portraitSize.X + 6 * 2 + 12;
             if (i != _files.Length - 1)
             {
@@ -121,57 +113,31 @@ public class UiCostumes
         }
     }
 
-    private void DrawAviButton(string avatarId, string pngPath, string currentAvi)
+    private void DrawAviButton(string avatarId, string pngPath, HVExternalService uiExternalService, string currentAvi)
     {
         if (avatarId == currentAvi) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
         if (ImGui.ImageButton($"###switch_{avatarId}", _inner.GetOrLoadImage(pngPath), _portraitSize))
         {
-            _selectingAvatarTaskNullable = _vrcSession.SelectAvatar(avatarId);
+            uiExternalService.SelectAvatar(avatarId);
         }
         if (avatarId == currentAvi) ImGui.PopStyleColor();
     }
 
-    private void EvalTasks()
-    {
-        if (_loginTaskNullable != null && _loginTaskNullable.IsCompleted)
-        {
-            if (_loginTaskNullable.IsCompletedSuccessfully)
-            {
-                var result = _loginTaskNullable.Result;
-                _loginStatus = result.Status;
-                if (result.Status == HVVrcSession.LoginResponseStatus.RequiresTwofer)
-                {
-                    _needsTwofer = true;
-                    _twoferMethod = result.TwoferMethod;
-                }
-                else if (result.Status == HVVrcSession.LoginResponseStatus.Success)
-                {
-                    _needsTwofer = false;
-                    _accountPasswordBuffer__sensitive = "";
-                }
-            }
-            _loginTaskNullable = null;
-        }
-
-        if (_selectingAvatarTaskNullable != null && _selectingAvatarTaskNullable.IsCompleted)
-        {
-            if (_selectingAvatarTaskNullable.IsCompletedSuccessfully)
-            {
-                _switchResult = _selectingAvatarTaskNullable.Result;
-            }
-
-            _selectingAvatarTaskNullable = null;
-        }
-    }
-
     /// I hate this
-    private void LoginScreen()
+    /// <param name="uiExternalService"></param>
+    private void LoginScreen(HVExternalService uiExternalService)
     {
-        if (_loginStatus != HVVrcSession.LoginResponseStatus.Success)
+        if (_noLogin && !uiExternalService.IsLoggedIn)
         {
-            if (!_needsTwofer)
+            ImGui.Text("HaiView is not logged into your VRChat account. To log in, open this tab on the desktop window.");
+            return;
+        }
+        
+        if (!uiExternalService.IsLoggedIn)
+        {
+            if (!uiExternalService.NeedsTwofer)
             {
-                ImGui.BeginDisabled(_loginTaskNullable != null);
+                ImGui.BeginDisabled(uiExternalService.IsProcessingLogin);
                 ImGui.InputText("Username##username.input", ref _accountNameBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
                 ImGui.InputText("Password##password.input", ref _accountPasswordBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
                 if (ImGui.Button(LoginLabel))
@@ -179,34 +145,41 @@ public class UiCostumes
                     var userinput_username__sensitive = _accountNameBuffer__sensitive;
                     var userinput_password__sensitive = _accountPasswordBuffer__sensitive;
 
-                    _loginTaskNullable = _vrcSession.Login(userinput_username__sensitive, userinput_password__sensitive);
+                    uiExternalService.Login(userinput_username__sensitive, userinput_password__sensitive);
                 }
                 ImGui.EndDisabled(); 
             }
             else
             {
-                ImGui.BeginDisabled(_loginTaskNullable != null);
+                ImGui.BeginDisabled(uiExternalService.IsProcessingLogin);
                 ImGui.Text("Check your email for a 2FA code.");
                 ImGui.InputText("2FA Code##twofer.input", ref _twoferBuffer__sensitive, MaxLength);
                 if (ImGui.Button(SubmitCodeLabel))
                 {
                     var userinput_twoferCode__sensitive = _twoferBuffer__sensitive;
 
-                    _loginTaskNullable = _vrcSession.VerifyTwofer(userinput_twoferCode__sensitive, _twoferMethod);
+                    uiExternalService.VerifyTwofer(userinput_twoferCode__sensitive);
                 }
                 ImGui.EndDisabled(); 
             }
             ImGui.SameLine();
-            ImGui.Text($"Status: {Enum.GetName(_loginStatus)}");
-            if (_needsTwofer)
+            ImGui.Text($"Status: {Enum.GetName(uiExternalService.LoginStatus)}");
+            if (uiExternalService.NeedsTwofer)
             {
                 ImGui.SameLine();
-                ImGui.Text($"by {Enum.GetName(_twoferMethod)}");
+                ImGui.Text($"by {Enum.GetName(uiExternalService.TwoferMethod)}");
             }
         }
         else
         {
             ImGui.Text(LoggedInMsg);
+            ImGui.TextWrapped($"Cookies have been saved in {HVExternalService.CookieFile}. Logout to delete these cookies.");
+            if (ImGui.Button(LogoutLabel))
+            {
+                uiExternalService.Logout();
+            }
+            ImGui.SameLine();
+            ImGui.Text($"Status: {Enum.GetName(uiExternalService.LogoutStatus)}");
         }
     }
 }

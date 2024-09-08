@@ -1,10 +1,15 @@
-﻿using Hai.HView.Core;
+﻿// TODO: This class is no longer used. Exclude it from code analysis, delete if I decide to fully migrate
+#if WINDOWLESS_SUPPORTED
+using Hai.HView.Core;
 using Hai.HView.Overlay;
 
 namespace Hai.HView.Gui;
 
 public class HVWindowless
 {
+    private const int TotalWindowWidth = 800;
+    private const int TotalWindowHeight = 800;
+    
     private readonly HVRoutine _routine;
     private readonly Action _whenWindowClosed;
 
@@ -28,16 +33,33 @@ public class HVWindowless
           - Is there a need to decouple the overlay logic update rate from the UI update rate? (overlay position changes faster than the UI renders)
           - Should each window have a different update render rate?
 */
-        var innerWindow = new HVInnerWindow(_routine, true);
-        innerWindow.SetupWindowlessUi();
+        var innerWindow = new HVInnerWindow(_routine, true, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight);
+        innerWindow.SetupUi(true);
         
-        var overlay = new HVOverlay(innerWindow);
-        var success = overlay.Start();
+        var ovr = new HVOpenVRManagement();
+        var success = ovr.Start();
         if (success)
         {
-            overlay.Run(); // VR loop (blocking call)
+            var instance = new HVOverlayInstance(innerWindow, "main", false, 1f);
+            instance.Start();
+            
+            ovr.Run(stopwatch =>
+            {
+                instance.ProvidePoseData(ovr.PoseData());
+                
+                // TODO: The update rate of the overlay UI event processing UI rendering may need to be independent
+                // of the management of the overlay movement and poses.
+                instance.ProcessThatOverlay(stopwatch);
+                
+            }); // VR loop (blocking call)
+
+            instance.Teardown();
+            
+            ovr.Teardown();
         }
-        innerWindow.TeardownWindowlessUi();
+        
+        innerWindow.TeardownWindowlessUi(true);
         _whenWindowClosed.Invoke();
     }
 }
+#endif

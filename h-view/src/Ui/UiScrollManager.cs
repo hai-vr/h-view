@@ -20,6 +20,15 @@ public class UiScrollManager
         }
     }
 
+    public void MakeUnscrollableTab(string tabLabel, Action action)
+    {
+        if (ImGui.BeginTabItem(tabLabel))
+        {
+            action.Invoke();
+            ImGui.EndTabItem();
+        }
+    }
+
     private void HandleScrollOnDrag()
     {
         DoHandleScrollOnDrag(ImGui.GetIO().MouseDelta, ImGuiMouseButton.Left);
