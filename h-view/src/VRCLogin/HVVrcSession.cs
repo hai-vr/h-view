@@ -23,7 +23,6 @@ public class HVVrcSession
 
     private static string SwitchAvatarUrl(string safe_avatarId) => $"{RootUrl}/avatars/{safe_avatarId}/select";
     
-    // TODO: Persist the auth cookie / the twofer cookie across app restarts
     private CookieContainer _cookies;
     private HttpClient _client;
     private bool _isLoggedIn;
@@ -39,7 +38,6 @@ public class HVVrcSession
         _client.DefaultRequestHeaders.UserAgent.ParseAdd($"Hai.HView/{VERSION.version} (docs.hai-vr.dev/docs/products/h-view)");
     }
 
-    // FIXME: Cookie saving is not working 
     public string GetAllCookies__Sensitive()
     {
 #if COOKIES_SUPPORTED
@@ -49,7 +47,6 @@ public class HVVrcSession
 #endif
     }
 
-    // FIXME: Cookie loading is not working
     public void ProvideCookies(string userinput_cookies__sensitive)
     {
 #if COOKIES_SUPPORTED
