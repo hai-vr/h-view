@@ -45,6 +45,14 @@ public partial class HVInnerWindow
             SimplePressEvent(ref id, "/input/Voice");
             ImGui.EndDisabled();
         }
+        ImGui.Text("");
+        ImGui.Text("");
+        ImGui.SeparatorText("Options");
+        var autoLaunch = _routine.IsAutoLaunch();
+        if (ImGui.Checkbox("Start with SteamVR", ref autoLaunch))
+        {
+            _routine.SetAutoLaunch(autoLaunch);
+        }
     }
 
     private void SimplePressEvent(ref int identifier, string address)

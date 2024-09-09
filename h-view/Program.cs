@@ -10,6 +10,12 @@ var isOverlay = !args.Contains("--no-overlay");
 var isOverlay = false;
 #endif
 
+#if REGISTER_MANIFEST
+var registerManifest = !args.Contains("--no-register-manifest");
+#else
+var registerManifest = args.Contains("--register-manifest");
+#endif
+
 // Create a desktop window stylized as being the overlay version.
 // This does nothing when the --overlay arg is set.
 var simulateWindowlessStyle = args.Contains("--simulate-windowless");
@@ -28,7 +34,7 @@ var messageBox = new HMessageBox();
 var externalService = new HVExternalService();
 var routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService);
 
-var ovrThread = new HVOpenVRThread(routine);
+var ovrThread = new HVOpenVRThread(routine, registerManifest);
 
 // Start services
 oscClient.Start();

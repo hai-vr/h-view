@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.Overlay;
+using Valve.VR;
 
 namespace Hai.HView.OVR;
 
@@ -9,13 +10,16 @@ public class HVOpenVRThread
 {
     private const int TotalWindowWidth = 600;
     private const int TotalWindowHeight = 510;
-    
+    public const string VrManifestAppKey = "Hai.HView";
+
     private readonly HVRoutine _routine;
     private readonly HVOpenVRManagement _ovr;
+    private readonly bool _registerAppManifest;
 
-    public HVOpenVRThread(HVRoutine routine)
+    public HVOpenVRThread(HVRoutine routine, bool registerAppManifest)
     {
         _routine = routine;
+        _registerAppManifest = registerAppManifest;
         _ovr = new HVOpenVRManagement();
     }
 
@@ -55,6 +59,16 @@ public class HVOpenVRThread
 
         if (shouldContinue)
         {
+            if (_registerAppManifest)
+            {
+                var isApplicationInstalled = OpenVR.Applications.IsApplicationInstalled(VrManifestAppKey);
+                if (!isApplicationInstalled)
+                {
+                    OpenVR.Applications.AddApplicationManifest(Path.GetFullPath("manifest.vrmanifest"), false);
+                }
+            }
+            _routine.InitializeAutoLaunch(OpenVR.Applications.GetApplicationAutoLaunch(VrManifestAppKey));
+
             var innerWindow = new HVInnerWindow(_routine, true, 1400, 1400, 1400, 800);
             innerWindow.SetupUi(true);
             

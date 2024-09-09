@@ -1,0 +1,16 @@
+{
+    "source" : "builtin",
+    "applications": [{
+        "app_key": "Hai.HView",
+        "launch_type": "binary",
+        "binary_path_windows": "h-view.exe",
+        "is_dashboard_overlay": true,
+        
+        "strings": {
+            "en_us": {
+                    "name": "HaiView",
+                    "description": "HaiView"
+                }
+            }
+    }]
+}

@@ -3,8 +3,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.OSC;
+using Hai.HView.OVR;
 using hcontroller.Lyuma;
 using Newtonsoft.Json;
+using Valve.VR;
 
 namespace Hai.HView.Core;
 
@@ -26,6 +28,8 @@ public class HVRoutine
 
     private EMManifest _expressionsManifest;
     private string[] _manifestFiles = new string[0];
+    private bool _autoLaunch;
+    private bool _isAutoLaunchAvailable;
 
     public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService)
     {
@@ -214,5 +218,25 @@ public class HVRoutine
     public void UpdateMessageMultivalue(string key, object[] multipleValues)
     {
         _osc.SendOscMultivalue(key, multipleValues);
+    }
+
+    public void InitializeAutoLaunch(bool initialValue)
+    {
+        _autoLaunch = initialValue;
+        _isAutoLaunchAvailable = true;
+    }
+
+    public bool IsAutoLaunch()
+    {
+        return _autoLaunch;
+    }
+
+    public void SetAutoLaunch(bool autoLaunch)
+    {
+        if (_isAutoLaunchAvailable)
+        {
+            OpenVR.Applications.SetApplicationAutoLaunch(HVOpenVRThread.VrManifestAppKey, autoLaunch);
+            _autoLaunch = autoLaunch;
+        }
     }
 }

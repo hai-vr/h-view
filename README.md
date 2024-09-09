@@ -28,6 +28,8 @@ https://github.com/user-attachments/assets/889a2648-7cda-4cba-bb0b-23cf1c96ddaf
 
 - *No option specified:* Starts as a desktop window. If SteamVR is running, it also creates an additional dashboard overlay.
 - `--no-overlay` Starts as a desktop window.
+- `--register-manifest` On `Debug` config only: Register the application path to SteamVR. By default, debug builds do not register themselves.
+- `--no-register-manifest` On `Release` config only: Do not register the application path to SteamVR.
 
 ### Third-party acknowledgements
 
