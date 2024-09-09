@@ -42,6 +42,7 @@ public class HVExternalService
     private void DeleteCookieFile()
     {
 #if COOKIES_SUPPORTED
+        // TODO: Might have to just delete the auth token, but keep the Twofer cookie.
         if (File.Exists(CookieFile))
         {
             File.Delete(CookieFile);

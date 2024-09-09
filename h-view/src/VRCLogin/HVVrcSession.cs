@@ -6,8 +6,6 @@ using Hai.HView.Core;
 using Newtonsoft.Json.Linq;
 // ReSharper disable once RedundantUsingDirective
 using Newtonsoft.Json; // Used by COOKIES_SUPPORTED
-// ReSharper disable once RedundantUsingDirective
-using JsonSerializer = System.Text.Json.JsonSerializer; // Used by COOKIES_SUPPORTED
 
 namespace Hai.HView.VRCLogin;
 
@@ -20,6 +18,7 @@ public class HVVrcSession
     private const string LogoutUrl = RootUrl + "/logout";
     private const string EmailOtpUrl = RootUrl + "/auth/twofactorauth/emailotp/verify";
     private const string OtpUrl = RootUrl + "/auth/twofactorauth/otp/verify";
+    private const string CookieDomain = "https://vrchat.com";
     public bool IsLoggedIn => _isLoggedIn;
 
     private static string SwitchAvatarUrl(string safe_avatarId) => $"{RootUrl}/avatars/{safe_avatarId}/select";
@@ -44,8 +43,7 @@ public class HVVrcSession
     public string GetAllCookies__Sensitive()
     {
 #if COOKIES_SUPPORTED
-        // return JsonConvert.SerializeObject(_cookies.GetAllCookies());
-        return System.Text.Json.JsonSerializer.Serialize(_cookies.GetAllCookies());
+        return JsonConvert.SerializeObject(CompileCookies());
 #else
         throw new ArgumentException(); // Don't even call me!
 #endif
@@ -56,8 +54,9 @@ public class HVVrcSession
     {
 #if COOKIES_SUPPORTED
         _cookies = new CookieContainer();
-        // _cookies.Add(JsonConvert.DeserializeObject<CookieCollection>(userinput_cookies__sensitive));
-        _cookies.Add(JsonSerializer.Deserialize<CookieCollection>(userinput_cookies__sensitive));
+        var deserialized = JsonConvert.DeserializeObject<VrcAuthenticationCookies>(userinput_cookies__sensitive);
+        if (deserialized.auth != null) _cookies.Add(new Uri(CookieDomain), RebuildCookie(deserialized.auth, "auth"));
+        if (deserialized.twoFactorAuth != null) _cookies.Add(new Uri(CookieDomain), RebuildCookie(deserialized.twoFactorAuth, "twoFactorAuth"));
         var handler = new HttpClientHandler
         {
             CookieContainer = _cookies
@@ -65,13 +64,62 @@ public class HVVrcSession
         _client = new HttpClient(handler);
         _client.DefaultRequestHeaders.UserAgent.ParseAdd($"Hai.HView/{VERSION.version} (docs.hai-vr.dev/docs/products/h-view)");
         
-        // Assume that if the user has cookies, then they're logged in.
+        // Assume that if the user has an auth cookie, then they're logged in.
         // There is a route to check if the token is still valid, but for privacy, we don't want the application to send a request
         // to VRChat's server every time we start.
         // VRChat should only be privileged to know when a user is actively using HView when that user is actively
         // using the avatar switching function.
-        _isLoggedIn = true;
+        _isLoggedIn = deserialized.auth != null;
 #endif
+    }
+
+    private static Cookie RebuildCookie(VrcCookie cookie, string name)
+    {
+        return new Cookie
+        {
+            Domain = "vrchat.com",
+            Name = name,
+            Value = cookie.Value,
+            Expires = cookie.Expires,
+            HttpOnly = true,
+            Path = "/"
+        };
+    }
+
+    private VrcAuthenticationCookies CompileCookies()
+    {
+        var subCookies = _cookies.GetCookies(new Uri(CookieDomain)).ToArray();
+        var authNullable = subCookies.Where(cookie => cookie.Name == "auth").Select(Cookify).FirstOrDefault();
+        var twoFactorAuthNullable = subCookies.Where(cookie => cookie.Name == "twoFactorAuth").Select(Cookify).FirstOrDefault();
+        
+        return new VrcAuthenticationCookies
+        {
+            auth = authNullable,
+            twoFactorAuth = twoFactorAuthNullable
+        };
+    }
+
+    private VrcCookie Cookify(Cookie cookie)
+    {
+        return new VrcCookie
+        {
+            Value = cookie.Value,
+            Expires = cookie.Expires,
+        };
+    }
+
+    [Serializable]
+    public class VrcAuthenticationCookies
+    {
+        public VrcCookie auth;
+        public VrcCookie twoFactorAuth;
+    }
+
+    [Serializable]
+    public class VrcCookie
+    {
+        public string Value;
+        public DateTime Expires;
     }
 
     public async Task<LogoutResponseStatus> Logout()

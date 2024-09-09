@@ -14,19 +14,19 @@
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DefineConstants>TRACE;HV_DEBUG;INCLUDES_OPENVR</DefineConstants>
+        <DefineConstants>TRACE;HV_DEBUG;INCLUDES_OPENVR;COOKIES_SUPPORTED</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DefineConstants>TRACE;INCLUDES_OPENVR</DefineConstants>
+        <DefineConstants>TRACE;INCLUDES_OPENVR;COOKIES_SUPPORTED</DefineConstants>
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug NoOpenVR' ">
-        <DefineConstants>TRACE;HV_DEBUG</DefineConstants>
+        <DefineConstants>TRACE;HV_DEBUG;COOKIES_SUPPORTED</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release NoOpenVR' ">
-        <DefineConstants>TRACE</DefineConstants>
+        <DefineConstants>TRACE;COOKIES_SUPPORTED</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
