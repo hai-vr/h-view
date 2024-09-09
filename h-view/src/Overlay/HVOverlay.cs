@@ -40,6 +40,7 @@ public class HVOverlayInstance
         if (_isDashboard)
         {
             OpenVR.Overlay.CreateDashboardOverlay($"{DashboardKey}-{_name}", HVApp.AppTitle, ref _handle, ref _thumbHandle);
+            OpenVR.Overlay.SetOverlayFromFile(_thumbHandle, Path.GetFullPath("DashboardThumb.png"));
         }
         else
         {
