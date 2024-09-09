@@ -10,8 +10,24 @@ public class HOverlayInputSnapshot : InputSnapshot
     public IReadOnlyList<MouseEvent> MouseEvents => _mouseEvents;
     public IReadOnlyList<char> KeyCharPresses => _keyCharPresses;
     public Vector2 MousePosition { get; private set; } = Vector2.Zero;
-    public float WheelDelta { get; private set; }
-    
+
+    private float _wheelDelta;
+    public float WheelDelta
+    {
+        get
+        {
+            // This condition prevents a situation where thumbstick drift from broken VR controllers
+            // would be submitted as inconsequential scrolls to ImGui, causing considerable input lag
+            // (1-second input lag) to occur in ImGui overlay windows.
+            if (Math.Abs(_wheelDelta) < 0.01f)
+            {
+                return 0f;
+            }
+            return _wheelDelta;
+        }
+        private set => _wheelDelta = value;
+    }
+
     private readonly List<KeyEvent> _keyEvents = new List<KeyEvent>();
     private readonly List<MouseEvent> _mouseEvents = new List<MouseEvent>();
     private readonly List<char> _keyCharPresses = new List<char>();
