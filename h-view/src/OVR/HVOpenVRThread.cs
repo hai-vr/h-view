@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Numerics;
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.Overlay;
@@ -69,19 +70,58 @@ public class HVOpenVRThread
             }
             _routine.InitializeAutoLaunch(OpenVR.Applications.GetApplicationAutoLaunch(VrManifestAppKey));
 
-            var innerWindow = new HVInnerWindow(_routine, true, 1400, 1400, 1400, 800);
+            var width = 1400;
+            var height = 800;
+            var innerWindow = new HVInnerWindow(_routine, true, width, width, width, height);
             innerWindow.SetupUi(true);
+
+            var windowRatio = width / (height * 1f);
+            var dashboard = new HVOverlayInstance(innerWindow, "main", true, windowRatio);
+            dashboard.Start();
+
+            HVOverlayInstance costumesNullable = null;
+            var onShowCostumes = () =>
+            {
+                costumesNullable = new HVOverlayInstance(innerWindow, "costumes", false, windowRatio);
+                costumesNullable.Start();
+                // TODO: Show should be moved into the overlay iteself.
+                var poseData = ovr.PoseData();
+                if (HVOverlayMovement.IsValidDeviceIndex(poseData.RightHandDeviceIndex))
+                {
+                    // FIXME: Executing things on the correct thread is really messy at the moment.
+                    var pos = new Vector3(0f, -0.01f, -0.2f);
+                    var angles = new Vector3(65, 0, 0);
+                    var rot = HVGeofunctions.QuaternionFromAngles(angles, HVRotationMulOrder.YZX);
+                    var handToOverlayPlace = HVOvrGeofunctions.OvrToOvrnum(HVOvrGeofunctions.OvrTRS(pos, rot, Vector3.One));
+                    
+                    var absToHandPlace = HVOvrGeofunctions.OvrToOvrnum(ovr.PoseData().Poses[poseData.RightHandDeviceIndex].mDeviceToAbsoluteTracking);
+                    var absToOverlayPlace = HVOvrGeofunctions.OvrnumToOvr(absToHandPlace * handToOverlayPlace);
+
+                    OpenVR.Overlay.SetOverlayTransformAbsolute(costumesNullable.GetOverlayHandle(), ETrackingUniverseOrigin.TrackingUniverseStanding, ref absToOverlayPlace);
+                    OpenVR.Overlay.SetOverlayFlag(costumesNullable.GetOverlayHandle(), VROverlayFlags.MakeOverlaysInteractiveIfVisible, true);
+                }
+            };
+            var onHideCostumes = () =>
+            {
+                // FIXME: Executing things on the correct thread is really messy at the moment.
+                var overlay = costumesNullable;
+                costumesNullable = null;
+                OpenVR.Overlay.SetOverlayFlag(overlay.GetOverlayHandle(), VROverlayFlags.MakeOverlaysInteractiveIfVisible, false);
+                overlay.Teardown();
+            };
             
-            var overlay = new HVOverlayInstance(innerWindow, "main", true, 1400 / 800f);
-            overlay.Start();
+            _routine.OnShowCostumes += onShowCostumes;
+            _routine.OnHideCostumes += onHideCostumes;
         
             ovr.Run(stopwatch =>
             {
-                overlay.ProvidePoseData(ovr.PoseData());
+                dashboard.ProvidePoseData(ovr.PoseData());
+                costumesNullable?.ProvidePoseData(ovr.PoseData());
             
                 // TODO: The update rate of the overlay UI event processing UI rendering may need to be independent
                 // of the management of the overlay movement and poses.
-                overlay.ProcessThatOverlay(stopwatch);
+                dashboard.ProcessThatOverlay(stopwatch);
+                costumesNullable?.ProcessThatOverlay(stopwatch);
             
                 // TODO: Update the desktop window at a different rate than the HMD
                 var shouldContinue = desktopWindow.UpdateIteration(stopwatch);
@@ -91,8 +131,11 @@ public class HVOpenVRThread
                 }
             
             }); // VR loop (blocking call)
+            _routine.OnShowCostumes -= onShowCostumes;
+            _routine.OnHideCostumes -= onHideCostumes;
 
-            overlay.Teardown();
+            dashboard.Teardown();
+            costumesNullable?.Teardown();
         
             innerWindow.TeardownWindowlessUi(true);
         }

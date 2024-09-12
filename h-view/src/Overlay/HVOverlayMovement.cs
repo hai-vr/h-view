@@ -7,6 +7,8 @@ public class HVOverlayMovement
 {
     public void Evaluate(ulong hOverlay, HVPoseData poseData)
     {
+        // FIXME: Disable this code for now as this interferes with immovable non-dashboard overlays.
+        return;
         var controllerIndex = poseData.RightHandDeviceIndex;
         if (IsValidDeviceIndex(controllerIndex))
         {
@@ -21,7 +23,7 @@ public class HVOverlayMovement
         OpenVR.Overlay.SetOverlayFlag(hOverlay, VROverlayFlags.MakeOverlaysInteractiveIfVisible, true);
     }
 
-    private static bool IsValidDeviceIndex(uint deviceIndex)
+    public static bool IsValidDeviceIndex(uint deviceIndex)
     {
         return deviceIndex != OpenVR.k_unTrackedDeviceIndexInvalid;
     }

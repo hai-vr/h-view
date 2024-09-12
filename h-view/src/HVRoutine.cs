@@ -14,6 +14,10 @@ namespace Hai.HView.Core;
 
 public class HVRoutine
 {
+    private const string AvatarChangeOscAddress = "/avatar/change";
+    private const string ChatboxInputOscAddress = "/chatbox/input";
+    public const string ShowCostumesOscAddress = "/avatar/parameters/H-View/ShowCostumes";
+    
     private const string EEMPrefix = "ExternalExpressionsMenu_";
     private const string JsonSuffix = ".json";
     private Stopwatch _timer;
@@ -28,12 +32,15 @@ public class HVRoutine
 
     public event OnManifestChangeEvent OnManifestChanged;
     public delegate void OnManifestChangeEvent(EMManifest newManifest);
+    public event Action OnShowCostumes;
+    public event Action OnHideCostumes;
 
     private EMManifest _expressionsManifest;
     private string[] _manifestFiles = new string[0];
     private bool _autoLaunch;
     private bool _isAutoLaunchAvailable;
     private Costume[] _costumes;
+    private bool _isShowingCostumes;
 
     public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworks)
     {
@@ -105,7 +112,7 @@ public class HVRoutine
             {
                 if (_expressionsManifest == null)
                 {
-                    if (_messageBox.TryGet("/avatar/change", out var avatar))
+                    if (_messageBox.TryGet(AvatarChangeOscAddress, out var avatar))
                     {
                         Console.WriteLine("Trying to load avatar from OSC Query response");
                         TryDeserializeExternalExpressionsMenu(avatar.Values[0] as string);
@@ -121,14 +128,45 @@ public class HVRoutine
         {
             _messageBox.ReceivedOsc(result.path, result.arguments);
             
-            if (result.path == "/avatar/change")
+            if (result.path == AvatarChangeOscAddress)
             {
                 Console.WriteLine("Detected avatar change");
                 _query.Refresh();
                 _messageBox.Reset();
 
                 TryDeserializeExternalExpressionsMenu(result.arguments[0] as string);
+                HideCostumes();
             }
+
+            if (result.path == ShowCostumesOscAddress)
+            {
+                if (result.arguments[0] is bool && (bool)result.arguments[0])
+                {
+                    ShowCostumes();
+                }
+                else
+                {
+                    HideCostumes();
+                }
+            }
+        }
+    }
+
+    private void ShowCostumes()
+    {
+        if (!_isShowingCostumes)
+        {
+            _isShowingCostumes = true;
+            OnShowCostumes?.Invoke();
+        }
+    }
+
+    private void HideCostumes()
+    {
+        if (_isShowingCostumes)
+        {
+            _isShowingCostumes = false;
+            OnHideCostumes?.Invoke();
         }
     }
 
@@ -270,12 +308,18 @@ public class HVRoutine
 
     public void SendChatMessage(string lobbyShareable)
     {
-        UpdateMessageMultivalue("/chatbox/input", new object[] {lobbyShareable, true, false});
+        UpdateMessageMultivalue(ChatboxInputOscAddress, new object[] {lobbyShareable, true, false});
     }
 
     public Costume[] GetCostumes()
     {
         return _costumes;
+    }
+
+    /// This forces the user out of the "Show costumes..." expressions menu, a rarely used feature.
+    public void EjectUserFromCostumeMenu()
+    {
+        UpdateMessage(ShowCostumesOscAddress, false);
     }
 }
 

@@ -77,6 +77,7 @@ public class UiCostumes
         ImGui.InputText("Avatar ID##avatarid.input", ref _avatarIdBuffer, MaxLength);
         if (ImGui.Button(SwitchAvatarLabel))
         {
+            _routine.EjectUserFromCostumeMenu();
             var userinput_avatarId = _avatarIdBuffer;
             uiExternalService.SelectAvatar(userinput_avatarId);
         }
@@ -116,6 +117,7 @@ public class UiCostumes
         if (avatarId == currentAvi) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
         if (ImGui.ImageButton($"###switch_{avatarId}", _inner.GetOrLoadImage(pngPath), _portraitSize))
         {
+            _routine.EjectUserFromCostumeMenu();
             uiExternalService.SelectAvatar(avatarId);
         }
         if (avatarId == currentAvi) ImGui.PopStyleColor();

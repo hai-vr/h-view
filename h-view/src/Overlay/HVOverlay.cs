@@ -196,4 +196,9 @@ public class HVOverlayInstance
     {
         _mgtPoseData = poseData;
     }
+
+    public ulong GetOverlayHandle()
+    {
+        return _handle;
+    }
 }
