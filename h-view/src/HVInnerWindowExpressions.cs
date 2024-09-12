@@ -12,8 +12,10 @@ public partial class HVInnerWindow
     private readonly Dictionary<int, IntPtr> _indexToPointers = new Dictionary<int, IntPtr>();
     private readonly List<Texture> _loadedTextures = new List<Texture>();
     private readonly Dictionary<int, bool> _buttonPressState = new Dictionary<int, bool>();
+    private readonly Dictionary<int, ImageSharpTexture> _indexToTexture = new Dictionary<int, ImageSharpTexture>();
     
     private readonly Dictionary<string, IntPtr> _pathToPointers = new Dictionary<string, IntPtr>();
+    private readonly Dictionary<string, ImageSharpTexture> _pathToTexture = new Dictionary<string, ImageSharpTexture>();
     
     private const int ImageWidth = 64;
     private const int ImageHeight = 64;
@@ -32,8 +34,10 @@ public partial class HVInnerWindow
         }
         _loadedTextures.Clear();
         _indexToPointers.Clear();
+        _indexToTexture.Clear();
         // TODO: Don't free avatar pictures that were loaded from disk.
         _pathToPointers.Clear();
+        _pathToTexture.Clear();
     }
 
     private IntPtr GetOrLoadImage(string[] icons, int index)
@@ -48,8 +52,9 @@ public partial class HVInnerWindow
         var pngBytes = Convert.FromBase64String(base64png);
         using (var stream = new MemoryStream(pngBytes))
         {
-            var pointer = LoadTextureFromStream(stream);
+            var pointer = LoadTextureFromStream(stream, out var tex);
             _indexToPointers.Add(index, pointer);
+            _indexToTexture.Add(index, tex);
             return pointer;
         }
     }
@@ -60,19 +65,21 @@ public partial class HVInnerWindow
 
         using (var stream = new FileStream(path, FileMode.Open))
         {
-            var pointer = LoadTextureFromStream(stream);
+            var pointer = LoadTextureFromStream(stream, out var tex);
             _pathToPointers.Add(path, pointer);
+            _pathToTexture.Add(path, tex);
             return pointer;
         }
     }
 
-    private IntPtr LoadTextureFromStream(Stream stream)
+    private IntPtr LoadTextureFromStream(Stream stream, out ImageSharpTexture texture)
     {
         // https://github.com/ImGuiNET/ImGui.NET/issues/141#issuecomment-905927496
         var img = new ImageSharpTexture(stream, true);
         var deviceTexture = img.CreateDeviceTexture(_gd, _gd.ResourceFactory);
         _loadedTextures.Add(deviceTexture);
         var pointer = _controller.GetOrCreateImGuiBinding(_gd.ResourceFactory, deviceTexture);
+        texture = img;
         return pointer;
     }
 
