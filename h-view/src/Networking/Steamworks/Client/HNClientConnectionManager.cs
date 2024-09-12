@@ -1,5 +1,4 @@
-﻿using Hai.HView.HaiSteamworks;
-using Hai.HView.Networking.Client;
+﻿using Hai.HView.Networking.Client;
 using Hai.HView.Networking.Shared;
 using Hai.HView.Networking.Steamworks.Server;
 using Steamworks;
