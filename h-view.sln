@@ -6,14 +6,19 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-		Debug NoOpenVR|Any CPU = Debug NoOpenVR|Any CPU
-		Release NoOpenVR|Any CPU = Release NoOpenVR|Any CPU
-		Release Steamworks|Any CPU = Release Steamworks|Any CPU
+		DebugNoOpenVR|Any CPU = DebugNoOpenVR|Any CPU
+		ReleaseNoOpenVR|Any CPU = ReleaseNoOpenVR|Any CPU
+		ReleaseSteamworks|Any CPU = ReleaseSteamworks|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.DebugNoOpenVR|Any CPU.ActiveCfg = DebugNoOpenVR|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.DebugNoOpenVR|Any CPU.Build.0 = DebugNoOpenVR|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.ReleaseNoOpenVR|Any CPU.ActiveCfg = ReleaseNoOpenVR|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.ReleaseNoOpenVR|Any CPU.Build.0 = ReleaseNoOpenVR|Any CPU
+		{9CD41221-FAB2-4250-8D7F-BD7BD998F319}.ReleaseSteamworks|Any CPU.ActiveCfg = ReleaseSteamworks|Any CPU
 	EndGlobalSection
 EndGlobal

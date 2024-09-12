@@ -7,7 +7,7 @@
         <RootNamespace>Hai.HView</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Configurations>Debug;Release;Debug NoOpenVR;Release NoOpenVR</Configurations>
+        <Configurations>Debug;Release;DebugNoOpenVR;ReleaseNoOpenVR;ReleaseSteamworks</Configurations>
         <Platforms>AnyCPU</Platforms>
         <AssemblyVersion>$(ASSEMBLY_VERSION)</AssemblyVersion>
         <ApplicationIcon>favicon.ico</ApplicationIcon>
@@ -21,15 +21,15 @@
         <DefineConstants>TRACE;INCLUDES_OPENVR;COOKIES_SUPPORTED;REGISTER_MANIFEST</DefineConstants>
     </PropertyGroup>
     
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug NoOpenVR' ">
+    <PropertyGroup Condition=" '$(Configuration)' == 'DebugNoOpenVR' ">
         <DefineConstants>TRACE;HV_DEBUG;COOKIES_SUPPORTED</DefineConstants>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release NoOpenVR' ">
+    <PropertyGroup Condition=" '$(Configuration)' == 'ReleaseNoOpenVR' ">
         <DefineConstants>TRACE;COOKIES_SUPPORTED</DefineConstants>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release Steamworks' ">
+    <PropertyGroup Condition=" '$(Configuration)' == 'ReleaseSteamworks' ">
         <DefineConstants>TRACE;INCLUDES_OPENVR;COOKIES_SUPPORTED;REGISTER_MANIFEST;INCLUDES_STEAMWORKS</DefineConstants>
     </PropertyGroup>
 
