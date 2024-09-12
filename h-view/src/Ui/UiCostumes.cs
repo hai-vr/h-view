@@ -2,7 +2,6 @@
 using Hai.HView.Core;
 using Hai.HView.OSC;
 using Hai.HView.Ui;
-using Hai.HView.VRCLogin;
 using ImGuiNET;
 
 namespace Hai.HView.Gui.Tab;
@@ -151,6 +150,8 @@ public class UiCostumes
             }
             else
             {
+                MakePasswordFieldEmpty();
+                
                 ImGui.BeginDisabled(uiExternalService.IsProcessingLogin);
                 ImGui.Text("Check your email for a 2FA code.");
                 ImGui.InputText("2FA Code##twofer.input", ref _twoferBuffer__sensitive, MaxLength);
@@ -172,8 +173,11 @@ public class UiCostumes
         }
         else
         {
+            MakePasswordFieldEmpty();
+
             ImGui.Text(LoggedInMsg);
-            ImGui.TextWrapped($"Cookies have been saved in {HVExternalService.CookieFile}. Logout to delete these cookies.");
+            ImGui.TextWrapped($"Cookies have been saved in %%APPDATA%%/H-View/{HVExternalService.NewCookieFile}.");
+            ImGui.TextWrapped("Logout to delete these cookies.");
             if (ImGui.Button(LogoutLabel))
             {
                 uiExternalService.Logout();
@@ -181,5 +185,10 @@ public class UiCostumes
             ImGui.SameLine();
             ImGui.Text($"Status: {Enum.GetName(uiExternalService.LogoutStatus)}");
         }
+    }
+
+    private void MakePasswordFieldEmpty()
+    {
+        _accountPasswordBuffer__sensitive = "";
     }
 }
