@@ -10,7 +10,8 @@ using Newtonsoft.Json; // Used by COOKIES_SUPPORTED
 namespace Hai.HView.VRCLogin;
 
 /// I hate this<br/>
-/// This is a sensitive class. Exercise extreme caution when outputting information to the output logs.
+/// DANGER: This is a class that deals with sensitive information.
+/// Exercise extreme caution when printing information to the output logs.
 public class HVVrcSession
 {
     private const string RootUrl = "https://vrchat.com/api/1";

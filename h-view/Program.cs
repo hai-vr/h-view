@@ -3,6 +3,7 @@ using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.OSC;
 using Hai.HView.OVR;
+using Hai.HView.SavedData;
 
 #if INCLUDES_OPENVR
 var isOverlay = !args.Contains("--no-overlay");
@@ -22,6 +23,13 @@ var simulateWindowlessStyle = args.Contains("--simulate-windowless");
 
 // Allow this app to run in both Overlay and Normal mode as separately managed instances.
 var serviceName = isOverlay ? $"{HVApp.AppName}-Overlay" : $"{HVApp.AppName}-Windowed";
+
+if (!Directory.Exists(SaveUtil.GetUserDataFolder()))
+{
+    Console.WriteLine($"Save directory does not exist. Creating...");
+    Directory.CreateDirectory(SaveUtil.GetUserDataFolder());
+}
+var config = SavedData.OpenConfig();
 
 var oscPort = HOsc.RandomOscPort();
 var queryPort = HQuery.RandomQueryPort();

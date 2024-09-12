@@ -1,10 +1,16 @@
 // ReSharper disable once RedundantUsingDirective
 using System.Text; // Used by COOKIES_SUPPORTED
+using Hai.HView.SavedData;
 using Hai.HView.VRCLogin;
 
+/// DANGER: This is a class that deals with sensitive information.
+/// Exercise extreme caution when printing information to the output logs.
 public class HVExternalService
 {
-    public const string CookieFile = "hview.cookies.txt";
+    private const string LegacyCookieFile = "hview.cookies.txt";
+    internal const string NewCookieFile = "hview.vrc.cookies.txt";
+    private static string CookieFile => Path.Combine(SaveUtil.GetUserDataFolder(), NewCookieFile);
+
     private readonly HVVrcSession _vrcSession = new HVVrcSession();
 
     private Task<HVVrcSession.LoginResponse> _loginTaskNullable;
@@ -30,6 +36,12 @@ public class HVExternalService
             _vrcSession.ProvideCookies(userinput_cookies__sensitive);
         }
 #endif
+        
+        // LEGACY: Delete the cookie file located in the program folder.
+        if (File.Exists(LegacyCookieFile))
+        {
+            File.Delete(LegacyCookieFile);
+        }
     }
 
     private void SaveCookiesIntoFile()
