@@ -42,4 +42,11 @@ https://github.com/user-attachments/assets/889a2648-7cda-4cba-bb0b-23cf1c96ddaf
   - Veldrid @ https://github.com/veldrid/veldrid ([MIT License](https://github.com/veldrid/veldrid/blob/master/LICENSE))
   - VRChat.OSCQuery @ https://github.com/vrchat-community/vrc-oscquery-lib ([MIT License](https://github.com/vrchat-community/vrc-oscquery-lib/blob/main/License.md))
   - Newtonsoft.Json @ https://github.com/JamesNK/Newtonsoft.Json ([MIT License](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md))
+  - Facepunch.Steamworks @ https://github.com/Facepunch/Facepunch.Steamworks ([MIT License](https://github.com/Facepunch/Facepunch.Steamworks/blob/master/LICENSE))
   - (there may be other implicit packages)
+
+### Steamworks
+
+If the project is compiled with `INCLUDE_STEAMWORKS` (only on Debug and ReleaseSteamworks builds), the Steam API will be included.
+
+This is used to build my own application for distribution through Steam. See [Steamworks API](https://partner.steamgames.com/doc/sdk/api).
