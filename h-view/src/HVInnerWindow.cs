@@ -21,6 +21,7 @@ public partial class HVInnerWindow : IDisposable
     private const ImGuiWindowFlags WindowFlagsNoCollapse = WindowFlags | ImGuiWindowFlags.NoCollapse;
     private const string AvatarTabLabel = "Avatar";
     private const string ContactsTabLabel = "Contacts";
+    private const string CostumesTabLabel = "Costumes";
     private const string FaceTrackingTabLabel = "Face Tracking";
     private const string InputTabLabel = "Input";
     private const string MenuTabLabel = "Menu";
@@ -31,7 +32,6 @@ public partial class HVInnerWindow : IDisposable
     
     private const int RefreshFramesPerSecondWhenUnfocused = 100;
     private const int RefreshEventPollPerSecondWhenMinimized = 15;
-    private const string CostumesTabLabel = "Costumes";
 
     private readonly HVRoutine _routine;
     private readonly bool _isWindowlessStyle;
@@ -60,6 +60,7 @@ public partial class HVInnerWindow : IDisposable
     // Tabs
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
     private readonly UiCostumes _costumesTab;
+    private readonly UiNetworking _networkingTab;
     private readonly int _windowWidth;
     private readonly int _windowHeight;
     private readonly int _trimWidth;
@@ -77,6 +78,9 @@ public partial class HVInnerWindow : IDisposable
         _trimHeight = (windowHeight - innerHeight) / 2;
 
         _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle);
+#if INCLUDES_STEAMWORKS
+        _networkingTab = new UiNetworking(_routine);
+#endif
     }
 
     public void Dispose()
@@ -135,6 +139,9 @@ public partial class HVInnerWindow : IDisposable
             ImGui.EndTabBar();
             ImGui.EndTabItem();
         }
+#if INCLUDES_STEAMWORKS
+        _scrollManager.MakeTab("Networking", () => _networkingTab.NetworkingTab());
+#endif
         _scrollManager.MakeTab(UtilityTabLabel, () => UtilityTab(oscMessages));
         ImGui.EndTabBar();
 

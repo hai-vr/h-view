@@ -14,7 +14,7 @@
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DefineConstants>TRACE;HV_DEBUG;INCLUDES_OPENVR;COOKIES_SUPPORTED</DefineConstants>
+        <DefineConstants>TRACE;HV_DEBUG;INCLUDES_OPENVR;COOKIES_SUPPORTED;INCLUDES_STEAMWORKS</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -30,6 +30,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
         <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Veldrid" Version="4.9.0" />
@@ -53,6 +54,19 @@
         <When Condition="$(DefineConstants.Contains('INCLUDES_OPENVR'))">
             <ItemGroup>
                 <None Update="openvr_api.dll">
+                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                </None>
+            </ItemGroup>
+        </When>
+    </Choose>
+
+    <Choose>
+        <When Condition="$(DefineConstants.Contains('INCLUDES_STEAMWORKS'))">
+            <ItemGroup>
+                <None Update="steam_api64.dll">
+                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                </None>
+                <None Update="steam_api.dll">
                     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
                 </None>
             </ItemGroup>

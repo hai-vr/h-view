@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Hai.ExternalExpressionsMenu;
+using Hai.HView.HaiSteamworks;
 using Hai.HView.OSC;
 using Hai.HView.OVR;
 using hcontroller.Lyuma;
@@ -19,6 +20,7 @@ public class HVRoutine
     private readonly HQuery _query;
     private readonly HMessageBox _messageBox;
     private readonly HVExternalService _externalService;
+    private readonly HNSteamworks _steamworks;
     private readonly HOsc _osc;
     
     private readonly Regex _avoidPathTraversalInAvtrPipelineName = new Regex(@"^avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
@@ -31,12 +33,13 @@ public class HVRoutine
     private bool _autoLaunch;
     private bool _isAutoLaunchAvailable;
 
-    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService)
+    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworks)
     {
         _osc = osc;
         _query = query;
         _messageBox = messageBox;
         _externalService = externalService;
+        _steamworks = steamworks;
     }
 
     public void Start()
@@ -68,6 +71,10 @@ public class HVRoutine
         ProcessOscEvents(messages);
 
         _externalService.ProcessTaskCompletion();
+        
+#if INCLUDES_STEAMWORKS
+        _steamworks.Update();
+#endif
     }
 
     private void ProcessQueryEvents(List<object> queryMessages)
@@ -238,5 +245,15 @@ public class HVRoutine
             OpenVR.Applications.SetApplicationAutoLaunch(HVOpenVRThread.VrManifestAppKey, autoLaunch);
             _autoLaunch = autoLaunch;
         }
+    }
+
+    public HNSteamworks SteamworksModule()
+    {
+        return _steamworks;
+    }
+
+    public void SendChatMessage(string lobbyShareable)
+    {
+        UpdateMessageMultivalue("/chatbox/input", new object[] {lobbyShareable, true, false});
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Hai.HView.Core;
 using Hai.HView.Gui;
+using Hai.HView.HaiSteamworks;
 using Hai.HView.OSC;
 using Hai.HView.OVR;
 using Hai.HView.SavedData;
@@ -38,9 +39,15 @@ var oscClient = new HOsc(oscPort);
 var oscQuery = new HQuery(oscPort, queryPort, serviceName);
 oscQuery.OnVrcOscPortFound += vrcOscPort => oscClient.SetReceiverOscPort(vrcOscPort);
 
+#if INCLUDES_STEAMWORKS
+var steamworks = new HNSteamworks();
+#else
+HNSteamworks steamworks = null;
+#endif
+
 var messageBox = new HMessageBox();
 var externalService = new HVExternalService();
-var routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService);
+var routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworks);
 
 var ovrThread = new HVOpenVRThread(routine, registerManifest);
 
@@ -49,6 +56,9 @@ oscClient.Start();
 oscQuery.Start();
 routine.Start();
 externalService.Start();
+#if INCLUDES_STEAMWORKS
+steamworks.Start();
+#endif
 
 void WhenWindowClosed()
 {
