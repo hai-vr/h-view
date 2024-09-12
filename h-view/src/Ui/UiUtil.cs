@@ -13,8 +13,18 @@ public static class UiUtil
     }
 
     // https://stackoverflow.com/a/43232486
-    public static void OpenUrl(string url)
+    private static void OpenUrl(string url)
     {
+        // SECURITY: We really want to avoid opening any user-provided URL here,
+        // as we're starting a process to open this URL.
+        if (!url.StartsWith("https://")) return;
+
+        DANGER_StartUrl(url);
+    }
+
+    private static void DANGER_StartUrl(string url)
+    {
+        // DANGER: This starts a process. If invoked with untrusted input, this could lead to a RCE.
         try
         {
             Process.Start(url);
