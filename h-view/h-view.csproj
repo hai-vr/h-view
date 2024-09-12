@@ -68,10 +68,10 @@
         <When Condition="$(DefineConstants.Contains('INCLUDES_STEAMWORKS'))">
             <ItemGroup>
                 <None Update="steam_api64.dll">
-                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
                 </None>
                 <None Update="steam_api.dll">
-                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
                 </None>
             </ItemGroup>
         </When>
