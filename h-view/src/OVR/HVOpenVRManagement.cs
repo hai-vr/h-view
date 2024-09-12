@@ -45,7 +45,6 @@ public class HVOpenVRManagement
     {
         EVRInitError _err = EVRInitError.None;
         OpenVR.Init(ref _err, EVRApplicationType.VRApplication_Background);
-        Console.WriteLine(_err);
         return _err == EVRInitError.None;
     }
 
