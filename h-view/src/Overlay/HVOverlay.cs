@@ -77,10 +77,16 @@ public class HVOverlayInstance
         _inputSnapshot.Deaccumulate();
         _inputSnapshot.SetWindowSize(_innerWindow.WindowSize());
         PollOverlayEvents();
-        // TODO: Open the VR keyboard whenever a text field in ImGui asks for input capture.
-        // TODO: Figure out how to make third-party keyboard apps like XSOverlay still able to write text into our windowless instance.
-        
-        _innerWindow.UpdateAndRender(stopwatch, _inputSnapshot);
+
+        // Only render when the overlay is visible
+        // TODO: Input events may need some special handling
+        if (OpenVR.Overlay.IsOverlayVisible(_handle))
+        {
+            // TODO: Open the VR keyboard whenever a text field in ImGui asks for input capture.
+            // TODO: Figure out how to make third-party keyboard apps like XSOverlay still able to write text into our windowless instance.
+            
+            _innerWindow.UpdateAndRender(stopwatch, _inputSnapshot);
+        }
         
         OpenVR.Overlay.SetOverlayTexture(_handle, ref _vrTexture);
     }
