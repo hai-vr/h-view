@@ -29,6 +29,10 @@
         <DefineConstants>TRACE;COOKIES_SUPPORTED</DefineConstants>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release Steamworks' ">
+        <DefineConstants>TRACE;INCLUDES_OPENVR;COOKIES_SUPPORTED;REGISTER_MANIFEST;INCLUDES_STEAMWORKS</DefineConstants>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
         <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
