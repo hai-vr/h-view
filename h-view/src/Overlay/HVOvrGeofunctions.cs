@@ -64,12 +64,30 @@ public static class HVOvrGeofunctions
             0, 0, 0, 1
         );
     }
+    
     public static HmdMatrix34_t OvrnumToOvr(Matrix4x4 overnum)
     {
         return new HmdMatrix34_t {
             m0 = overnum.M11, m1 = overnum.M12, m2 = overnum.M13, m3 = overnum.M14,
             m4 = overnum.M21, m5 = overnum.M22, m6 = overnum.M23, m7 = overnum.M24,
             m8 = overnum.M31, m9 = overnum.M32, m10 = overnum.M33, m11 = overnum.M34,
+        };
+    }
+    
+    public static HmdVector3_t PosOvr(HmdMatrix34_t ovr)
+    {
+        return new HmdVector3_t
+        {
+            v0 = ovr.m3, v1 = ovr.m7, v2 = ovr.m11
+        };
+    }
+
+    // TODO: Is this correct?
+    public static HmdVector3_t ForwardOvr(HmdMatrix34_t ovr)
+    {
+        return new HmdVector3_t
+        {
+            v0 = -ovr.m2, v1 = -ovr.m6, v2 = -ovr.m10
         };
     }
 }

@@ -79,34 +79,18 @@ public class HVOpenVRThread
             var dashboard = new HVOverlayInstance(innerWindow, "main", true, windowRatio);
             dashboard.Start();
 
-            HVOverlayInstance costumesNullable = null;
+            HHandOverlay handOverlay = null;
             var onShowCostumes = () =>
             {
-                costumesNullable = new HVOverlayInstance(innerWindow, "costumes", false, windowRatio);
-                costumesNullable.Start();
-                // TODO: Show should be moved into the overlay iteself.
-                var poseData = ovr.PoseData();
-                if (HVOverlayMovement.IsValidDeviceIndex(poseData.RightHandDeviceIndex))
-                {
-                    // FIXME: Executing things on the correct thread is really messy at the moment.
-                    var pos = new Vector3(0f, -0.01f, -0.2f);
-                    var angles = new Vector3(65, 0, 0);
-                    var rot = HVGeofunctions.QuaternionFromAngles(angles, HVRotationMulOrder.YZX);
-                    var handToOverlayPlace = HVOvrGeofunctions.OvrToOvrnum(HVOvrGeofunctions.OvrTRS(pos, rot, Vector3.One));
-                    
-                    var absToHandPlace = HVOvrGeofunctions.OvrToOvrnum(ovr.PoseData().Poses[poseData.RightHandDeviceIndex].mDeviceToAbsoluteTracking);
-                    var absToOverlayPlace = HVOvrGeofunctions.OvrnumToOvr(absToHandPlace * handToOverlayPlace);
-
-                    OpenVR.Overlay.SetOverlayTransformAbsolute(costumesNullable.GetOverlayHandle(), ETrackingUniverseOrigin.TrackingUniverseStanding, ref absToOverlayPlace);
-                    OpenVR.Overlay.SetOverlayFlag(costumesNullable.GetOverlayHandle(), VROverlayFlags.MakeOverlaysInteractiveIfVisible, true);
-                }
+                handOverlay = new HHandOverlay(innerWindow, windowRatio, _routine);
+                handOverlay.Start();
+                handOverlay.MoveToInitialPosition(ovr.PoseData());
             };
             var onHideCostumes = () =>
             {
                 // FIXME: Executing things on the correct thread is really messy at the moment.
-                var overlay = costumesNullable;
-                costumesNullable = null;
-                OpenVR.Overlay.SetOverlayFlag(overlay.GetOverlayHandle(), VROverlayFlags.MakeOverlaysInteractiveIfVisible, false);
+                var overlay = handOverlay;
+                handOverlay = null;
                 overlay.Teardown();
             };
             
@@ -115,13 +99,15 @@ public class HVOpenVRThread
         
             ovr.Run(stopwatch =>
             {
-                dashboard.ProvidePoseData(ovr.PoseData());
-                costumesNullable?.ProvidePoseData(ovr.PoseData());
+                var poseData = ovr.PoseData();
+                
+                dashboard.ProvidePoseData(poseData);
+                handOverlay?.ProvidePoseData(poseData);
             
                 // TODO: The update rate of the overlay UI event processing UI rendering may need to be independent
                 // of the management of the overlay movement and poses.
                 dashboard.ProcessThatOverlay(stopwatch);
-                costumesNullable?.ProcessThatOverlay(stopwatch);
+                handOverlay?.ProcessThatOverlay(stopwatch);
             
                 // TODO: Update the desktop window at a different rate than the HMD
                 var shouldContinue = desktopWindow.UpdateIteration(stopwatch);
@@ -135,7 +121,7 @@ public class HVOpenVRThread
             _routine.OnHideCostumes -= onHideCostumes;
 
             dashboard.Teardown();
-            costumesNullable?.Teardown();
+            handOverlay?.Teardown();
         
             innerWindow.TeardownWindowlessUi(true);
         }
