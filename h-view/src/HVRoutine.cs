@@ -5,6 +5,7 @@ using Hai.ExternalExpressionsMenu;
 using Hai.HView.HaiSteamworks;
 using Hai.HView.OSC;
 using Hai.HView.OVR;
+using Hai.HView.SavedData;
 using hcontroller.Lyuma;
 using Newtonsoft.Json;
 using Valve.VR;
@@ -32,6 +33,7 @@ public class HVRoutine
     private string[] _manifestFiles = new string[0];
     private bool _autoLaunch;
     private bool _isAutoLaunchAvailable;
+    private Costume[] _costumes;
 
     public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworks)
     {
@@ -50,6 +52,20 @@ public class HVRoutine
 
         var notARegex = $"{EEMPrefix}*.json";
         _manifestFiles = GetFilesInLocalLowVRChatDirectories(notARegex);
+        
+        Directory.CreateDirectory(SaveUtil.GetCostumesFolder());
+        CollectCostumes();
+    }
+
+    private void CollectCostumes()
+    {
+        _costumes = Directory.GetFiles(SaveUtil.GetCostumesFolder(), "avtr_*.png", SearchOption.AllDirectories)
+            .Select(costumeFile => new Costume
+            {
+                FullPath = costumeFile,
+                AvatarId = Path.GetFileNameWithoutExtension(costumeFile)
+            })
+            .ToArray();
     }
 
     public void MainLoop()
@@ -256,4 +272,15 @@ public class HVRoutine
     {
         UpdateMessageMultivalue("/chatbox/input", new object[] {lobbyShareable, true, false});
     }
+
+    public Costume[] GetCostumes()
+    {
+        return _costumes;
+    }
+}
+
+public class Costume
+{
+    public string FullPath;
+    public string AvatarId;
 }

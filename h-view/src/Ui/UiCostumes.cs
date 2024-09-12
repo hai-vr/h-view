@@ -12,8 +12,6 @@ public class UiCostumes
     private readonly HVRoutine _routine;
     private readonly UiScrollManager _scrollManager;
     private readonly bool _noLogin;
-    private readonly string[] _files;
-    private readonly string[] _fileNames;
     
     private readonly Vector2 _portraitSize = new Vector2(256, 768);
 
@@ -37,8 +35,6 @@ public class UiCostumes
         _routine = routine;
         _scrollManager = scrollManager;
         _noLogin = noLogin;
-        _files = HVRoutine.GetFilesInLocalLowVRChatDirectories("avtr_*.png");
-        _fileNames = _files.Select(Path.GetFileNameWithoutExtension).ToArray();
     }
 
     internal void CostumesTab(Dictionary<string, HOscItem> oscMessages)
@@ -93,12 +89,15 @@ public class UiCostumes
 
     private void Costumes(HVExternalService uiExternalService, string currentAvi)
     {
+        var costumes = _routine.GetCostumes();
+
         var acc = 0f;
-        for (var i = 0; i < _files.Length; i++)
+        for (var index = 0; index < costumes.Length; index++)
         {
-            DrawAviButton(_fileNames[i], _files[i], uiExternalService, currentAvi);
+            var costume = costumes[index];
+            DrawAviButton(costume.AvatarId, costume.FullPath, uiExternalService, currentAvi);
             acc += _portraitSize.X + 6 * 2 + 12;
-            if (i != _files.Length - 1)
+            if (index != costumes.Length - 1)
             {
                 if (acc < ImGui.GetWindowWidth() - _portraitSize.X)
                 {

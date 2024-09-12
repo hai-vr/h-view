@@ -12,7 +12,6 @@ public class HNSteamworks
 {
     internal const uint ExampleAppId = 480;
     internal const uint RVRAppId = 2_212_290;
-    private const string LobbyProtocol = "102";
 
     private bool _isEnabled;
     private uint _appId;
