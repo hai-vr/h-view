@@ -11,10 +11,12 @@ public class HHandOverlay
     private readonly HVRoutine _routine;
     private readonly HVOverlayInstance _overlay;
     private readonly Stopwatch _stopwatch;
+    private readonly bool _useLeftHand;
 
-    public HHandOverlay(HVInnerWindow innerWindow, float windowRatio, HVRoutine routine)
+    public HHandOverlay(HVInnerWindow innerWindow, float windowRatio, HVRoutine routine, bool useLeftHand)
     {
         _routine = routine;
+        _useLeftHand = useLeftHand;
         _overlay = new HVOverlayInstance(innerWindow, "costumes", false, windowRatio);
         _stopwatch = new Stopwatch();
     }
@@ -27,14 +29,15 @@ public class HHandOverlay
 
     public void MoveToInitialPosition(HVPoseData poseData)
     {
-        if (!HVOverlayMovement.IsValidDeviceIndex(poseData.RightHandDeviceIndex)) return;
+        var deviceIndex = GetHandedDeviceIndex(poseData);
+        if (!HVOverlayMovement.IsValidDeviceIndex(deviceIndex)) return;
         
         var pos = new Vector3(0f, -0.01f, -0.2f);
         var angles = new Vector3(65, 0, 0);
         var rot = HVGeofunctions.QuaternionFromAngles(angles, HVRotationMulOrder.YZX);
         var handToOverlayPlace = HVOvrGeofunctions.OvrToOvrnum(HVOvrGeofunctions.OvrTRS(pos, rot, Vector3.One));
                     
-        var absToHandPlace = HVOvrGeofunctions.OvrToOvrnum(poseData.Poses[poseData.RightHandDeviceIndex].mDeviceToAbsoluteTracking);
+        var absToHandPlace = HVOvrGeofunctions.OvrToOvrnum(poseData.Poses[deviceIndex].mDeviceToAbsoluteTracking);
         var absToOverlayPlace = HVOvrGeofunctions.OvrnumToOvr(absToHandPlace * handToOverlayPlace);
 
         OpenVR.Overlay.SetOverlayTransformAbsolute(_overlay.GetOverlayHandle(), ETrackingUniverseOrigin.TrackingUniverseStanding, ref absToOverlayPlace);
@@ -55,10 +58,10 @@ public class HHandOverlay
 
     private void HandleIntersection(HVPoseData poseData)
     {
-        var rightHand = poseData.RightHandDeviceIndex;
-        if (HVOverlayMovement.IsValidDeviceIndex(rightHand))
+        var whichHand = GetHandedDeviceIndex(poseData);
+        if (HVOverlayMovement.IsValidDeviceIndex(whichHand))
         {
-            // var isIntersecting = IsIntersecting(poseData, rightHand);
+            // var isIntersecting = IsIntersecting(poseData, whichHand);
             var isIntersecting = OpenVR.Overlay.IsHoverTargetOverlay(_overlay.GetOverlayHandle());
             if (isIntersecting)
             {
@@ -67,19 +70,24 @@ public class HHandOverlay
         }
     }
 
-    private bool IsIntersecting(HVPoseData poseData, uint rightHand)
+    private uint GetHandedDeviceIndex(HVPoseData poseData)
+    {
+        return _useLeftHand ? poseData.LeftHandDeviceIndex : poseData.RightHandDeviceIndex;
+    }
+
+    private bool IsIntersecting(HVPoseData poseData, uint whichHand)
     {
         // FIXME: None of this works, unsure why. Intersection is offset, or has wrong angle or something. It feels squished vertically.
         
-        var rightHandPose = poseData.Poses[rightHand].mDeviceToAbsoluteTracking;
+        var handPose = poseData.Poses[whichHand].mDeviceToAbsoluteTracking;
         var move = new Vector3(0, -0.2f, 0);
-        var absToOverHand = HVOvrGeofunctions.OvrToOvrnum(HVOvrGeofunctions.OvrTranslate(move)) * HVOvrGeofunctions.OvrToOvrnum(rightHandPose);
+        var absToOverHand = HVOvrGeofunctions.OvrToOvrnum(HVOvrGeofunctions.OvrTranslate(move)) * HVOvrGeofunctions.OvrToOvrnum(handPose);
         var pos = HVOvrGeofunctions.PosOvr(HVOvrGeofunctions.OvrnumToOvr(absToOverHand));
         var intersection = new VROverlayIntersectionParams_t
         {
             eOrigin = ETrackingUniverseOrigin.TrackingUniverseStanding,
             vSource = pos,
-            vDirection = HVOvrGeofunctions.ForwardOvr(rightHandPose)
+            vDirection = HVOvrGeofunctions.ForwardOvr(handPose)
         };
             
         VROverlayIntersectionResults_t results = default;

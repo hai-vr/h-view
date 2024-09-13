@@ -95,7 +95,7 @@ public class HVOpenVRThread
             HHandOverlay handOverlay = null;
             var onShowCostumes = () =>
             {
-                handOverlay = new HHandOverlay(innerWindow, windowRatio, _routine);
+                handOverlay = new HHandOverlay(innerWindow, windowRatio, _routine, false);
                 handOverlay.Start();
                 handOverlay.MoveToInitialPosition(ovr.PoseData());
             };
