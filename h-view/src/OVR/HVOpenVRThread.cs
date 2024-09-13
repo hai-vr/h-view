@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using System.Numerics;
+using System.Reflection;
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.Overlay;
@@ -9,6 +9,8 @@ namespace Hai.HView.OVR;
 
 public class HVOpenVRThread
 {
+    // Action manifest files cannot have a hyphen in it, it crashes the bindings UI when saving.
+    private const string ActionManifestFileName = "h_view_actions.json";
     private const int TotalWindowWidth = 600;
     private const int TotalWindowHeight = 510;
     public const string VrManifestAppKey = "Hai.HView";
@@ -58,8 +60,16 @@ public class HVOpenVRThread
             }
         }
 
-        if (shouldContinue)
+        if (ovrStarted)
         {
+            var actionManifestPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ActionManifestFileName);
+            if (!File.Exists(actionManifestPath))
+            {
+                Console.WriteLine($"{ActionManifestFileName} does not exist.");
+            }
+            OpenVR.Input.SetActionManifestPath(actionManifestPath);
+            
+            // We don't want the recorded app manifest file to change when trying debug builds.
             if (_registerAppManifest)
             {
                 var isApplicationInstalled = OpenVR.Applications.IsApplicationInstalled(VrManifestAppKey);
@@ -69,7 +79,10 @@ public class HVOpenVRThread
                 }
             }
             _routine.InitializeAutoLaunch(OpenVR.Applications.GetApplicationAutoLaunch(VrManifestAppKey));
+        }
 
+        if (shouldContinue)
+        {
             var width = 1400;
             var height = 800;
             var innerWindow = new HVInnerWindow(_routine, true, width, width, width, height);

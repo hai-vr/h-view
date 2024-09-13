@@ -43,9 +43,10 @@ public class HVOpenVRManagement
 
     public bool TryStart()
     {
-        EVRInitError _err = EVRInitError.None;
-        OpenVR.Init(ref _err, EVRApplicationType.VRApplication_Background);
-        return _err == EVRInitError.None;
+        // We start as a Background app, so that it doesn't try to start SteamVR if it's not running.
+        EVRInitError err = EVRInitError.None;
+        OpenVR.Init(ref err, EVRApplicationType.VRApplication_Background);
+        return err == EVRInitError.None;
     }
 
     public void Run(Action<Stopwatch> processInstances)

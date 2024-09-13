@@ -1,0 +1,13 @@
+{
+    "default_bindings": [],
+    "actions": [
+        {
+            "name": "/actions/h_view/in/open_left",
+            "type": "boolean"
+        },
+        {
+            "name": "/actions/h_view/in/open_right",
+            "type": "boolean"
+        }
+    ]
+}
