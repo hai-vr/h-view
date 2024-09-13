@@ -25,7 +25,7 @@ public class HVRoutine
     private readonly HQuery _query;
     private readonly HMessageBox _messageBox;
     private readonly HVExternalService _externalService;
-    private readonly HNSteamworks _steamworks;
+    private readonly HNSteamworks _steamworksOptional;
     private readonly HOsc _osc;
     
     private readonly Regex _avoidPathTraversalInAvtrPipelineName = new Regex(@"^avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
@@ -42,13 +42,13 @@ public class HVRoutine
     private Costume[] _costumes;
     private bool _isShowingCostumes;
 
-    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworks)
+    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional)
     {
         _osc = osc;
         _query = query;
         _messageBox = messageBox;
         _externalService = externalService;
-        _steamworks = steamworks;
+        _steamworksOptional = steamworksOptional;
     }
 
     public void Start()
@@ -95,9 +95,7 @@ public class HVRoutine
 
         _externalService.ProcessTaskCompletion();
         
-#if INCLUDES_STEAMWORKS
-        _steamworks.Update();
-#endif
+        _steamworksOptional?.Update();
     }
 
     private void ProcessQueryEvents(List<object> queryMessages)
@@ -307,7 +305,7 @@ public class HVRoutine
 
     public HNSteamworks SteamworksModule()
     {
-        return _steamworks;
+        return _steamworksOptional;
     }
 
     public void SendChatMessage(string lobbyShareable)

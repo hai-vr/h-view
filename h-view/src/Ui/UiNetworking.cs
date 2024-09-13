@@ -16,6 +16,8 @@ public class UiNetworking
 
     public UiNetworking(HVRoutine routine)
     {
+        if (!ConditionalCompilation.IncludesSteamworks) throw new InvalidOperationException("Instances of UiNetworking should not be created when Steamworks is disabled in conditional compilation.");
+        
         _routine = routine;
         _steamworks = routine.SteamworksModule();
     }

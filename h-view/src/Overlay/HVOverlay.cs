@@ -58,11 +58,6 @@ public class HVOverlayInstance
 
     public void ProcessThatOverlay(Stopwatch stopwatch)
     {
-#if HV_DEBUG
-        // In HV_DEBUG mode (applied when the config is a debug build), apply the overlay properties all the time for live editing.
-        // Comment this out if not needed in debug mode.
-        ApplyOverlayProps();
-#endif
         if (!_isDashboard)
         {
             _movement.Evaluate(_handle, _mgtPoseData);

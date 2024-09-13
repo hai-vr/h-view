@@ -4,8 +4,7 @@ using System.Text;
 using System.Web;
 using Hai.HView.Core;
 using Newtonsoft.Json.Linq;
-// ReSharper disable once RedundantUsingDirective
-using Newtonsoft.Json; // Used by COOKIES_SUPPORTED
+using Newtonsoft.Json;
 
 namespace Hai.HView.VRCLogin;
 
@@ -41,16 +40,15 @@ public class HVVrcSession
 
     public string GetAllCookies__Sensitive()
     {
-#if COOKIES_SUPPORTED
+        if (!ConditionalCompilation.CookiesSupported) throw new InvalidOperationException("GetAllCookies__Sensitive should not be invoked when cookies are disabled in conditional compilation.");
+        
         return JsonConvert.SerializeObject(CompileCookies());
-#else
-        throw new ArgumentException(); // Don't even call me!
-#endif
     }
 
     public void ProvideCookies(string userinput_cookies__sensitive)
     {
-#if COOKIES_SUPPORTED
+        if (!ConditionalCompilation.CookiesSupported) return;
+        
         _cookies = new CookieContainer();
         var deserialized = JsonConvert.DeserializeObject<VrcAuthenticationCookies>(userinput_cookies__sensitive);
         if (deserialized.auth != null) _cookies.Add(new Uri(CookieDomain), RebuildCookie(deserialized.auth, "auth"));
@@ -68,7 +66,6 @@ public class HVVrcSession
         // VRChat should only be privileged to know when a user is actively using HView when that user is actively
         // using the avatar switching function.
         _isLoggedIn = deserialized.auth != null;
-#endif
     }
 
     private static Cookie RebuildCookie(VrcCookie cookie, string name)

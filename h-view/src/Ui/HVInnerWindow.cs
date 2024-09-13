@@ -60,7 +60,7 @@ public partial class HVInnerWindow : IDisposable
     // Tabs
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
     private readonly UiCostumes _costumesTab;
-    private readonly UiNetworking _networkingTab;
+    private readonly UiNetworking _networkingTabOptional;
     private readonly int _windowWidth;
     private readonly int _windowHeight;
     private readonly int _trimWidth;
@@ -78,9 +78,7 @@ public partial class HVInnerWindow : IDisposable
         _trimHeight = (windowHeight - innerHeight) / 2;
 
         _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle);
-#if INCLUDES_STEAMWORKS
-        _networkingTab = new UiNetworking(_routine);
-#endif
+        _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
     }
 
     public void Dispose()
@@ -139,9 +137,7 @@ public partial class HVInnerWindow : IDisposable
             ImGui.EndTabBar();
             ImGui.EndTabItem();
         }
-#if INCLUDES_STEAMWORKS
-        _scrollManager.MakeTab("Networking", () => _networkingTab.NetworkingTab());
-#endif
+        if (_networkingTabOptional != null) _scrollManager.MakeTab("Networking", () => _networkingTabOptional.NetworkingTab());
         _scrollManager.MakeTab(UtilityTabLabel, () => UtilityTab(oscMessages));
         ImGui.EndTabBar();
 

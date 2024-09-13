@@ -1,5 +1,5 @@
-// ReSharper disable once RedundantUsingDirective
-using System.Text; // Used by COOKIES_SUPPORTED
+using System.Text;
+using Hai.HView;
 using Hai.HView.SavedData;
 using Hai.HView.VRCLogin;
 
@@ -29,13 +29,14 @@ public class HVExternalService
 
     public void Start()
     {
-#if COOKIES_SUPPORTED
-        if (File.Exists(CookieFile))
+        if (ConditionalCompilation.CookiesSupported)
         {
-            var userinput_cookies__sensitive = File.ReadAllText(CookieFile, Encoding.UTF8);
-            _vrcSession.ProvideCookies(userinput_cookies__sensitive);
+            if (File.Exists(CookieFile))
+            {
+                var userinput_cookies__sensitive = File.ReadAllText(CookieFile, Encoding.UTF8);
+                _vrcSession.ProvideCookies(userinput_cookies__sensitive);
+            }
         }
-#endif
         
         // LEGACY: Delete the cookie file located in the program folder.
         if (File.Exists(LegacyCookieFile))
@@ -46,20 +47,20 @@ public class HVExternalService
 
     private void SaveCookiesIntoFile()
     {
-#if COOKIES_SUPPORTED
+        if (!ConditionalCompilation.CookiesSupported) return;
+        
         File.WriteAllText(CookieFile, _vrcSession.GetAllCookies__Sensitive(), Encoding.UTF8);
-#endif
     }
 
     private void DeleteCookieFile()
     {
-#if COOKIES_SUPPORTED
+        if (!ConditionalCompilation.CookiesSupported) return;
+        
         // TODO: Might have to just delete the auth token, but keep the Twofer cookie.
         if (File.Exists(CookieFile))
         {
             File.Delete(CookieFile);
         }
-#endif
     }
 
     public void Login(string userinput_account__sensitive, string userinput_password__sensitive)

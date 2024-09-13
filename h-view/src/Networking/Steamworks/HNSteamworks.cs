@@ -10,7 +10,7 @@ namespace Hai.HView.HaiSteamworks;
 
 public class HNSteamworks
 {
-    internal const uint ExampleAppId = 480;
+    internal const uint ExampleAppId = 480; // https://partner.steamgames.com/doc/sdk/api/example .. https://www.youtube.com/shorts/JceP5iiTh50
     internal const uint RVRAppId = 2_212_290;
 
     private bool _isEnabled;
@@ -41,6 +41,14 @@ public class HNSteamworks
     public List<DebugLobbySearch> DebugSearchLobbies { get; private set; } = new List<DebugLobbySearch>();
     public bool Refreshing { get; private set; }
 
+    public HNSteamworks()
+    {
+        if (!ConditionalCompilation.IncludesSteamworks)
+        {
+            throw new InvalidOperationException("Instances of HNSteamworks should not be created when Steamworks is disabled in conditional compilation.");
+        }
+    }
+
     public void Start()
     {
     }
@@ -52,15 +60,12 @@ public class HNSteamworks
 
     public void Enable(uint appId)
     {
-#if INCLUDES_STEAMWORKS
         if (_isEnabled) return;
 
         _appId = appId;
         _isEnabled = true;
         
         SteamClient.Init(appId);
-        // await DoStuff();
-#endif
     }
 
     public async void Join(string joinCode)

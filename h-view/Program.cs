@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Hai.HView;
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.HaiSteamworks;
@@ -6,17 +7,8 @@ using Hai.HView.OSC;
 using Hai.HView.OVR;
 using Hai.HView.SavedData;
 
-#if INCLUDES_OPENVR
-var isOverlay = !args.Contains("--no-overlay");
-#else
-var isOverlay = false;
-#endif
-
-#if REGISTER_MANIFEST
-var registerManifest = !args.Contains("--no-register-manifest");
-#else
-var registerManifest = args.Contains("--register-manifest");
-#endif
+var isOverlay = ConditionalCompilation.IncludesOpenVR && !args.Contains("--no-overlay");
+var registerManifest = ConditionalCompilation.RegisterManifest ? !args.Contains("--no-register-manifest") : args.Contains("--register-manifest");
 
 // Create a desktop window stylized as being the overlay version.
 // This does nothing when the --overlay arg is set.
@@ -39,64 +31,48 @@ var oscClient = new HOsc(oscPort);
 var oscQuery = new HQuery(oscPort, queryPort, serviceName);
 oscQuery.OnVrcOscPortFound += vrcOscPort => oscClient.SetReceiverOscPort(vrcOscPort);
 
-#if INCLUDES_STEAMWORKS
-var steamworks = new HNSteamworks();
-#else
-HNSteamworks steamworks = null;
-#endif
+var steamworksOptional = ConditionalCompilation.IncludesSteamworks ? new HNSteamworks() : null;
 
 var messageBox = new HMessageBox();
 var externalService = new HVExternalService();
-var routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworks);
+var routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworksOptional);
 
-var ovrThread = new HVOpenVRThread(routine, registerManifest);
+var ovrThreadOptional = isOverlay ? new HVOpenVRThread(routine, registerManifest) : null;
 
 // Start services
 oscClient.Start();
 oscQuery.Start();
-routine.Start();
 externalService.Start();
-#if INCLUDES_STEAMWORKS
-steamworks.Start();
-#endif
+steamworksOptional?.Start();
+routine.Start();
 
 void WhenWindowClosed()
 {
     routine.Finish();
     oscQuery.Finish();
     oscClient.Finish();
-    ovrThread.Finish();
+    ovrThreadOptional?.Finish();
 }
 
-if (isOverlay)
+// Start the VR or UI thread.
+new Thread(() =>
 {
-    Console.WriteLine("Starting as a hybrid desktop / VR app.");
-    // TODO: Allow the user to completely disable OpenVR integration.
-    StartNewThread(() =>
+    if (isOverlay)
     {
-        ovrThread.Run(); // Loops until desktop window is closed.
-        WhenWindowClosed();
-    }, "VR-Thread");
-}
-else
-{
-    Console.WriteLine("Starting as a desktop window.");
-    StartNewThread(() =>
+        Console.WriteLine("Starting as a hybrid desktop / VR app.");
+        new HVOvrStarter(ovrThreadOptional, WhenWindowClosed).Run();
+    }
+    else
     {
+        Console.WriteLine("Starting as a desktop window.");
         new HVWindow(routine, WhenWindowClosed, simulateWindowlessStyle).Run();
-    }, "UI-Thread");
-}
-
-void StartNewThread(ThreadStart threadStart1, string threadName)
+    }
+})
 {
-    var thread = new Thread(threadStart1)
-    {
-        CurrentCulture = CultureInfo.InvariantCulture, // We don't want locale-specific numbers
-        CurrentUICulture = CultureInfo.InvariantCulture,
-        Name = threadName
-    };
-    thread.Start();
-}
+    CurrentCulture = CultureInfo.InvariantCulture, // We don't want locale-specific numbers
+    CurrentUICulture = CultureInfo.InvariantCulture,
+    Name = isOverlay ? "VR-Thread" : "UI-Thread"
+}.Start();
 
 // Main loop
 routine.MainLoop(); // This call does not return until routine.Finish() is called.
