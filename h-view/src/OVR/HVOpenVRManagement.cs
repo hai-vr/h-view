@@ -1,21 +1,29 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using Valve.VR;
 
 namespace Hai.HView.Overlay;
 
 public class HVOpenVRManagement
 {
-    public static readonly uint SizeOfVrEvent = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(VREvent_t));
-    
-    private ulong _handle;
-    private Texture_t _vrTexture;
-    
+    private const string ActionManifestFileName = "h_view_actions.json";
+    public static readonly uint SizeOfVrEvent = (uint)Marshal.SizeOf(typeof(VREvent_t));
+    private static readonly uint SizeOfActionSet = (uint)Marshal.SizeOf(typeof(VRActiveActionSet_t));
+
     // Overlay management
     private readonly HVPoseData _mgtPoseData = new HVPoseData
     {
         Poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount]
     };
     private bool _exitRequested;
+    private readonly VRActiveActionSet_t[] _actionsets = new VRActiveActionSet_t[1];
+    
+    private ulong _actionSetHandle;
+    private ulong _actionOpenLeft;
+    private ulong _actionOpenRight;
+    public ulong ActionOpenLeft => _actionOpenLeft;
+    public ulong ActionOpenRight => _actionOpenRight;
 
     public bool Start()
     {
@@ -46,7 +54,23 @@ public class HVOpenVRManagement
         // We start as a Background app, so that it doesn't try to start SteamVR if it's not running.
         EVRInitError err = EVRInitError.None;
         OpenVR.Init(ref err, EVRApplicationType.VRApplication_Background);
-        return err == EVRInitError.None;
+        var isStarted = err == EVRInitError.None;
+        if (isStarted)
+        {
+            var actionManifestPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ActionManifestFileName);
+            if (!File.Exists(actionManifestPath))
+            {
+                Console.WriteLine($"{ActionManifestFileName} does not exist.");
+            }
+            OpenVR.Input.SetActionManifestPath(actionManifestPath);
+            
+            OpenVR.Input.GetActionSetHandle("/actions/h_view", ref _actionSetHandle);
+            OpenVR.Input.GetActionHandle("/actions/h_view/in/open_left", ref _actionOpenLeft);
+            OpenVR.Input.GetActionHandle("/actions/h_view/in/open_right", ref _actionOpenRight);
+
+            _actionsets[0].ulActionSet = _actionSetHandle;
+        }
+        return isStarted;
     }
 
     public void Run(Action<Stopwatch> processInstances)
@@ -61,16 +85,10 @@ public class HVOpenVRManagement
     private void ExecuteLoopIter(Action<Stopwatch> processInstances, Stopwatch stopwatch)
     {
 /* TODO
-        Maybe we should decouple the following for future evolutions:
-        - In Windowless mode, consider the instantiation of multiple ImGui windows, so that we can have multiple overlays.
-          - There may be multiple overlays for the same window (???).
-          - A single window may be used to render the UI of multiple overlays, provided they are given a different data model.
-          - Overlay mouse events may be on a per-overlay basis, rather than be on a per-window basis.
-          - Consider processing mouse events and rendering all visible window UIs at once, and then run the overlay logic.
-        - We could separate the window update from the overlay update.
-          - Some windows may not need to have their UI contents updated when their corresponding overlay is not visible.
-          - Is there a need to decouple the overlay logic update rate from the UI update rate? (overlay position changes faster than the UI renders)
-          - Should each window have a different update render rate?
+- We could separate the window update from the overlay update.
+  - Some windows may not need to have their UI contents updated when their corresponding overlay is not visible.
+  - Is there a need to decouple the overlay logic update rate from the UI update rate? (overlay position changes faster than the UI renders)
+  - Should each window have a different update render rate?
 */
         ProcessOverlayManagement();
             
@@ -99,6 +117,7 @@ public class HVOpenVRManagement
         // Eventually we'll have to separate the concept of managing overlays, and managing that specific overlay bound to that ImGui window.
         OverlayManagementPollVREvents();
         OverlayManagementFillPose();
+        OpenVR.Input.UpdateActionState(_actionsets, SizeOfActionSet);
     }
 
     private void OverlayManagementFillPose()
@@ -108,7 +127,7 @@ public class HVOpenVRManagement
         // TODO: Proper predicted seconds info
         var fPredictedSecondsToPhotonsFromNow = 0f;
         // TODO: Proper tracking universe
-        OpenVR.System.GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin.TrackingUniverseStanding, fPredictedSecondsToPhotonsFromNow, _mgtPoseData.Poses);
+        OpenVR.System.GetDeviceToAbsoluteTrackingPose(OpenVR.Compositor.GetTrackingSpace(), fPredictedSecondsToPhotonsFromNow, _mgtPoseData.Poses);
         _mgtPoseData.LeftHandDeviceIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.LeftHand);
         _mgtPoseData.RightHandDeviceIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.RightHand);
     }

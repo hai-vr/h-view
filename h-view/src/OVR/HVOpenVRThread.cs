@@ -1,5 +1,5 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Reflection;
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.Overlay;
@@ -10,7 +10,6 @@ namespace Hai.HView.OVR;
 public class HVOpenVRThread
 {
     // Action manifest files cannot have a hyphen in it, it crashes the bindings UI when saving.
-    private const string ActionManifestFileName = "h_view_actions.json";
     private const int TotalWindowWidth = 600;
     private const int TotalWindowHeight = 510;
     public const string VrManifestAppKey = "Hai.HView";
@@ -18,6 +17,7 @@ public class HVOpenVRThread
     private readonly HVRoutine _routine;
     private readonly HVOpenVRManagement _ovr;
     private readonly bool _registerAppManifest;
+    private readonly ConcurrentQueue<Action> _queuedForOvr = new ConcurrentQueue<Action>();
 
     public HVOpenVRThread(HVRoutine routine, bool registerAppManifest)
     {
@@ -31,7 +31,7 @@ public class HVOpenVRThread
         var desktopWindow = new HVInnerWindow(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight);
         desktopWindow.SetupUi(false);
         
-        var ovr = new HVOpenVRManagement();
+        var ovr = _ovr;
         var ovrStarted = ovr.TryStart();
 
         var retry = new Stopwatch();
@@ -62,13 +62,6 @@ public class HVOpenVRThread
 
         if (ovrStarted)
         {
-            var actionManifestPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ActionManifestFileName);
-            if (!File.Exists(actionManifestPath))
-            {
-                Console.WriteLine($"{ActionManifestFileName} does not exist.");
-            }
-            OpenVR.Input.SetActionManifestPath(actionManifestPath);
-            
             // We don't want the recorded app manifest file to change when trying debug builds.
             if (_registerAppManifest)
             {
@@ -93,25 +86,36 @@ public class HVOpenVRThread
             dashboard.Start();
 
             HHandOverlay handOverlay = null;
-            var onShowCostumes = () =>
+            var onShowCostumes = () => _queuedForOvr.Enqueue(() =>
             {
                 handOverlay = new HHandOverlay(innerWindow, windowRatio, _routine, false);
                 handOverlay.Start();
                 handOverlay.MoveToInitialPosition(ovr.PoseData());
-            };
-            var onHideCostumes = () =>
+            });
+            var onHideCostumes = () => _queuedForOvr.Enqueue(() =>
             {
-                // FIXME: Executing things on the correct thread is really messy at the moment.
-                var overlay = handOverlay;
+                if (handOverlay == null)
+                {
+                    Console.WriteLine("Broken assumption: onHideCostumes was called while handOverlay is null");
+                    return;
+                }
+                handOverlay.Teardown();
                 handOverlay = null;
-                overlay.Teardown();
-            };
+            });
             
             _routine.OnShowCostumes += onShowCostumes;
             _routine.OnHideCostumes += onHideCostumes;
         
             ovr.Run(stopwatch =>
             {
+                while (_queuedForOvr.TryDequeue(out var action)) action();
+
+                var data = OpenVRUtils.GetDigitalInput(_ovr.ActionOpenRight);
+                if (data.bChanged && data.bState)
+                {
+                    _routine.ToggleCostumes();
+                }
+
                 var poseData = ovr.PoseData();
                 
                 dashboard.ProvidePoseData(poseData);
@@ -130,6 +134,7 @@ public class HVOpenVRThread
                 }
             
             }); // VR loop (blocking call)
+            
             _routine.OnShowCostumes -= onShowCostumes;
             _routine.OnHideCostumes -= onHideCostumes;
 

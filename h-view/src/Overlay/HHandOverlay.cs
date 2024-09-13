@@ -40,7 +40,7 @@ public class HHandOverlay
         var absToHandPlace = HVOvrGeofunctions.OvrToOvrnum(poseData.Poses[deviceIndex].mDeviceToAbsoluteTracking);
         var absToOverlayPlace = HVOvrGeofunctions.OvrnumToOvr(absToHandPlace * handToOverlayPlace);
 
-        OpenVR.Overlay.SetOverlayTransformAbsolute(_overlay.GetOverlayHandle(), ETrackingUniverseOrigin.TrackingUniverseStanding, ref absToOverlayPlace);
+        OpenVR.Overlay.SetOverlayTransformAbsolute(_overlay.GetOverlayHandle(), OpenVR.Compositor.GetTrackingSpace(), ref absToOverlayPlace);
         OpenVR.Overlay.SetOverlayFlag(_overlay.GetOverlayHandle(), VROverlayFlags.MakeOverlaysInteractiveIfVisible, true);
     }
 
@@ -85,7 +85,7 @@ public class HHandOverlay
         var pos = HVOvrGeofunctions.PosOvr(HVOvrGeofunctions.OvrnumToOvr(absToOverHand));
         var intersection = new VROverlayIntersectionParams_t
         {
-            eOrigin = ETrackingUniverseOrigin.TrackingUniverseStanding,
+            eOrigin = OpenVR.Compositor.GetTrackingSpace(),
             vSource = pos,
             vDirection = HVOvrGeofunctions.ForwardOvr(handPose)
         };
@@ -106,6 +106,9 @@ public class HHandOverlay
         if (_stopwatch.ElapsedMilliseconds > 1000)
         {
             _routine.EjectUserFromCostumeMenu();
+            
+            // We eject and also hide, because we want this to work even when VRC is not running.
+            _routine.HideCostumes();
         }
     }
 }

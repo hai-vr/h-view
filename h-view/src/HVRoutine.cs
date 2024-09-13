@@ -151,23 +151,27 @@ public class HVRoutine
             }
         }
     }
-
-    private void ShowCostumes()
+    
+    public void ToggleCostumes()
     {
-        if (!_isShowingCostumes)
-        {
-            _isShowingCostumes = true;
-            OnShowCostumes?.Invoke();
-        }
+        if (!_isShowingCostumes) ShowCostumes();
+        else HideCostumes();
     }
 
-    private void HideCostumes()
+    public void ShowCostumes()
     {
-        if (_isShowingCostumes)
-        {
-            _isShowingCostumes = false;
-            OnHideCostumes?.Invoke();
-        }
+        if (_isShowingCostumes) return;
+        
+        _isShowingCostumes = true;
+        OnShowCostumes?.Invoke();
+    }
+
+    public void HideCostumes()
+    {
+        if (!_isShowingCostumes) return;
+        
+        _isShowingCostumes = false;
+        OnHideCostumes?.Invoke();
     }
 
     public void ManuallyLoadManifestFromFile(string safeFileName)
