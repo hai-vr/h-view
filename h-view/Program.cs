@@ -28,8 +28,8 @@ var oscPort = HOsc.RandomOscPort();
 var queryPort = HQuery.RandomQueryPort();
 
 var oscClient = new HOsc(oscPort);
-var oscQuery = new HQuery(oscPort, queryPort, serviceName);
-oscQuery.OnVrcOscPortFound += vrcOscPort => oscClient.SetReceiverOscPort(vrcOscPort);
+var oscQuery = HQuery.ForVrchat(oscPort, queryPort, serviceName);
+oscQuery.OnTargetOscPortFound += vrcOscPort => oscClient.SetReceiverOscPort(vrcOscPort);
 
 var steamworksOptional = ConditionalCompilation.IncludesSteamworks ? new HNSteamworks() : null;
 

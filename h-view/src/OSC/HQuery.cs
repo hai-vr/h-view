@@ -5,10 +5,10 @@ namespace Hai.HView.OSC;
 
 public class HQuery
 {
-    private const string VrchatClientPrefix = "VRChat-Client";
+    public const string VrchatClientPrefix = "VRChat-Client";
     
-    public event VrcOscPortFound OnVrcOscPortFound;
-    public delegate void VrcOscPortFound(int oscPort);
+    public event TargetOscPortFound OnTargetOscPortFound;
+    public delegate void TargetOscPortFound(int oscPort);
     
     private readonly ConcurrentQueue<object> _queue = new ConcurrentQueue<object>();
     private readonly int _port;
@@ -16,12 +16,20 @@ public class HQuery
     private OSCQueryService _ourService;
     private OSCQueryServiceProfile _vrcQueryNullable;
     private readonly string _serviceName;
+    private readonly List<string> _targetPrefixes;
+    private bool _requiresVrSystem = false; // Stop asking for VR System (we don't need it)
 
-    public HQuery(int oscPort, int queryPort, string serviceName)
+    public static HQuery ForVrchat(int oscPort, int queryPort, string serviceName)
+    {
+        return new HQuery(oscPort, queryPort, serviceName, new[] { VrchatClientPrefix });
+    }
+
+    public HQuery(int oscPort, int queryPort, string serviceName, IEnumerable<string> allowedPrefixes)
     {
         _port = oscPort;
         _queryPort = queryPort;
         _serviceName = serviceName;
+        _targetPrefixes = allowedPrefixes.ToList();
     }
 
     public static int RandomQueryPort()
@@ -41,24 +49,28 @@ public class HQuery
             .AdvertiseOSCQuery()
             .Build();
         _ourService.AddEndpoint("/avatar/change", "s", Attributes.AccessValues.WriteOnly);
-        _ourService.AddEndpoint("/avatar/parameters/VelocityX", "f", Attributes.AccessValues.WriteOnly);
-        _ourService.AddEndpoint("/tracking/vrsystem", "ffffff", Attributes.AccessValues.WriteOnly);
+        // _ourService.AddEndpoint("/avatar/parameters/VelocityX", "f", Attributes.AccessValues.WriteOnly);
+        if (_requiresVrSystem)
+        {
+            // Adding this endpoint causes VRC to send tracking data to us, which we don't need.
+            _ourService.AddEndpoint("/tracking/vrsystem", "ffffff", Attributes.AccessValues.WriteOnly);
+        }
         _ourService.OnOscQueryServiceAdded += profile =>
         {
             Console.WriteLine($"Found a query service at: {profile.name}");
-            if (profile.name.StartsWith(VrchatClientPrefix))
+            if (_targetPrefixes.Any(possiblePrefix => profile.name.StartsWith(possiblePrefix)))
             {
                 _vrcQueryNullable = profile;
-                Console.WriteLine($"VRChat Query is at http://{profile.address}:{profile.port}/");
+                Console.WriteLine($"Service Query is at http://{profile.address}:{profile.port}/");
                 Task.Run(async () => await AsyncGetService(profile));
             }
         };
         _ourService.OnOscServiceAdded += profile =>
         {
-            if (profile.name.StartsWith(VrchatClientPrefix))
+            if (_targetPrefixes.Any(possiblePrefix => profile.name.StartsWith(possiblePrefix)))
             {
-                Console.WriteLine($"VRChat OSC is at osc://{profile.address}:{profile.port}/");
-                OnVrcOscPortFound?.Invoke(profile.port);
+                Console.WriteLine($"Service OSC is at osc://{profile.address}:{profile.port}/");
+                OnTargetOscPortFound?.Invoke(profile.port);
             }
         };
         _ourService.RefreshServices();
