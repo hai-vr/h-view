@@ -27,6 +27,10 @@ public class HVOverlayInstance : IOverlayable
     private HVPoseData _mgtPoseData;
     private ulong _thumbHandle;
 
+    private bool _usingEyeTracking;
+    private Vector3 _eyePos;
+    private Quaternion _eyeGaze;
+
     public HVOverlayInstance(HVInnerWindow innerWindow, string name, bool isDashboard, float ratio)
     {
         _innerWindow = innerWindow;
@@ -72,6 +76,7 @@ public class HVOverlayInstance : IOverlayable
         _inputSnapshot.Deaccumulate();
         _inputSnapshot.SetWindowSize(_innerWindow.WindowSize());
         PollOverlayEvents();
+        ProcessEyeTracking();
 
         // Only render when the overlay is visible
         // TODO: Input events may need some special handling
@@ -195,5 +200,39 @@ public class HVOverlayInstance : IOverlayable
     public ulong GetOverlayHandle()
     {
         return _handle;
+    }
+
+    public void ProvideEyeTracking(Vector3 eyePos, Quaternion eyeGaze)
+    {
+        _usingEyeTracking = true;
+        _eyePos = eyePos;
+        _eyeGaze = eyeGaze;
+    }
+
+    private void ProcessEyeTracking()
+    {
+        if (!_usingEyeTracking) return;
+
+        // (??????) Why do I have to inverse the eye gaze quaternion? (??????)
+        var quaternion = Quaternion.Inverse(_eyeGaze);
+        
+        var gazeDir = Vector3.Transform(new Vector3(0, 0, -1), quaternion);
+        VROverlayIntersectionParams_t intersectionParams = new VROverlayIntersectionParams_t
+        {
+            eOrigin = OpenVR.Compositor.GetTrackingSpace(),
+            vSource = HVOvrGeofunctions.Vec(_eyePos),
+            vDirection = HVOvrGeofunctions.Vec(gazeDir)
+        };
+        VROverlayIntersectionResults_t results = default;
+        var success = OpenVR.Overlay.ComputeOverlayIntersection(_handle, ref intersectionParams, ref results);
+        if (success)
+        {
+            var x01 = results.vUVs.v0;
+            var y01 = results.vUVs.v1;
+            if (x01 is > 0f and < 1f && y01 is > 0f and < 1f)
+            {
+                _inputSnapshot.MouseMove(new Vector2(x01, 1 - y01));
+            }
+        }
     }
 }

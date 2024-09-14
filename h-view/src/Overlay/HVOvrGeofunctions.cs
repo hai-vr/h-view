@@ -90,4 +90,12 @@ public static class HVOvrGeofunctions
             v0 = -ovr.m2, v1 = -ovr.m6, v2 = -ovr.m10
         };
     }
+    
+    public static HmdVector3_t Vec(Vector3 num)
+    {
+        return new HmdVector3_t
+        {
+            v0 = num.X, v1 = num.Y, v2 = num.Z
+        };
+    }
 }

@@ -111,4 +111,10 @@ public class HHandOverlay : IOverlayable
             _routine.HideCostumes();
         }
     }
+
+    public void ProvideEyeTracking(Vector3 eyePos, Quaternion eyeGaze)
+    {
+        _overlay.ProvideEyeTracking(eyePos, eyeGaze);
+        OpenVR.Overlay.SetOverlayWidthInMeters(_overlay.GetOverlayHandle(), 0.5f);
+    }
 }

@@ -88,12 +88,21 @@ public class HVOpenVRThread
             var overlayables = new List<IOverlayable>();
             overlayables.Add(dashboard);
             
+            HEyeTrackingOverlay eyeTrackingOptional = null;
+            if (false)
+            {
+                eyeTrackingOptional = new HEyeTrackingOverlay(_routine, dashboard);
+                eyeTrackingOptional.Start();
+                overlayables.Add(eyeTrackingOptional);
+            }
+            
             HHandOverlay handOverlay = null;
             var onShowCostumes = () => _queuedForOvr.Enqueue(() =>
             {
                 handOverlay = new HHandOverlay(innerWindow, windowRatio, _routine, false);
                 handOverlay.Start();
                 handOverlay.MoveToInitialPosition(ovr.PoseData());
+                eyeTrackingOptional?.SetHandOverlay(handOverlay);
                 
                 overlayables.Add(handOverlay);
             });
@@ -105,17 +114,11 @@ public class HVOpenVRThread
                     return;
                 }
                 handOverlay.Teardown();
+                eyeTrackingOptional?.SetHandOverlay(null);
                 overlayables.Remove(handOverlay);
                 
                 handOverlay = null;
             });
-
-            if (false)
-            {
-                var eyeTracking = new HEyeTrackingOverlay(_routine);
-                eyeTracking.Start();
-                overlayables.Add(eyeTracking);
-            }
 
             _routine.OnShowCostumes += onShowCostumes;
             _routine.OnHideCostumes += onHideCostumes;
