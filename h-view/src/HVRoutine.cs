@@ -41,6 +41,9 @@ public class HVRoutine
     private bool _isAutoLaunchAvailable;
     private Costume[] _costumes;
     private bool _isShowingCostumes;
+    
+    private EyeTrackingData _eyeTracking;
+    public EyeTrackingData EyeTracking => _eyeTracking;
 
     public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional)
     {
@@ -92,6 +95,8 @@ public class HVRoutine
 
         var messages = _osc.PullMessages();
         ProcessOscEvents(messages);
+
+        StoreEyeTrackingData();
 
         _externalService.ProcessTaskCompletion();
         
@@ -147,6 +152,30 @@ public class HVRoutine
                     HideCostumes();
                 }
             }
+        }
+    }
+
+    private void StoreEyeTrackingData()
+    {
+        if (_messageBox.TryGet("/avatar/parameters/FT/v2/EyeLeftX", out var xL) && !xL.IsDisabled
+            && _messageBox.TryGet("/avatar/parameters/FT/v2/EyeRightX", out var xR) && !xR.IsDisabled
+            && _messageBox.TryGet("/avatar/parameters/FT/v2/EyeY", out var y) && !y.IsDisabled
+           )
+        {
+            var xll = (float)xL.Values[0];
+            var xrr = (float)xR.Values[0];
+            _eyeTracking = new EyeTrackingData
+            {
+                XLeft = xll,
+                XRight = xrr,
+                XAvg = (xll + xrr) * 0.5f,
+                Y = (float)y.Values[0],
+                IsFresh = true
+            };
+        }
+        else
+        {
+            _eyeTracking.IsFresh = false;
         }
     }
     
@@ -329,4 +358,13 @@ public class Costume
 {
     public string FullPath;
     public string AvatarId;
+}
+
+public struct EyeTrackingData
+{
+    public float XLeft;
+    public float XRight;
+    public float XAvg;
+    public float Y;
+    public bool IsFresh;
 }

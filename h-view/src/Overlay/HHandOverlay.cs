@@ -6,7 +6,7 @@ using Valve.VR;
 
 namespace Hai.HView.Overlay;
 
-public class HHandOverlay
+public class HHandOverlay : IOverlayable
 {
     private readonly HVRoutine _routine;
     private readonly HVOverlayInstance _overlay;

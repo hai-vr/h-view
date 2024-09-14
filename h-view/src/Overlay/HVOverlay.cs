@@ -7,10 +7,10 @@ using Veldrid;
 
 namespace Hai.HView.Overlay;
 
-public class HVOverlayInstance
+public class HVOverlayInstance : IOverlayable
 {
     private const string DashboardKey = "hview-dashboard";
-    private const string OverlayKey = "hview-overlay";
+    public const string OverlayKey = "hview-overlay";
 
     // Specific to this overlay window
     private readonly HVInnerWindow _innerWindow;
@@ -86,7 +86,7 @@ public class HVOverlayInstance
         OpenVR.Overlay.SetOverlayTexture(_handle, ref _vrTexture);
     }
 
-    internal void Teardown()
+    public void Teardown()
     {
         OpenVR.Overlay.DestroyOverlay(_handle);
     }

@@ -48,6 +48,12 @@ public static class HVGeofunctions
     {
         return Vector3.Dot(planePoint - linePoint, planeNormal) / Vector3.Dot(lineNormal, planeNormal) * lineNormal + linePoint;
     }
+
+    public static Matrix4x4 QuickInvert(Matrix4x4 matrix)
+    {
+        if (Matrix4x4.Invert(matrix, out var result)) return result;
+        return Matrix4x4.Identity;
+    }
 }
 
 public enum HVRotationMulOrder

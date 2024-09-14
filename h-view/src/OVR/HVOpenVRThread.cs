@@ -85,12 +85,17 @@ public class HVOpenVRThread
             var dashboard = new HVOverlayInstance(innerWindow, "main", true, windowRatio);
             dashboard.Start();
 
+            var overlayables = new List<IOverlayable>();
+            overlayables.Add(dashboard);
+            
             HHandOverlay handOverlay = null;
             var onShowCostumes = () => _queuedForOvr.Enqueue(() =>
             {
                 handOverlay = new HHandOverlay(innerWindow, windowRatio, _routine, false);
                 handOverlay.Start();
                 handOverlay.MoveToInitialPosition(ovr.PoseData());
+                
+                overlayables.Add(handOverlay);
             });
             var onHideCostumes = () => _queuedForOvr.Enqueue(() =>
             {
@@ -100,9 +105,18 @@ public class HVOpenVRThread
                     return;
                 }
                 handOverlay.Teardown();
+                overlayables.Remove(handOverlay);
+                
                 handOverlay = null;
             });
-            
+
+            if (false)
+            {
+                var eyeTracking = new HEyeTrackingOverlay(_routine);
+                eyeTracking.Start();
+                overlayables.Add(eyeTracking);
+            }
+
             _routine.OnShowCostumes += onShowCostumes;
             _routine.OnHideCostumes += onHideCostumes;
         
@@ -118,13 +132,11 @@ public class HVOpenVRThread
 
                 var poseData = ovr.PoseData();
                 
-                dashboard.ProvidePoseData(poseData);
-                handOverlay?.ProvidePoseData(poseData);
+                foreach (var overlayable in overlayables) overlayable.ProvidePoseData(poseData);
             
                 // TODO: The update rate of the overlay UI event processing UI rendering may need to be independent
                 // of the management of the overlay movement and poses.
-                dashboard.ProcessThatOverlay(stopwatch);
-                handOverlay?.ProcessThatOverlay(stopwatch);
+                foreach (var overlayable in overlayables) overlayable.ProcessThatOverlay(stopwatch);
             
                 // TODO: Update the desktop window at a different rate than the HMD
                 var shouldContinue = desktopWindow.UpdateIteration(stopwatch);
@@ -138,8 +150,7 @@ public class HVOpenVRThread
             _routine.OnShowCostumes -= onShowCostumes;
             _routine.OnHideCostumes -= onHideCostumes;
 
-            dashboard.Teardown();
-            handOverlay?.Teardown();
+            foreach (var overlayable in overlayables) overlayable.Teardown();
         
             innerWindow.TeardownWindowlessUi(true);
         }
