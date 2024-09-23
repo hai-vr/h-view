@@ -356,6 +356,7 @@ public partial class HVInnerWindow : IDisposable
         _controller.Render(_gd, _cl);
         _cl.End();
         _gd.SubmitCommands(_cl);
+        _gd.SwapBuffers(_gd.MainSwapchain);
     }
 
     public void TeardownWindowlessUi(bool actuallyWindowless)
