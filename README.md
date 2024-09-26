@@ -7,12 +7,17 @@ This repository is mostly a personal learning project and has three main functio
 - It is my personal OSC Query debugger, and communicates with VRChat by listing all the available addresses.
 - It can display the entire Expressions Menu if that menu was exported during the avatar build process using [another Unity Editor tool](https://github.com/hai-vr/external-expressions-menu/)
   I made specifically for this purpose ([learn more](https://docs.hai-vr.dev/docs/products/h-view)).
-- In addition to the desktop window, it also has an implementation of the ImGui.NET window [being rendered into a SteamVR overlay](https://github.com/hai-vr/h-view/commit/cb1b35057a2f3ced0becdf9f013ef11b3de78291)
-  using the OpenVR API and Veldrid, and some [basic overlay mouse input](https://github.com/hai-vr/h-view/commit/697f7e61808f3b857940bcd24be05e67b9d3f774).
+- In addition to the desktop window, it also has an implementation of the ImGui.NET window:
+  - being rendered into a SteamVR overlay ([introduction commit](https://github.com/hai-vr/h-view/commit/cb1b35057a2f3ced0becdf9f013ef11b3de78291))
+  using the OpenVR API and Veldrid,
+  - with some basic overlay mouse input ([class](https://github.com/hai-vr/h-view/blob/main/h-view/src/Overlay/HVImGuiOverlay.cs), [introduction commit](https://github.com/hai-vr/h-view/commit/697f7e61808f3b857940bcd24be05e67b9d3f774)),
+  - and some eye tracking input ([class](https://github.com/hai-vr/h-view/blob/main/h-view/src/Overlay/HVImGuiOverlay.cs#L214), [introduction commit](https://github.com/hai-vr/h-view/commit/969b6c23a260c7888b607acb3b4652735bd99db1)).
 
 For more information, [open the website page](https://docs.hai-vr.dev/docs/products/h-view).
 
 https://github.com/user-attachments/assets/889a2648-7cda-4cba-bb0b-23cf1c96ddaf
+
+https://github.com/user-attachments/assets/253ae182-1db5-4dd5-a260-9eb78ceb48f0
 
 ### Optional: VRChat Login
 
@@ -28,7 +33,7 @@ The code responsible for all VRChat account actions [can be inspected here](http
 - Logging out `Logout()` ([API docs](https://vrchatapi.github.io/docs/api/#put-/logout))
 - Switching avatars `SelectAvatar(avatarId)` ([API docs](https://vrchatapi.github.io/docs/api/#put-/avatars/-avatarId-/select))
 
-Logging in will save a cookie file in the `%APPDATA%/H-View/` folder, called `hview.cookies.txt`
+Logging in will save a cookie file in the `%APPDATA%/H-View/` folder, called `hview.vrc.cookies.txt`
 - This file is used to communicate with your VRChat account. Do not share that file.
 - This cookie file will be loaded when you start the program.
 - To delete this cookie file, go to Costumes > Login > Logout.
