@@ -8,6 +8,10 @@
         {
             "name": "/actions/h_view/in/open_right",
             "type": "boolean"
+        },
+        {
+            "name": "/actions/h_view/in/interact",
+            "type": "boolean"
         }
     ]
 }

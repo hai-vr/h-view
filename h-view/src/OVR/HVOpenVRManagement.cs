@@ -22,8 +22,10 @@ public class HVOpenVRManagement
     private ulong _actionSetHandle;
     private ulong _actionOpenLeft;
     private ulong _actionOpenRight;
+    private ulong _actionInteract;
     public ulong ActionOpenLeft => _actionOpenLeft;
     public ulong ActionOpenRight => _actionOpenRight;
+    public ulong ActionInteract => _actionInteract;
 
     public bool Start()
     {
@@ -67,6 +69,7 @@ public class HVOpenVRManagement
             OpenVR.Input.GetActionSetHandle("/actions/h_view", ref _actionSetHandle);
             OpenVR.Input.GetActionHandle("/actions/h_view/in/open_left", ref _actionOpenLeft);
             OpenVR.Input.GetActionHandle("/actions/h_view/in/open_right", ref _actionOpenRight);
+            OpenVR.Input.GetActionHandle("/actions/h_view/in/interact", ref _actionInteract);
 
             _actionsets[0].ulActionSet = _actionSetHandle;
         }
