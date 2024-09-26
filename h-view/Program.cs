@@ -4,6 +4,7 @@ using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.HaiSteamworks;
 using Hai.HView.OSC;
+using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;
 using Hai.HView.SavedData;
 
@@ -24,6 +25,8 @@ if (!Directory.Exists(SaveUtil.GetUserDataFolder()))
 }
 var config = SavedData.OpenConfig();
 
+var fakeVrcOptional = ConditionalCompilation.EnableFakeVrcOsc ? new FakeVRCOSC() : null;
+
 var oscPort = HOsc.RandomOscPort();
 var queryPort = HQuery.RandomQueryPort();
 
@@ -35,7 +38,7 @@ var steamworksOptional = ConditionalCompilation.IncludesSteamworks ? new HNSteam
 
 var messageBox = new HMessageBox();
 var externalService = new HVExternalService();
-var routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworksOptional);
+var routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworksOptional, fakeVrcOptional);
 
 var ovrThreadOptional = isOverlay ? new HVOpenVRThread(routine, registerManifest) : null;
 
@@ -44,6 +47,7 @@ oscClient.Start();
 oscQuery.Start();
 externalService.Start();
 steamworksOptional?.Start();
+fakeVrcOptional?.Start();
 routine.Start();
 
 void WhenWindowClosed()
@@ -52,6 +56,7 @@ void WhenWindowClosed()
     oscQuery.Finish();
     oscClient.Finish();
     ovrThreadOptional?.Finish();
+    fakeVrcOptional?.Finish();
 }
 
 // Start the VR or UI thread.
@@ -73,6 +78,11 @@ new Thread(() =>
     CurrentUICulture = CultureInfo.InvariantCulture,
     Name = isOverlay ? "VR-Thread" : "UI-Thread"
 }.Start();
+
+if (fakeVrcOptional != null)
+{
+    fakeVrcOptional.SendAvatarChange();
+}
 
 // Main loop
 routine.MainLoop(); // This call does not return until routine.Finish() is called.

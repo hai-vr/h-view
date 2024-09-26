@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.HaiSteamworks;
 using Hai.HView.OSC;
+using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;
 using Hai.HView.SavedData;
 using hcontroller.Lyuma;
@@ -26,6 +27,7 @@ public class HVRoutine
     private readonly HMessageBox _messageBox;
     private readonly HVExternalService _externalService;
     private readonly HNSteamworks _steamworksOptional;
+    private readonly FakeVRCOSC _fakeVrcOptional;
     private readonly HOsc _osc;
     
     private readonly Regex _avoidPathTraversalInAvtrPipelineName = new Regex(@"^avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
@@ -45,13 +47,14 @@ public class HVRoutine
     private EyeTrackingData _eyeTracking;
     public EyeTrackingData EyeTracking => _eyeTracking;
 
-    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional)
+    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional, FakeVRCOSC fakeVrcOptional)
     {
         _osc = osc;
         _query = query;
         _messageBox = messageBox;
         _externalService = externalService;
         _steamworksOptional = steamworksOptional;
+        _fakeVrcOptional = fakeVrcOptional;
     }
 
     public void Start()
@@ -95,6 +98,12 @@ public class HVRoutine
 
         var messages = _osc.PullMessages();
         ProcessOscEvents(messages);
+
+        if (_fakeVrcOptional != null)
+        {
+            var fakeMessages = _fakeVrcOptional.PullMessages();
+            ProcessOscEvents(fakeMessages);
+        }
 
         StoreEyeTrackingData();
 
