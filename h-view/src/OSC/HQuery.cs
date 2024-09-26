@@ -48,7 +48,7 @@ public class HQuery
             .AdvertiseOSC()
             .AdvertiseOSCQuery()
             .Build();
-        _ourService.AddEndpoint("/avatar/change", "s", Attributes.AccessValues.WriteOnly);
+        _ourService.AddEndpoint(CommonOSCAddresses.AvatarChangeOscAddress, "s", Attributes.AccessValues.WriteOnly);
         // _ourService.AddEndpoint("/avatar/parameters/VelocityX", "f", Attributes.AccessValues.WriteOnly);
         if (_requiresVrSystem)
         {

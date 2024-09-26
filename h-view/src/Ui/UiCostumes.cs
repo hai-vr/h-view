@@ -40,7 +40,7 @@ public class UiCostumes
     internal void CostumesTab(Dictionary<string, HOscItem> oscMessages)
     {
         var uiExternalService = _routine.UiExternalService();
-        var currentAvi = oscMessages.TryGetValue("/avatar/change", out var c) ? (string)c.Values[0] : "";
+        var currentAvi = oscMessages.TryGetValue(CommonOSCAddresses.AvatarChangeOscAddress, out var c) ? (string)c.Values[0] : "";
 
         if (!uiExternalService.IsLoggedIn)
         {
