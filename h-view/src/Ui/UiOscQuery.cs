@@ -43,14 +43,15 @@ public partial class HVInnerWindow
             SendRandomAvatarParameters(filtered);
         }
         MakeOscTable(AvatarParametersPath, filtered.Where(item => item.Key.StartsWith(AvatarParametersPath)
-                                                                  && !item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _manifestNullable != null);
+                                                                  && !item.Key.StartsWith(ThirdParty_FaceTrackingPath)), ManifestNullable != null);
         MakeOscTable(RootPath, filtered.Where(item => !PathRoots.Any(path => item.Key.StartsWith(path))));
     }
     
     private void FaceTrackingTab(Dictionary<string, HOscItem> messages)
     {
         var filtered = messages.Values.Where(item => !item.IsDisabled).ToArray();
-        MakeOscTable(ThirdParty_FaceTrackingPath, filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _manifestNullable != null, AvatarParametersPath);
+        MakeOscTable(ThirdParty_FaceTrackingPath, filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)), ManifestNullable != null, AvatarParametersPath);
+        
         var randFiltered = filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)).ToArray();
         if (ImGui.Button(RandomizeParametersLabel))
         {

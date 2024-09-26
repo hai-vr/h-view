@@ -2,12 +2,13 @@
 using System.Numerics;
 using Hai.HView.Core;
 using Hai.HView.Gui;
+using Hai.HView.OVR;
 using Valve.VR;
 using Veldrid;
 
 namespace Hai.HView.Overlay;
 
-public class HVOverlayInstance : IOverlayable
+public class HVImGuiOverlay : IOverlayable
 {
     private const string DashboardKey = "hview-dashboard";
     public const string OverlayKey = "hview-overlay";
@@ -31,7 +32,7 @@ public class HVOverlayInstance : IOverlayable
     private Vector3 _eyePos;
     private Quaternion _eyeGaze;
 
-    public HVOverlayInstance(HVInnerWindow innerWindow, string name, bool isDashboard, float ratio)
+    public HVImGuiOverlay(HVInnerWindow innerWindow, string name, bool isDashboard, float ratio)
     {
         _innerWindow = innerWindow;
         _name = name;
@@ -207,32 +208,40 @@ public class HVOverlayInstance : IOverlayable
         _usingEyeTracking = true;
         _eyePos = eyePos;
         _eyeGaze = eyeGaze;
+        _innerWindow.SetEyeTracking(_usingEyeTracking);
     }
 
     private void ProcessEyeTracking()
     {
         if (!_usingEyeTracking) return;
 
-        // (??????) Why do I have to inverse the eye gaze quaternion? (??????)
-        var quaternion = Quaternion.Inverse(_eyeGaze);
+/*
+Conversation between 2024-09-15 and 2024-09-18: 
+    Haï~:
+        When I tried to use OpenVR.Overlay.ComputeOverlayIntersection, which takes a vSource and a vDirection vectors,
+          it seemed like the vector in vSource is in world space, and the vector in vDirection is in overlay space,
+          rather than my expectation that vSource and vDirection were both in world space.
+        Going backwards, the only way I could make this function work was to extract the position out of mDeviceToAbsoluteTracking matrix,
+          but the inverse rotation out of the mDeviceToAbsoluteTracking matrix
+        that doesn't make sense to me, so I'm wondering if there's something fundamental about matrices or some other concept that I'm not getting
+
+    cnlohr (reply to Haï~):
+        I don't see any rhyme or reason.  It's possible it could be because of historical reasons that no longer apply, but now it is how it is.
+
+ */
+        // We invert the gaze quaternion because apparently the vDirection part of the raycast is in overlay space (see conversation above)
+        var openVrEyeGazeRaycastQuat = Quaternion.Inverse(_eyeGaze);
         
-        var gazeDir = Vector3.Transform(new Vector3(0, 0, -1), quaternion);
-        VROverlayIntersectionParams_t intersectionParams = new VROverlayIntersectionParams_t
+        var gazeDir = Vector3.Transform(new Vector3(0, 0, -1), openVrEyeGazeRaycastQuat);
+        var intersectionParams = new VROverlayIntersectionParams_t
         {
             eOrigin = OpenVR.Compositor.GetTrackingSpace(),
             vSource = HVOvrGeofunctions.Vec(_eyePos),
             vDirection = HVOvrGeofunctions.Vec(gazeDir)
         };
-        VROverlayIntersectionResults_t results = default;
-        var success = OpenVR.Overlay.ComputeOverlayIntersection(_handle, ref intersectionParams, ref results);
-        if (success)
+        if (OpenVRUtils.ComputeOverlayIntersectionStrictUVs(_handle, intersectionParams, out var uv))
         {
-            var x01 = results.vUVs.v0;
-            var y01 = results.vUVs.v1;
-            if (x01 is > 0f and < 1f && y01 is > 0f and < 1f)
-            {
-                _inputSnapshot.MouseMove(new Vector2(x01, 1 - y01));
-            }
+            _inputSnapshot.MouseMove(new Vector2(uv.X, 1 - uv.Y));
         }
     }
 }

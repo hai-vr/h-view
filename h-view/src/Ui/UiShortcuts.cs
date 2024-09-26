@@ -32,11 +32,11 @@ TODO:
     */
 public partial class HVInnerWindow
 {
-    private HVShortcutHost _shortcutsNullable;
+    public HVShortcutHost ShortcutsNullable { get; private set; }
 
     private void RebuildManifestAsShortcuts(EMManifest manifest)
     {
-        _shortcutsNullable = AsHost(manifest.menu, manifest);
+        ShortcutsNullable = AsHost(manifest.menu, manifest);
     }
 
     private HVShortcutHost AsHost(EMMenu[] controls, EMManifest manifest)
@@ -52,7 +52,8 @@ public partial class HVInnerWindow
             pressables = shortcuts.Where(shortcut => shortcut.type is Toggle or Button).ToArray(),
             slidables = shortcuts.Where(shortcut => shortcut.type is not Toggle and not Button and not SubMenu).ToArray(),
             subs = shortcuts.Where(shortcut => shortcut.type is SubMenu).ToArray(),
-            everything = shortcuts
+            shortcuts = shortcuts,
+            everything = everything
         };
     }
 
@@ -111,6 +112,9 @@ public partial class HVInnerWindow
         public HVShortcut[] pressables;
         public HVShortcut[] slidables;
         public HVShortcut[] subs;
+        /// Shortcuts does not include separator items that do nothing.
+        public HVShortcut[] shortcuts;
+        /// Everything includes separator items that do nothing.
         public HVShortcut[] everything;
     }
 

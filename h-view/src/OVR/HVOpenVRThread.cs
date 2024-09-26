@@ -14,6 +14,9 @@ public class HVOpenVRThread
     private const int TotalWindowHeight = 510;
     public const string VrManifestAppKey = "Hai.HView";
 
+    // TODO: Add a runtime switch
+    private const bool EnableEyeTrackingProvider = false;
+
     private readonly HVRoutine _routine;
     private readonly HVOpenVRManagement _ovr;
     private readonly bool _registerAppManifest;
@@ -82,14 +85,14 @@ public class HVOpenVRThread
             innerWindow.SetupUi(true);
 
             var windowRatio = width / (height * 1f);
-            var dashboard = new HVOverlayInstance(innerWindow, "main", true, windowRatio);
+            var dashboard = new HVImGuiOverlay(innerWindow, "main", true, windowRatio);
             dashboard.Start();
 
             var overlayables = new List<IOverlayable>();
             overlayables.Add(dashboard);
             
             HEyeTrackingOverlay eyeTrackingOptional = null;
-            if (false)
+            if (EnableEyeTrackingProvider)
             {
                 eyeTrackingOptional = new HEyeTrackingOverlay(_routine, dashboard);
                 eyeTrackingOptional.Start();
@@ -103,6 +106,7 @@ public class HVOpenVRThread
                 handOverlay.Start();
                 handOverlay.MoveToInitialPosition(ovr.PoseData());
                 eyeTrackingOptional?.SetHandOverlay(handOverlay);
+                innerWindow.SetIsHandOverlay(true);
                 
                 overlayables.Add(handOverlay);
             });
@@ -116,6 +120,7 @@ public class HVOpenVRThread
                 handOverlay.Teardown();
                 eyeTrackingOptional?.SetHandOverlay(null);
                 overlayables.Remove(handOverlay);
+                innerWindow.SetIsHandOverlay(false);
                 
                 handOverlay = null;
             });

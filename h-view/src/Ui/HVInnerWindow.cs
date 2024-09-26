@@ -33,6 +33,8 @@ public partial class HVInnerWindow : IDisposable
     private const int RefreshFramesPerSecondWhenUnfocused = 100;
     private const int RefreshEventPollPerSecondWhenMinimized = 15;
 
+    private const bool ShowFrameCounter = false;
+    
     private readonly HVRoutine _routine;
     private readonly bool _isWindowlessStyle;
 
@@ -42,12 +44,17 @@ public partial class HVInnerWindow : IDisposable
 
     private CustomImGuiController _controller;
 
-    private EMManifest _manifestNullable;
+    public EMManifest ManifestNullable { get; private set; }
     private readonly ConcurrentQueue<Action> _queuedForUi = new ConcurrentQueue<Action>();
     private Dictionary<string, bool> _isLocal = new Dictionary<string, bool>();
+    private bool _eyeTrackingMenuActiveLastFrame;
+    
+    // Externally set
+    private bool _usingEyeTracking;
+    private bool _isBeingViewedThroughHandOverlay;
 
     // UI state
-    private readonly Vector3 _clearColor = new(0.45f, 0.55f, 0.6f);
+    private readonly RgbaFloat _transparentClearColor = new RgbaFloat(0f, 0f, 0f, 0f);
     private string _chatboxBuffer = "";
     private bool _chatboxB;
     private bool _chatboxN;
@@ -61,10 +68,14 @@ public partial class HVInnerWindow : IDisposable
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
     private readonly UiCostumes _costumesTab;
     private readonly UiNetworking _networkingTabOptional;
+    private readonly UiEyeTrackingMenu _eyeTrackingMenu;
     private readonly int _windowWidth;
     private readonly int _windowHeight;
     private readonly int _trimWidth;
     private readonly int _trimHeight;
+    
+    // Debug
+    private long frameNumber;
 
     public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight)
     {
@@ -79,6 +90,7 @@ public partial class HVInnerWindow : IDisposable
 
         _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle);
         _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
+        _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle);
     }
 
     public void Dispose()
@@ -89,7 +101,7 @@ public partial class HVInnerWindow : IDisposable
 
     private void OnManifestChanged(EMManifest newManifest) => _queuedForUi.Enqueue(() =>
     {
-        _manifestNullable = newManifest;
+        ManifestNullable = newManifest;
         FreeImagesFromMemory();
         RebuildManifestAsShortcuts(newManifest);
         BuildIsLocalTable(newManifest);
@@ -118,28 +130,54 @@ public partial class HVInnerWindow : IDisposable
         {
             flags |= ImGuiWindowFlags.NoTitleBar;
         }
+
+        var isEyeTrackingMenuBeingViewedThroughHandOverlay = _isWindowlessStyle && _isBeingViewedThroughHandOverlay && _eyeTrackingMenuActiveLastFrame;
+        if (isEyeTrackingMenuBeingViewedThroughHandOverlay)
+        {
+            flags |= ImGuiWindowFlags.NoBackground;
+        }
+
+        frameNumber++;
         ImGui.Begin($"{HVApp.AppTitleTab} {VERSION.version}", flags);
-        ImGui.BeginTabBar("##tabs");
+        if (ShowFrameCounter)
+        {
+            ImGui.Text($"[frame {frameNumber}, delta {(ImGui.GetIO().DeltaTime * 1000):0}ms]");
+        }
         var oscMessages = _routine.UiOscMessages();
 
-        _scrollManager.MakeTab(ShortcutsTabLabel, () => ShortcutsTab(oscMessages));
-        _scrollManager.MakeUnscrollableTab(CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
-        if (ImGui.BeginTabItem("Parameters"))
+        if (!isEyeTrackingMenuBeingViewedThroughHandOverlay)
         {
-            ImGui.BeginTabBar("##tabs_parameters");
-            _scrollManager.MakeTab(AvatarTabLabel, () => AvatarTab(oscMessages));
-            _scrollManager.MakeTab(FaceTrackingTabLabel, () => FaceTrackingTab(oscMessages));
-            _scrollManager.MakeTab(InputTabLabel, () => InputTab(oscMessages));
-            _scrollManager.MakeTab(TrackingTabLabel, () => TrackingTab(oscMessages));
-            _scrollManager.MakeTab(ContactsTabLabel, () => ContactsTab(oscMessages));
-            _scrollManager.MakeTab(PhysBonesLabel, () => PhysBonesTab(oscMessages));
-            _scrollManager.MakeTab(MenuTabLabel, () => ExpressionsTab(oscMessages));
+            ImGui.BeginTabBar("##tabs");
+            _scrollManager.MakeTab(ShortcutsTabLabel, () => ShortcutsTab(oscMessages));
+            _scrollManager.MakeUnscrollableTab(CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
+            if (ImGui.BeginTabItem("Parameters"))
+            {
+                ImGui.BeginTabBar("##tabs_parameters");
+                _scrollManager.MakeTab(AvatarTabLabel, () => AvatarTab(oscMessages));
+                _scrollManager.MakeTab(FaceTrackingTabLabel, () => FaceTrackingTab(oscMessages));
+                _scrollManager.MakeTab(InputTabLabel, () => InputTab(oscMessages));
+                _scrollManager.MakeTab(TrackingTabLabel, () => TrackingTab(oscMessages));
+                _scrollManager.MakeTab(ContactsTabLabel, () => ContactsTab(oscMessages));
+                _scrollManager.MakeTab(PhysBonesLabel, () => PhysBonesTab(oscMessages));
+                _scrollManager.MakeTab(MenuTabLabel, () => ExpressionsTab(oscMessages));
+                ImGui.EndTabBar();
+                ImGui.EndTabItem();
+            }
+            _eyeTrackingMenuActiveLastFrame = false;
+            _scrollManager.MakeUnscrollableTab("Eye Tracking", () =>
+            {
+                _eyeTrackingMenuActiveLastFrame = true;
+                _eyeTrackingMenu.EyeTrackingMenuTab();
+            });
+            if (_networkingTabOptional != null) _scrollManager.MakeTab("Networking", () => _networkingTabOptional.NetworkingTab());
+            _scrollManager.MakeUnscrollableTab(UtilityTabLabel, () => UtilityTab(oscMessages));
             ImGui.EndTabBar();
-            ImGui.EndTabItem();
         }
-        if (_networkingTabOptional != null) _scrollManager.MakeTab("Networking", () => _networkingTabOptional.NetworkingTab());
-        _scrollManager.MakeTab(UtilityTabLabel, () => UtilityTab(oscMessages));
-        ImGui.EndTabBar();
+        else
+        {
+            _eyeTrackingMenuActiveLastFrame = true;
+            _eyeTrackingMenu.EyeTrackingMenuTab();
+        }
 
         _scrollManager.StoreIfAnyItemHovered();
         
@@ -175,7 +213,7 @@ public partial class HVInnerWindow : IDisposable
 
         _cl.Begin();
         _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);
-        _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
+        DoClearColor();
         _controller.Render(_gd, _cl);
         _cl.End();
         _gd.SubmitCommands(_cl);
@@ -239,7 +277,7 @@ public partial class HVInnerWindow : IDisposable
 
             _cl.Begin();
             _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);
-            _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
+            DoClearColor();
             _controller.Render(_gd, _cl);
             _cl.End();
             _gd.SubmitCommands(_cl);
@@ -352,7 +390,7 @@ public partial class HVInnerWindow : IDisposable
         
         _cl.Begin();
         _cl.SetFramebuffer(_overlayFramebuffer);
-        _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
+        DoClearColor();
         _controller.Render(_gd, _cl);
         _cl.End();
         _gd.SubmitCommands(_cl);
@@ -405,5 +443,21 @@ public partial class HVInnerWindow : IDisposable
         // else: Do not limit framerate.
         
         return true;
+    }
+
+    public void SetEyeTracking(bool usingEyeTracking)
+    {
+        _usingEyeTracking = usingEyeTracking;
+    }
+
+    public void SetIsHandOverlay(bool isHandOverlay)
+    {
+        _isBeingViewedThroughHandOverlay = true;
+    }
+
+    private void DoClearColor()
+    {
+        // This makes the background transparent for the eye tracking menus.
+        _cl.ClearColorTarget(0, _transparentClearColor);
     }
 }

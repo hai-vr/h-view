@@ -74,23 +74,6 @@ public static class HVOvrGeofunctions
         };
     }
     
-    public static HmdVector3_t PosOvr(HmdMatrix34_t ovr)
-    {
-        return new HmdVector3_t
-        {
-            v0 = ovr.m3, v1 = ovr.m7, v2 = ovr.m11
-        };
-    }
-
-    // TODO: Is this correct?
-    public static HmdVector3_t ForwardOvr(HmdMatrix34_t ovr)
-    {
-        return new HmdVector3_t
-        {
-            v0 = -ovr.m2, v1 = -ovr.m6, v2 = -ovr.m10
-        };
-    }
-    
     public static HmdVector3_t Vec(Vector3 num)
     {
         return new HmdVector3_t

@@ -6,6 +6,32 @@ public static class HVGeofunctions
 {
     // Ovrnum: System.Numerics matrix functions using OpenVR coordinate system
     // Unity: System.Numerics matrix functions using Unity coordinate system
+    
+    public static Matrix4x4 TR(Vector3 translation, Quaternion rotation)
+    {
+        var numRot = Matrix4x4.CreateFromQuaternion(rotation);
+
+        return new Matrix4x4
+        (
+            numRot.M11, numRot.M12, numRot.M13, translation.X,
+            numRot.M21, numRot.M22, numRot.M23, translation.Y,
+            numRot.M31, numRot.M32, numRot.M33, translation.Z,
+            0, 0, 0, 1
+        );
+    }
+
+    public static Matrix4x4 TRS(Vector3 translation, Quaternion rotation, Vector3 scale)
+    {
+        var numRot = Matrix4x4.CreateFromQuaternion(rotation);
+
+        return new Matrix4x4
+        (
+            numRot.M11 * scale.X, numRot.M12 * scale.X, numRot.M13 * scale.X, translation.X,
+            numRot.M21 * scale.Y, numRot.M22 * scale.Y, numRot.M23 * scale.Y, translation.Y,
+            numRot.M31 * scale.Z, numRot.M32 * scale.Z, numRot.M33 * scale.Z, translation.Z,
+            0, 0, 0, 1
+        );
+    }
 
     public static Matrix4x4 OvrnumToUnity(Matrix4x4 generic)
     {

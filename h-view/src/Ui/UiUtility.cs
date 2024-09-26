@@ -10,6 +10,13 @@ public partial class HVInnerWindow
     
     private void UtilityTab(Dictionary<string, HOscItem> oscMessages)
     {
+        ImGui.BeginTabBar("##tabs_keys");
+        _scrollManager.MakeTab("Keys", () => KeysTab(oscMessages));
+        ImGui.EndTabBar();
+    }
+
+    private void KeysTab(Dictionary<string, HOscItem> oscMessages)
+    {
         var id = 0;
 
         var size = new Vector2(ImGui.GetWindowWidth() / 2, 40);

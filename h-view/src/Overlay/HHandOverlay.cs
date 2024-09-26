@@ -2,6 +2,7 @@
 using System.Numerics;
 using Hai.HView.Core;
 using Hai.HView.Gui;
+using Hai.HView.OVR;
 using Valve.VR;
 
 namespace Hai.HView.Overlay;
@@ -9,7 +10,7 @@ namespace Hai.HView.Overlay;
 public class HHandOverlay : IOverlayable
 {
     private readonly HVRoutine _routine;
-    private readonly HVOverlayInstance _overlay;
+    private readonly HVImGuiOverlay _overlay;
     private readonly Stopwatch _stopwatch;
     private readonly bool _useLeftHand;
 
@@ -17,7 +18,7 @@ public class HHandOverlay : IOverlayable
     {
         _routine = routine;
         _useLeftHand = useLeftHand;
-        _overlay = new HVOverlayInstance(innerWindow, "costumes", false, windowRatio);
+        _overlay = new HVImGuiOverlay(innerWindow, "costumes", false, windowRatio);
         _stopwatch = new Stopwatch();
     }
 
@@ -30,12 +31,12 @@ public class HHandOverlay : IOverlayable
     public void MoveToInitialPosition(HVPoseData poseData)
     {
         var deviceIndex = GetHandedDeviceIndex(poseData);
-        if (!HVOverlayMovement.IsValidDeviceIndex(deviceIndex)) return;
+        if (!OpenVRUtils.IsValidDeviceIndex(deviceIndex)) return;
         
         var pos = new Vector3(0f, -0.01f, -0.2f);
         var angles = new Vector3(65, 0, 0);
         var rot = HVGeofunctions.QuaternionFromAngles(angles, HVRotationMulOrder.YZX);
-        var handToOverlayPlace = HVOvrGeofunctions.OvrToOvrnum(HVOvrGeofunctions.OvrTRS(pos, rot, Vector3.One));
+        var handToOverlayPlace = HVGeofunctions.TR(pos, rot);
                     
         var absToHandPlace = HVOvrGeofunctions.OvrToOvrnum(poseData.Poses[deviceIndex].mDeviceToAbsoluteTracking);
         var absToOverlayPlace = HVOvrGeofunctions.OvrnumToOvr(absToHandPlace * handToOverlayPlace);
@@ -59,9 +60,10 @@ public class HHandOverlay : IOverlayable
     private void HandleIntersection(HVPoseData poseData)
     {
         var whichHand = GetHandedDeviceIndex(poseData);
-        if (HVOverlayMovement.IsValidDeviceIndex(whichHand))
+        if (OpenVRUtils.IsValidDeviceIndex(whichHand))
         {
-            // var isIntersecting = IsIntersecting(poseData, whichHand);
+            // var isIntersecting = IsHandLaserIntersecting(poseData, whichHand);
+            // OpenVR.Overlay.SetOverlayFlag(_overlay.GetOverlayHandle(), VROverlayFlags.MakeOverlaysInteractiveIfVisible, isIntersecting);
             var isIntersecting = OpenVR.Overlay.IsHoverTargetOverlay(_overlay.GetOverlayHandle());
             if (isIntersecting)
             {
@@ -75,28 +77,22 @@ public class HHandOverlay : IOverlayable
         return _useLeftHand ? poseData.LeftHandDeviceIndex : poseData.RightHandDeviceIndex;
     }
 
-    private bool IsIntersecting(HVPoseData poseData, uint whichHand)
+    private bool IsHandLaserIntersecting(HVPoseData poseData, uint whichHand)
     {
-        // FIXME: None of this works, unsure why. Intersection is offset, or has wrong angle or something. It feels squished vertically.
+        // FIXME: ~~None of this works, unsure why. Intersection is offset, or has wrong angle or something. It feels squished vertically.~~
+        // FIXME: After working on another part of the program, check out HEyeTrackingOverlay.cs,
+        // as it might be that the quaternion of the hand pose (or the matrix itself) needs to be inverted before being passed to the intersection params.
+        // FIXME: It still doesn't seem to work properly, probably the laser angle or origin point needs to be sourced from one of the controller poses.
         
         var handPose = poseData.Poses[whichHand].mDeviceToAbsoluteTracking;
-        var move = new Vector3(0, -0.2f, 0);
-        var absToOverHand = HVOvrGeofunctions.OvrToOvrnum(HVOvrGeofunctions.OvrTranslate(move)) * HVOvrGeofunctions.OvrToOvrnum(handPose);
-        var pos = HVOvrGeofunctions.PosOvr(HVOvrGeofunctions.OvrnumToOvr(absToOverHand));
+        HVGeofunctions.ToPosRotV3(HVOvrGeofunctions.OvrToOvrnum(handPose), out var pos, out var rot);
         var intersection = new VROverlayIntersectionParams_t
         {
             eOrigin = OpenVR.Compositor.GetTrackingSpace(),
-            vSource = pos,
-            vDirection = HVOvrGeofunctions.ForwardOvr(handPose)
+            vSource = HVOvrGeofunctions.Vec(pos),
+            vDirection = HVOvrGeofunctions.Vec(Vector3.Transform(new Vector3(0, 0, -1), Quaternion.Inverse(rot)))
         };
-            
-        VROverlayIntersectionResults_t results = default;
-        var isIntersecting = OpenVR.Overlay.ComputeOverlayIntersection(_overlay.GetOverlayHandle(), ref intersection, ref results);
-            
-        // HACK: somehow ComputeOverlayIntersection doesn't return false when it's not intersecting
-        if (results.vPoint is { v0: 0, v1: 0, v2: 0 }) isIntersecting = false;
-        Console.WriteLine($"IsIntersecting? {isIntersecting} {results.vPoint.v0} {results.vPoint.v1} {results.vPoint.v2}");
-        return isIntersecting;
+        return OpenVRUtils.ComputeOverlayIntersectionStrictUVs(_overlay.GetOverlayHandle(), intersection, out _);
     }
 
     public void ProcessThatOverlay(Stopwatch stopwatch)
@@ -107,7 +103,8 @@ public class HHandOverlay : IOverlayable
         {
             _routine.EjectUserFromCostumeMenu();
             
-            // We eject and also hide, because we want this to work even when VRC is not running.
+            // We eject and also hide, because we want this to work even when VRC is not running,
+            // and also when VRC is going into a loading screen.
             _routine.HideCostumes();
         }
     }

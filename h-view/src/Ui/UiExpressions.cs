@@ -17,11 +17,21 @@ public partial class HVInnerWindow
     private readonly Dictionary<string, IntPtr> _pathToPointers = new Dictionary<string, IntPtr>();
     private readonly Dictionary<string, ImageSharpTexture> _pathToTexture = new Dictionary<string, ImageSharpTexture>();
     
-    private const int ImageWidth = 64;
-    private const int ImageHeight = 64;
-    private readonly Vector2 _imageSize = new Vector2(ImageWidth, ImageHeight);
-    private readonly Vector2 _imagelessButtonSize = new Vector2(ImageWidth + 6, ImageHeight + 6);
-    private const int ButtonTableWidth = ImageWidth + 6;
+    private const int NominalImageWidth = 64;
+    private const int NominalImageHeight = 64;
+    private Vector2 _imageSize;
+    private Vector2 _imagelessButtonSize;
+    private int _buttonTableWidth;
+
+    private void UpdateIconSize()
+    {
+        var eyeTrackingSizeMultiplier = 1.5f;
+        var width = (int)(NominalImageWidth * (_usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
+        var height = (int)(NominalImageHeight * (_usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
+        _imageSize = new Vector2(width, height);
+        _imagelessButtonSize = new Vector2(width + 6, height + 6);
+        _buttonTableWidth = width + 6;
+    }
 
     /// Free allocated images. This needs to be called from the UI thread.
     private void FreeImagesFromMemory()
@@ -40,7 +50,7 @@ public partial class HVInnerWindow
         _pathToTexture.Clear();
     }
 
-    private IntPtr GetOrLoadImage(string[] icons, int index)
+    internal IntPtr GetOrLoadImage(string[] icons, int index)
     {
         // TODO: Should we pre-load all the icons immediately, instead of doing it on request?
         if (_indexToPointers.TryGetValue(index, out var found)) return found;
@@ -85,6 +95,8 @@ public partial class HVInnerWindow
 
     private void ExpressionsTab(Dictionary<string, HOscItem> oscMessages)
     {
+        UpdateIconSize();
+        
         ImGui.BeginTable("Menu", 4);
         ImGui.TableSetupColumn("Menu", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
@@ -93,9 +105,9 @@ public partial class HVInnerWindow
         ImGui.TableHeadersRow();
 
         var id = 0;
-        if (_manifestNullable != null)
+        if (ManifestNullable != null)
         {
-            PrintThatMenu(_manifestNullable, _manifestNullable.menu, oscMessages, ref id);
+            PrintThatMenu(ManifestNullable, ManifestNullable.menu, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -216,9 +228,9 @@ public partial class HVInnerWindow
         ImGui.TableHeadersRow();
         
         var id = 0;
-        if (_manifestNullable != null)
+        if (ManifestNullable != null)
         {
-            PrintContacts(_manifestNullable, oscMessages, ref id);
+            PrintContacts(ManifestNullable, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -276,9 +288,9 @@ public partial class HVInnerWindow
         ImGui.TableHeadersRow();
         
         var id = 0;
-        if (_manifestNullable != null)
+        if (ManifestNullable != null)
         {
-            PrintPhysBones(_manifestNullable, oscMessages, ref id);
+            PrintPhysBones(ManifestNullable, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -367,6 +379,8 @@ public partial class HVInnerWindow
 
     private void ShortcutsTab(Dictionary<string, HOscItem> oscMessages)
     {
+        UpdateIconSize();
+        
         var safeFilePaths = _routine.UiManifestSafeFilePaths();
         var names = new[] { " " }.Concat(safeFilePaths.Select(Path.GetFileName)).ToArray();
         var current = 0;
@@ -378,9 +392,9 @@ public partial class HVInnerWindow
         }
         
         var id = 0;
-        if (_shortcutsNullable != null)
+        if (ShortcutsNullable != null)
         {
-            PrintShortcuts(_shortcutsNullable, oscMessages, ref id, _manifestNullable.icons, null);
+            PrintShortcuts(ShortcutsNullable, oscMessages, ref id, ManifestNullable.icons, null);
         }
         ImGui.Text("");
         ImGui.Text("");
@@ -427,7 +441,7 @@ public partial class HVInnerWindow
             ImGui.BeginTable("ignored", orderedMenuItems.Length);
             for (var i = 0; i < orderedMenuItems.Length; i++)
             {
-                ImGui.TableSetupColumn($"ignored {i}", ImGuiTableColumnFlags.WidthFixed, ButtonTableWidth);
+                ImGui.TableSetupColumn($"ignored {i}", ImGuiTableColumnFlags.WidthFixed, _buttonTableWidth);
             }
             ImGui.TableNextRow();
         }
@@ -484,8 +498,8 @@ public partial class HVInnerWindow
                 else
                 {
                     ImGui.BeginTable("ignored", 2);
-                    ImGui.TableSetupColumn("ignored", ImGuiTableColumnFlags.WidthFixed, ButtonTableWidth);
-                    ImGui.TableSetupColumn("ignored", ImGuiTableColumnFlags.WidthStretch, ButtonTableWidth);
+                    ImGui.TableSetupColumn("ignored", ImGuiTableColumnFlags.WidthFixed, _buttonTableWidth);
+                    ImGui.TableSetupColumn("ignored", ImGuiTableColumnFlags.WidthStretch, _buttonTableWidth);
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
                     

@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Hai.HView.OVR;
 using Valve.VR;
 
 namespace Hai.HView.Overlay;
@@ -10,7 +11,7 @@ public class HVOverlayMovement
         // FIXME: Disable this code for now as this interferes with immovable non-dashboard overlays.
         return;
         var controllerIndex = poseData.RightHandDeviceIndex;
-        if (IsValidDeviceIndex(controllerIndex))
+        if (OpenVRUtils.IsValidDeviceIndex(controllerIndex))
         {
             // TODO: The following is just test values.
             var quaternion = HVGeofunctions.QuaternionFromAngles(new Vector3(35, -25, -9), HVRotationMulOrder.YZX);
@@ -21,11 +22,6 @@ public class HVOverlayMovement
         
         // FIXME: This breaks OVR Advanced Settings motion / playspace mover!
         OpenVR.Overlay.SetOverlayFlag(hOverlay, VROverlayFlags.MakeOverlaysInteractiveIfVisible, true);
-    }
-
-    public static bool IsValidDeviceIndex(uint deviceIndex)
-    {
-        return deviceIndex != OpenVR.k_unTrackedDeviceIndexInvalid;
     }
 }
 

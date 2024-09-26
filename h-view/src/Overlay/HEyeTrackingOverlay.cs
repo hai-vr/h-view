@@ -8,7 +8,7 @@ namespace Hai.HView.Overlay;
 public class HEyeTrackingOverlay : IOverlayable
 {
     private readonly HVRoutine _routine;
-    private readonly HVOverlayInstance _dashboard;
+    private readonly HVImGuiOverlay _dashboard;
     private HHandOverlay _handOverlayNullable;
     private const string Name = "eyetracking";
     
@@ -22,7 +22,7 @@ public class HEyeTrackingOverlay : IOverlayable
     public Vector3 EyePos => _eyePos;
     public Quaternion EyeGaze => _eyeGaze;
 
-    public HEyeTrackingOverlay(HVRoutine routine, HVOverlayInstance dashboard)
+    public HEyeTrackingOverlay(HVRoutine routine, HVImGuiOverlay dashboard)
     {
         _routine = routine;
         _dashboard = dashboard;
@@ -30,7 +30,7 @@ public class HEyeTrackingOverlay : IOverlayable
 
     public void Start()
     {
-        OpenVR.Overlay.CreateOverlay($"{HVOverlayInstance.OverlayKey}-{Name}", HVApp.AppTitle, ref _handle);
+        OpenVR.Overlay.CreateOverlay($"{HVImGuiOverlay.OverlayKey}-{Name}", HVApp.AppTitle, ref _handle);
         OpenVR.Overlay.SetOverlayFromFile(_handle, Path.GetFullPath("EyeTrackingCursor.png"));
         OpenVR.Overlay.SetOverlayAlpha(_handle, 1f);
         OpenVR.Overlay.SetOverlayColor(_handle, 1f, 1f, 1f);
@@ -48,8 +48,8 @@ public class HEyeTrackingOverlay : IOverlayable
         var eyeRot = HVGeofunctions.QuaternionFromAngles(new Vector3(yy, xx, 0), HVRotationMulOrder.YZX);
 
         var absToHead = HVOvrGeofunctions.OvrToOvrnum(_poseData.Poses[0].mDeviceToAbsoluteTracking);
-        var headToEyeTrackingFocus = HVOvrGeofunctions.OvrToOvrnum(HVOvrGeofunctions.OvrTR(new Vector3(0, 0, 0), eyeRot));
-        var move = HVOvrGeofunctions.OvrToOvrnum(HVOvrGeofunctions.OvrTR(new Vector3(0, 0, -1), Quaternion.Identity));
+        var headToEyeTrackingFocus = HVGeofunctions.TR(new Vector3(0, 0, 0), eyeRot);
+        var move = HVGeofunctions.TR(new Vector3(0, 0, -1), Quaternion.Identity);
         
         _overlayPlace = HVOvrGeofunctions.OvrnumToOvr(absToHead * headToEyeTrackingFocus * move);
         HVGeofunctions.ToPosRotV3(absToHead * headToEyeTrackingFocus, out _eyePos, out _eyeGaze);
