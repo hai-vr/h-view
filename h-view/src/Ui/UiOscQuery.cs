@@ -21,7 +21,7 @@ public partial class HVInnerWindow
     private const string BoolOscTypeT = "T";
     private const string IntOscTypeI = "i";
     private const string ChatboxOscSpecialtyTypeSTT = "sTT";
-    private const string RandomizeAllAvatarParametersLabel = "Randomize all avatar parameters";
+    private const string RandomizeParametersLabel = "Randomize parameters";
     private readonly Vector4 _redColor = new Vector4(1, 0, 0, 0.75f);
     
     private const string ThirdParty_FaceTrackingPath = "/avatar/parameters/FT/v2/";
@@ -38,7 +38,7 @@ public partial class HVInnerWindow
     private void AvatarTab(Dictionary<string, HOscItem> messages)
     {
         var filtered = messages.Values.Where(item => !item.IsDisabled).ToArray();
-        if (false && ImGui.Button(RandomizeAllAvatarParametersLabel))
+        if (false && ImGui.Button(RandomizeParametersLabel))
         {
             SendRandomAvatarParameters(filtered);
         }
@@ -51,6 +51,35 @@ public partial class HVInnerWindow
     {
         var filtered = messages.Values.Where(item => !item.IsDisabled).ToArray();
         MakeOscTable(ThirdParty_FaceTrackingPath, filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _manifestNullable != null, AvatarParametersPath);
+        var randFiltered = filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)).ToArray();
+        if (ImGui.Button(RandomizeParametersLabel))
+        {
+            SendRandomAvatarParameters(randFiltered);
+        }
+        RandomPercent(filtered, 0.75f);
+        RandomPercent(filtered, 0.50f);
+        RandomPercent(filtered, 0.33f);
+        RandomPercent(filtered, 0.20f);
+        RandomPercent(filtered, 0.10f);
+        ImGui.SameLine();
+        if (ImGui.Button("Reset"))
+        {
+            ResetFaceTrackingParameters(randFiltered);
+        }
+    }
+
+    private void RandomPercent(HOscItem[] filtered, float normalized)
+    {
+        ImGui.SameLine();
+        if (ImGui.Button($"{normalized * 100}%"))
+        {
+            var rand = new Random();
+            var randFiltered2 = filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath))
+                .OrderBy(item => rand.Next())
+                .Take((int)(filtered.Length * normalized))
+                .ToArray();
+            SendRandomAvatarParameters(randFiltered2);
+        }
     }
 
     private void InputTab(Dictionary<string, HOscItem> messages)
@@ -75,13 +104,36 @@ public partial class HVInnerWindow
             switch (item.OscType)
             {
                 case FloatOscTypeF:
-                    _routine.UpdateMessage(item.Key, r.NextSingle());
+                {
+                    var range = r.NextSingle() * (item.Key.EndsWith("X") || item.Key.EndsWith("Y") ? 2 - 1f : 1f);
+                    _routine.UpdateMessage(item.Key, range);
                     break;
+                }
                 case BoolOscTypeT:
                     _routine.UpdateMessage(item.Key, r.NextSingle() > 0.5f);
                     break;
                 case IntOscTypeI:
                     _routine.UpdateMessage(item.Key, (int)Math.Floor(r.NextSingle() * 256));
+                    break;
+            }
+        }
+    }
+
+    private void ResetFaceTrackingParameters(HOscItem[] messages)
+    {
+        foreach (var item in messages
+                     .Where(item => item.Key.StartsWith(AvatarParametersPath)))
+        {
+            switch (item.OscType)
+            {
+                case FloatOscTypeF:
+                    _routine.UpdateMessage(item.Key, item.Key.Contains("EyeLid") ? 0.8f : 0f);
+                    break;
+                case BoolOscTypeT:
+                    _routine.UpdateMessage(item.Key, item.Key.Contains("PupilDilation1") || item.Key.Contains("PupilDilation4"));
+                    break;
+                case IntOscTypeI:
+                    _routine.UpdateMessage(item.Key, 0);
                     break;
             }
         }
