@@ -1,4 +1,4 @@
-﻿namespace Hai.HView.Networking.Shared;
+﻿namespace Hai.HNetworking.Shared;
 
 public interface IHNSharedConnectionHandle
 {

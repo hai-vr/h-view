@@ -1,7 +1,7 @@
-﻿using Hai.HView.Networking.Server;
+﻿using Hai.HNetworking.Server;
 using Steamworks;
 
-namespace Hai.HView.Networking.Steamworks.Server;
+namespace Hai.HNetworking.Steamworks.Server;
 
 public class HNSteamNetworkingServer
 {

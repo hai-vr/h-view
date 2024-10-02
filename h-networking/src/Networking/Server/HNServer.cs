@@ -1,4 +1,4 @@
-namespace Hai.HView.Networking.Server;
+namespace Hai.HNetworking.Server;
 
 public class HNServer
 {

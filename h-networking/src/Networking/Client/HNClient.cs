@@ -1,7 +1,7 @@
-using Hai.HView.Networking.ConnectionResolver;
-using Hai.HView.Networking.Shared;
+using Hai.HNetworking.ConnectionResolver;
+using Hai.HNetworking.Shared;
 
-namespace Hai.HView.Networking.Client;
+namespace Hai.HNetworking.Client;
 
 public class HNClient
 {

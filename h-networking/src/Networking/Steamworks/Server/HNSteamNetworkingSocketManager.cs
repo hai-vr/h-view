@@ -1,9 +1,9 @@
 using System.Runtime.InteropServices;
-using Hai.HView.Networking.Server;
+using Hai.HNetworking.Server;
 using Steamworks;
 using Steamworks.Data;
 
-namespace Hai.HView.Networking.Steamworks.Server;
+namespace Hai.HNetworking.Steamworks.Server;
 
 public class HNSteamNetworkingSocketManager : ISocketManager
 {

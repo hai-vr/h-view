@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Hai.ExternalExpressionsMenu;
-using Hai.HView.HaiSteamworks;
+using Hai.HNetworking.Steamworks;
 using Hai.HView.OSC;
 using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;

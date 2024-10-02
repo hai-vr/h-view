@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Hai.HNetworking</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="src\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="steam_api.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="steam_api64.dll">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+</Project>

@@ -1,17 +1,17 @@
-﻿using Hai.HView.Networking.Client;
-using Hai.HView.Networking.Server;
-using Hai.HView.Networking.Shared;
-using Hai.HView.Networking.Steamworks.Client;
-using Hai.HView.Networking.Steamworks.Server;
+﻿using Hai.HNetworking.Client;
+using Hai.HNetworking.Server;
+using Hai.HNetworking.Shared;
+using Hai.HNetworking.Steamworks.Client;
+using Hai.HNetworking.Steamworks.Server;
 using Steamworks;
 using Steamworks.Data;
 
-namespace Hai.HView.HaiSteamworks;
+namespace Hai.HNetworking.Steamworks;
 
 public class HNSteamworks
 {
     internal const uint ExampleAppId = 480; // https://partner.steamgames.com/doc/sdk/api/example .. https://www.youtube.com/shorts/JceP5iiTh50
-    internal const uint RVRAppId = 2_212_290;
+    public const uint RVRAppId = 2_212_290;
 
     private bool _isEnabled;
     private uint _appId;
@@ -40,14 +40,6 @@ public class HNSteamworks
     // Debug Lobby
     public List<DebugLobbySearch> DebugSearchLobbies { get; private set; } = new List<DebugLobbySearch>();
     public bool Refreshing { get; private set; }
-
-    public HNSteamworks()
-    {
-        if (!ConditionalCompilation.IncludesSteamworks)
-        {
-            throw new InvalidOperationException("Instances of HNSteamworks should not be created when Steamworks is disabled in conditional compilation.");
-        }
-    }
 
     public void Start()
     {

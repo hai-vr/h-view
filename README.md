@@ -64,3 +64,6 @@ Logging in will save a cookie file in the `%APPDATA%/H-View/` folder, called `hv
 If the project is compiled with `INCLUDE_STEAMWORKS` (only on Debug and ReleaseSteamworks builds), the Steam API will be included.
 
 This is used to build my own application for distribution through Steam. See [Steamworks API](https://partner.steamgames.com/doc/sdk/api).
+
+---
+<img src="https://raw.githubusercontent.com/hai-vr/h-view/refs/heads/main/h-view/DashboardThumb.png" width="128" height="128" alt="Logo" />

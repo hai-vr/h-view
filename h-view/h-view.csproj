@@ -34,7 +34,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
         <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Veldrid" Version="4.9.0" />
@@ -64,19 +63,6 @@
         </When>
     </Choose>
 
-    <Choose>
-        <When Condition="$(DefineConstants.Contains('INCLUDES_STEAMWORKS'))">
-            <ItemGroup>
-                <None Update="steam_api64.dll">
-                    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-                </None>
-                <None Update="steam_api.dll">
-                    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-                </None>
-            </ItemGroup>
-        </When>
-    </Choose>
-
     <ItemGroup>
       <None Update="THIRDPARTY.md">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -93,5 +79,9 @@
       <None Update="EyeTrackingCursor.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\h-networking\h-networking.csproj" />
     </ItemGroup>
 </Project>

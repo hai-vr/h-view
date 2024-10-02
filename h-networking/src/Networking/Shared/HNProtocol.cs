@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Hai.HView.Networking.Shared;
+namespace Hai.HNetworking.Shared;
 
 public class HNProtocol
 {

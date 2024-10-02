@@ -1,6 +1,6 @@
-﻿using Hai.HView.Networking.Shared;
+﻿using Hai.HNetworking.Shared;
 
-namespace Hai.HView.Networking.ConnectionResolver;
+namespace Hai.HNetworking.ConnectionResolver;
 
 public class HNSharedConnectionResolver
 {

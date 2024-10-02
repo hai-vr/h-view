@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
+using Hai.HNetworking.Steamworks;
 using Hai.HView;
 using Hai.HView.Core;
 using Hai.HView.Gui;
-using Hai.HView.HaiSteamworks;
 using Hai.HView.OSC;
 using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;

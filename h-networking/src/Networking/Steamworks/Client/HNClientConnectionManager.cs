@@ -1,10 +1,10 @@
-﻿using Hai.HView.Networking.Client;
-using Hai.HView.Networking.Shared;
-using Hai.HView.Networking.Steamworks.Server;
+﻿using Hai.HNetworking.Client;
+using Hai.HNetworking.Shared;
+using Hai.HNetworking.Steamworks.Server;
 using Steamworks;
 using Steamworks.Data;
 
-namespace Hai.HView.Networking.Steamworks.Client;
+namespace Hai.HNetworking.Steamworks.Client;
 
 public class HNClientConnectionManager : IConnectionManager
 {

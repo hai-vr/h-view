@@ -1,4 +1,4 @@
 .idea
-h-view/bin
-h-view/obj
+**/bin
+**/obj
 **/hview.cookies.txt

@@ -1,6 +1,6 @@
-﻿using Hai.HView.Networking.Shared;
+﻿using Hai.HNetworking.Shared;
 
-namespace Hai.HView.Networking.Server;
+namespace Hai.HNetworking.Server;
 
 public interface IHNServerConnectionHandle : IHNSharedConnectionHandle
 {
