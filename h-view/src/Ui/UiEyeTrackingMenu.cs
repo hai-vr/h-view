@@ -107,7 +107,7 @@ public class UiEyeTrackingMenu
                 
             }
 
-            if (DrawButtonFor(-1, icons, new HVInnerWindow.HVShortcut
+            if (DrawEyeTrackingButtonFor(-1, icons, new HVInnerWindow.HVShortcut
                 {
                     label = "Back",
                     type = HVInnerWindow.HVShortcutType.Button,
@@ -148,7 +148,7 @@ public class UiEyeTrackingMenu
             }
 
             var pos = ImGui.GetCursorPos();
-            if (shortcutNullWhenUnclocked != null && DrawButtonFor(clocked, icons, shortcutNullWhenUnclocked))
+            if (shortcutNullWhenUnclocked != null && DrawEyeTrackingButtonFor(clocked, icons, shortcutNullWhenUnclocked))
             {
                 if (shortcutNullWhenUnclocked.type == HVInnerWindow.HVShortcutType.SubMenu)
                 {
@@ -162,7 +162,7 @@ public class UiEyeTrackingMenu
             }
             else if (shortcutNullWhenUnclocked == null)
             {
-                if (DrawButtonFor(-2, icons, new HVInnerWindow.HVShortcut
+                if (DrawEyeTrackingButtonFor(-2, icons, new HVInnerWindow.HVShortcut
                     {
                         label = "Back",
                         type = HVInnerWindow.HVShortcutType.Button,
@@ -235,8 +235,10 @@ public class UiEyeTrackingMenu
         return index - itemsInRow / 2f + 0.5f;
     }
 
-    private bool DrawButtonFor(int id, string[] icons, HVInnerWindow.HVShortcut item)
+    private bool DrawEyeTrackingButtonFor(int id, string[] icons, HVInnerWindow.HVShortcut item)
     {
+        // No haptics here, the eyes are the controllers.
+        
         bool button;
         if (item.icon != -1)
         {

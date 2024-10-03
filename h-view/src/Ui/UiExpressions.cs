@@ -571,11 +571,11 @@ public partial class HVInnerWindow
         bool button;
         if (item.icon != -1)
         {
-            button = ImGui.ImageButton($"###{id}", GetOrLoadImage(icons, item.icon), _imageSize);
+            button = HapticImageButton($"###{id}", GetOrLoadImage(icons, item.icon), _imageSize);
         }
         else
         {
-            button = ImGui.Button($"?###{id}", _imagelessButtonSize);
+            button = HapticButton($"?###{id}", _imagelessButtonSize);
         }
 
         return button;

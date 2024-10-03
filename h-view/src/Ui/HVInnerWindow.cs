@@ -128,14 +128,21 @@ public partial class HVInnerWindow : IDisposable
         }
     }
 
-    private bool HapticButton(string label)
+    internal bool HapticButton(string label)
     {
         var clicked = ImGui.Button(label);
         CheckHapticButton(label);
         return clicked;
     }
 
-    private bool HapticButton(string label, Vector2 size)
+    internal bool HapticImageButton(string label, IntPtr textureId, Vector2 size)
+    {
+        var clicked = ImGui.ImageButton(label, textureId, size);
+        CheckHapticButton(label);
+        return clicked;
+    }
+
+    internal bool HapticButton(string label, Vector2 size)
     {
         var clicked = ImGui.Button(label, size);
         CheckHapticButton(label);
