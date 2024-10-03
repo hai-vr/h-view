@@ -98,8 +98,8 @@ public partial class HVInnerWindow
     {
         UpdateIconSize();
         
-        ImGui.BeginTable("Menu", 4);
-        ImGui.TableSetupColumn("Menu", ImGuiTableColumnFlags.WidthStretch);
+        ImGui.BeginTable(HLocalizationPhrase.MenuLabel, 4);
+        ImGui.TableSetupColumn(HLocalizationPhrase.MenuLabel, ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
         ImGui.TableSetupColumn(HLocalizationPhrase.TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
         ImGui.TableSetupColumn(HLocalizationPhrase.ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
@@ -221,11 +221,11 @@ public partial class HVInnerWindow
 
     private void ContactsTab(Dictionary<string, HOscItem> oscMessages)
     {
-        ImGui.BeginTable("Contacts", 4);
+        ImGui.BeginTable(HLocalizationPhrase.ContactsLabel, 4);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
         ImGui.TableSetupColumn(HLocalizationPhrase.TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
         ImGui.TableSetupColumn(HLocalizationPhrase.ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
-        ImGui.TableSetupColumn("Contacts", ImGuiTableColumnFlags.WidthStretch);
+        ImGui.TableSetupColumn(HLocalizationPhrase.ContactsLabel, ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableHeadersRow();
         
         var id = 0;
@@ -281,11 +281,11 @@ public partial class HVInnerWindow
 
     private void PhysBonesTab(Dictionary<string, HOscItem> oscMessages)
     {
-        ImGui.BeginTable("PhysBones", 4);
+        ImGui.BeginTable(HLocalizationPhrase.PhysBonesLabel, 4);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
         ImGui.TableSetupColumn(HLocalizationPhrase.TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
         ImGui.TableSetupColumn(HLocalizationPhrase.ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
-        ImGui.TableSetupColumn("PhysBones", ImGuiTableColumnFlags.WidthStretch);
+        ImGui.TableSetupColumn(HLocalizationPhrase.PhysBonesLabel, ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableHeadersRow();
         
         var id = 0;
@@ -385,7 +385,7 @@ public partial class HVInnerWindow
         var safeFiles = _routine.UiManifestSafeFiles();
         var names = new[] { " " }.Concat(safeFiles.Select(file => file.ConvenientName)).ToArray();
         var current = 0;
-        var changed = ImGui.Combo("File", ref current, names, names.Length);
+        var changed = ImGui.Combo(HLocalizationPhrase.FileLabel, ref current, names, names.Length);
         if (changed && current != 0)
         {
             var actualIndex = current - 1;
@@ -420,7 +420,7 @@ public partial class HVInnerWindow
         }
         else
         {
-            ImGui.SeparatorText("Expressions Menu");
+            ImGui.SeparatorText(HLocalizationPhrase.ExpressionsMenuLabel);
         }
 
         IterateThrough(oscMessages, ref id, icons, host.pressables, true);

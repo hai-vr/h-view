@@ -339,7 +339,7 @@ public partial class HVInnerWindow : IDisposable
                 }
 
                 _eyeTrackingMenuActiveLastFrame = false;
-                _scrollManager.MakeUnscrollableTab("Eye Tracking", () =>
+                _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.EyeTrackingTabLabel, () =>
                 {
                     _eyeTrackingMenuActiveLastFrame = true;
                     _eyeTrackingMenu.EyeTrackingMenuTab();

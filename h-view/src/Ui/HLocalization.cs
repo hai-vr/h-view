@@ -31,7 +31,8 @@ public class HLocalization
     {
 #if HV_DEBUG
         var sorted = new SortedDictionary<string, string>(DebugKeyDatabase);
-        var jsonObject = JObject.FromObject(sorted);
+        // var jsonObject = JObject.FromObject(sorted);
+        var jsonObject = JObject.FromObject(DebugKeyDatabase);
         Console.WriteLine(jsonObject.ToString());
 #endif
     }

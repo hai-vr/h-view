@@ -29,13 +29,13 @@ public class UiNetworking
         else
         {
             var appId = HNSteamworks.RVRAppId;
-            if (ImGui.Button($"Enable Steamworks"))
+            if (ImGui.Button(HLocalizationPhrase.EnableSteamworksLabel))
             {
                 _steamworks.Enable(appId);
             }
 
-            ImGui.Text($"Steamworks will use AppId {appId}.");
-            ImGui.TextWrapped("Privacy: By enabling Steamworks, other users may be able to discover your Steam account.");
+            ImGui.Text(string.Format(HLocalizationPhrase.MsgSteamworksAppId, appId));
+            ImGui.TextWrapped(HLocalizationPhrase.MsgSteamworksPrivacy);
         }
     }
 
@@ -57,13 +57,12 @@ public class UiNetworking
         ImGui.EndDisabled();
         if (_steamworks.LobbyIsJoinable)
         {
-            ImGui.SameLine();
-            ImGui.Text($"Ask other users to join: {_steamworks.LobbyShareable()}");
+            ImGui.Text(string.Format(HLocalizationPhrase.MsgAskOtherUsersToJoin, _steamworks.LobbyShareable()));
             ImGui.SameLine();
         
-            if (ImGui.Button("Send in chatbox"))
+            if (ImGui.Button(HLocalizationPhrase.SendInChatboxLabel))
             {
-                _routine.SendChatMessage($"Join my lobby: {_steamworks.LobbyShareable()}");
+                _routine.SendChatMessage(string.Format(HLocalizationPhrase.MsgJoinMyLobbyChatMessage, _steamworks.LobbyShareable()));
             }
         }
         
@@ -86,13 +85,13 @@ public class UiNetworking
         }
         else
         {
-            ImGui.TextWrapped("Cannot join when hosting a server.");
+            ImGui.TextWrapped(HLocalizationPhrase.MsgCannotJoinWhenHostingAServer);
         }
         
         
-        ImGui.SeparatorText("Debug Lobbies");
+        ImGui.SeparatorText(HLocalizationPhrase.DebugLobbiesLabel);
         ImGui.BeginDisabled(_steamworks.Refreshing);
-        if (ImGui.Button("Refresh lobbies"))
+        if (ImGui.Button(HLocalizationPhrase.RefreshLobbiesLabel))
         {
             _steamworks.Enqueue(() => _ = _steamworks.RefreshLobbies());
         }

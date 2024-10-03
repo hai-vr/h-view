@@ -77,7 +77,7 @@ public class UiCostumes
         ImGui.EndDisabled();
 
         ImGui.SameLine();
-        ImGui.Text("Status: " + Enum.GetName(uiExternalService.SwitchStatus));
+        ImGui.Text($"{HLocalizationPhrase.StatusLabel}: " + Enum.GetName(uiExternalService.SwitchStatus));
         ImGui.Text("");
     }
 
@@ -158,7 +158,7 @@ public class UiCostumes
                 ImGui.EndDisabled(); 
             }
             ImGui.SameLine();
-            ImGui.Text($"Status: {Enum.GetName(uiExternalService.LoginStatus)}");
+            ImGui.Text($"{HLocalizationPhrase.StatusLabel}: {Enum.GetName(uiExternalService.LoginStatus)}");
             if (uiExternalService.NeedsTwofer)
             {
                 ImGui.SameLine();
@@ -177,7 +177,7 @@ public class UiCostumes
                 uiExternalService.Logout();
             }
             ImGui.SameLine();
-            ImGui.Text($"Status: {Enum.GetName(uiExternalService.LogoutStatus)}");
+            ImGui.Text($"{HLocalizationPhrase.StatusLabel}: {Enum.GetName(uiExternalService.LogoutStatus)}");
         }
     }
 
