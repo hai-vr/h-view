@@ -192,6 +192,18 @@ public partial class HVInnerWindow : IDisposable
             if (ColoredBg(_panel == HPanel.Parameters, () => HapticButton(HLocalizationPhrase.ParametersTabLabel, buttonSize))) _panel = HPanel.Parameters;
             if (ColoredBg(_panel == HPanel.Options, () => HapticButton(HLocalizationPhrase.OptionsTabLabel, buttonSize))) _panel = HPanel.Options;
             if (ColoredBg(_panel == HPanel.Tabs, () => HapticButton(HLocalizationPhrase.TabsTabLabel, buttonSize))) _panel = HPanel.Tabs;
+            
+            var languages = HLocalization.GetLanguages();
+            ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * (3 + languages.Count));
+            for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
+            {
+                var language = languages[languageIndex].Replace(" (ChatGPT)" , " GPT");
+                if (ImGui.Button(language, buttonSize))
+                {
+                    _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
+                    HLocalization.SwitchLanguage(languageIndex);
+                }
+            }
 
             var overdata = $"{VERSION.miniVersion}";
             ImGui.SetCursorPosX(16);

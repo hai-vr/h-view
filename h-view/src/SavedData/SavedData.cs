@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
 
-namespace Hai.HView.SavedData;
+namespace Hai.HView.Data;
 
 public class SavedData
 {
@@ -9,6 +9,8 @@ public class SavedData
     private const string BackupFilename = "user_config.backup.json";
     private static string Main => Path.Combine(SaveUtil.GetUserDataFolder(), MainFilename);
     private static string Backup => Path.Combine(SaveUtil.GetUserDataFolder(), BackupFilename);
+    
+    public string locale = "en";
 
     public static SavedData OpenConfig()
     {

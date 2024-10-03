@@ -3,10 +3,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Hai.ExternalExpressionsMenu;
 using Hai.HNetworking.Steamworks;
+using Hai.HView.Data;
 using Hai.HView.OSC;
 using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;
-using Hai.HView.SavedData;
 using hcontroller.Lyuma;
 using Newtonsoft.Json;
 using Valve.VR;
@@ -24,6 +24,7 @@ public class HVRoutine
     private readonly HVExternalService _externalService;
     private readonly HNSteamworks _steamworksOptional;
     private readonly FakeVRCOSC _fakeVrcOptional;
+    private readonly SavedData _config;
     private readonly HOsc _osc;
     
     private readonly Regex _avoidPathTraversalInAvtrPipelineName = new Regex(@"^avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
@@ -43,7 +44,7 @@ public class HVRoutine
     private EyeTrackingData _eyeTracking;
     public EyeTrackingData EyeTracking => _eyeTracking;
 
-    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional, FakeVRCOSC fakeVrcOptional)
+    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional, FakeVRCOSC fakeVrcOptional, SavedData config)
     {
         _osc = osc;
         _query = query;
@@ -51,6 +52,7 @@ public class HVRoutine
         _externalService = externalService;
         _steamworksOptional = steamworksOptional;
         _fakeVrcOptional = fakeVrcOptional;
+        _config = config;
     }
 
     public void Start()
@@ -356,6 +358,12 @@ public class HVRoutine
     public void EjectUserFromCostumeMenu()
     {
         UpdateMessage(CommonOSCAddresses.ShowCostumesOscAddress, false);
+    }
+
+    public void SetLocale(string code)
+    {
+        _config.locale = code;
+        _config.SaveConfig();
     }
 }
 

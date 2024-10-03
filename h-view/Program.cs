@@ -2,11 +2,12 @@
 using Hai.HNetworking.Steamworks;
 using Hai.HView;
 using Hai.HView.Core;
+using Hai.HView.Data;
 using Hai.HView.Gui;
 using Hai.HView.OSC;
 using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;
-using Hai.HView.SavedData;
+using Hai.HView.Ui;
 
 new HViewProgram(args).Run();
 
@@ -43,6 +44,8 @@ internal class HViewProgram
             Directory.CreateDirectory(SaveUtil.GetUserDataFolder());
         }
         config = SavedData.OpenConfig();
+        
+        HLocalization.InitializeAndProvideFor(config.locale);
 
         fakeVrcOptional = ConditionalCompilation.EnableFakeVrcOsc ? new FakeVRCOSC() : null;
 
@@ -58,7 +61,7 @@ internal class HViewProgram
         var messageBox = new HMessageBox();
         externalService = new HVExternalService();
         
-        routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworksOptional, fakeVrcOptional);
+        routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworksOptional, fakeVrcOptional, config);
         
         ovrThreadOptional = isOverlay ? new HVOpenVRThread(routine, registerManifest) : null;
         

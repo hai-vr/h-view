@@ -1,6 +1,6 @@
 using System.Text;
 using Hai.HView;
-using Hai.HView.SavedData;
+using Hai.HView.Data;
 using Hai.HView.VRCLogin;
 
 /// DANGER: This is a class that deals with sensitive information.

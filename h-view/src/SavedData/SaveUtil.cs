@@ -1,4 +1,4 @@
-﻿namespace Hai.HView.SavedData;
+﻿namespace Hai.HView.Data;
 
 public static class SaveUtil
 {
