@@ -1,25 +1,27 @@
 ﻿using System.Numerics;
 using Hai.HView.OSC;
+using Hai.HView.Ui;
 using ImGuiNET;
 
 namespace Hai.HView.Gui;
 
 public partial class HVInnerWindow
 {
+    private const string KeysTabLabel = "Keys";
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     
     private void UtilityTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTabBar("##tabs_keys");
-        _scrollManager.MakeTab("Keys", () => KeysTab(oscMessages));
+        _scrollManager.MakeTab(KeysTabLabel, () => KeysTab(oscMessages));
         ImGui.EndTabBar();
     }
     
     private void OptionsTab(Dictionary<string, HOscItem> oscMessages)
     {
-        ImGui.SeparatorText("SteamVR");
+        ImGui.SeparatorText(HLocalizationPhrase.SteamVRLabel);
         var autoLaunch = _routine.IsAutoLaunch();
-        if (ImGui.Checkbox("Start with SteamVR", ref autoLaunch))
+        if (ImGui.Checkbox(HLocalizationPhrase.StartWithSteamVRLabel, ref autoLaunch))
         {
             _routine.SetAutoLaunch(autoLaunch);
         }
@@ -30,10 +32,10 @@ public partial class HVInnerWindow
         var id = 0;
 
         var size = new Vector2(ImGui.GetWindowWidth() / 2, 40);
-        ImGui.Button("Quick Menu Left", size);
+        ImGui.Button(HLocalizationPhrase.QuickMenuLeftLabel, size);
         SimplePressEvent(ref id, "/input/QuickMenuToggleLeft");
         ImGui.SameLine();
-        ImGui.Button("Quick Menu Right", size);
+        ImGui.Button(HLocalizationPhrase.QuickMenuRightLabel, size);
         SimplePressEvent(ref id, "/input/QuickMenuToggleRight");
         
         ImGui.Text("");

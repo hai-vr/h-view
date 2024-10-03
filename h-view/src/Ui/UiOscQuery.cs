@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Hai.HView.OSC;
+using Hai.HView.Ui;
 using ImGuiNET;
 
 namespace Hai.HView.Gui;
@@ -21,24 +22,14 @@ public partial class HVInnerWindow
     private const string BoolOscTypeT = "T";
     private const string IntOscTypeI = "i";
     private const string ChatboxOscSpecialtyTypeSTT = "sTT";
-    private const string RandomizeParametersLabel = "Randomize parameters";
     private readonly Vector4 _redColor = new Vector4(1, 0, 0, 0.75f);
     
     private const string ThirdParty_FaceTrackingPath = "/avatar/parameters/FT/v2/";
-    
-    private const string AddressLabel = "Address";
-    private const string CopyLabel = "Copy";
-    private const string HoldLabel = "Hold";
-    private const string KeyboardLabel = "Keyboard";
-    internal const string OpenBrowserLabel = "Open browser";
-    private const string SendLabel = "Send";
-    private const string TypeLabel = "Type";
-    private const string ValueLabel = "Value";
 
     private void AvatarTab(Dictionary<string, HOscItem> messages)
     {
         var filtered = messages.Values.Where(item => !item.IsDisabled).ToArray();
-        if (false && ImGui.Button(RandomizeParametersLabel))
+        if (false && ImGui.Button(HLocalizationPhrase.RandomizeParametersLabel))
         {
             SendRandomAvatarParameters(filtered);
         }
@@ -53,7 +44,7 @@ public partial class HVInnerWindow
         MakeOscTable(ThirdParty_FaceTrackingPath, filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)), ManifestNullable != null, AvatarParametersPath);
         
         var randFiltered = filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)).ToArray();
-        if (ImGui.Button(RandomizeParametersLabel))
+        if (ImGui.Button(HLocalizationPhrase.RandomizeParametersLabel))
         {
             SendRandomAvatarParameters(randFiltered);
         }
@@ -148,8 +139,8 @@ public partial class HVInnerWindow
             ImGui.TableSetupColumn("=", ImGuiTableColumnFlags.WidthFixed, 40);
         }
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 20);
-        ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 45);
-        ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
+        ImGui.TableSetupColumn(HLocalizationPhrase.TypeLabel, ImGuiTableColumnFlags.WidthFixed, 45);
+        ImGui.TableSetupColumn(HLocalizationPhrase.ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
         ImGui.TableSetupColumn(title, ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableHeadersRow();
         var items = enumerable
@@ -220,20 +211,20 @@ public partial class HVInnerWindow
         }
         if (ImGui.BeginPopupContextItem($"a popup##{key}"))
         {
-            if (ImGui.Selectable($"{CopyLabel} \"{key}\" ({AddressLabel})")) ImGui.SetClipboardText(key);
+            if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{key}\" ({HLocalizationPhrase.AddressLabel})")) ImGui.SetClipboardText(key);
             if (parameterCopyStringNullable != null)
             {
                 // For the face tracking address, we want to copy the parameter name, including the FT/ prefix.
-                if (ImGui.Selectable($"{CopyLabel} \"{parameterCopyStringNullable}\"")) ImGui.SetClipboardText(parameterCopyStringNullable);
+                if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{parameterCopyStringNullable}\"")) ImGui.SetClipboardText(parameterCopyStringNullable);
             }
             else
             {
-                if (ImGui.Selectable($"{CopyLabel} \"{shortstring}\"")) ImGui.SetClipboardText(shortstring);
+                if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{shortstring}\"")) ImGui.SetClipboardText(shortstring);
             }
             if (oscItem.Values != null)
             {
                 var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
-                if (ImGui.Selectable($"{CopyLabel} \"{join}\" ({ValueLabel})")) ImGui.SetClipboardText(join);
+                if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{join}\" ({HLocalizationPhrase.ValueLabel})")) ImGui.SetClipboardText(join);
             }
             ImGui.EndPopup();
         }
@@ -277,7 +268,7 @@ public partial class HVInnerWindow
                 }
                 if (doit) ImGui.PopStyleColor();
                 ImGui.SameLine();
-                if (ImGui.Button($"{HoldLabel}##{key}.hold",
+                if (ImGui.Button($"{HLocalizationPhrase.HoldLabel}##{key}.hold",
                         new Vector2(50, 0f))) ;
                 // {
                 //     _routine.UpdateMessage(oscItem.Key, !b);
@@ -339,7 +330,7 @@ public partial class HVInnerWindow
             {
                 ImGui.InputText($"##{oscItem.Key}.input", ref _chatboxBuffer, 10_000);
                 ImGui.SameLine();
-                if (ImGui.Button(_chatboxB ? $"{SendLabel}##{oscItem.Key}.press" : $"{KeyboardLabel}##{oscItem.Key}.press"))
+                if (ImGui.Button(_chatboxB ? $"{HLocalizationPhrase.SendLabel}##{oscItem.Key}.press" : $"{HLocalizationPhrase.KeyboardLabel}##{oscItem.Key}.press"))
                 {
                     var userinput_message = _chatboxBuffer;
                     Console.WriteLine(userinput_message);
@@ -367,7 +358,7 @@ public partial class HVInnerWindow
             else if (oscItem.Key == AvatarChangePath)
             {
                 var avatarIdStr = (string)oscItem.Values[0];
-                if (ImGui.Button($"{OpenBrowserLabel} ({avatarIdStr})"))
+                if (ImGui.Button($"{HLocalizationPhrase.OpenBrowserLabel} ({avatarIdStr})"))
                 {
                     UiUtil.OpenAvatarUrl(avatarIdStr);
                 }

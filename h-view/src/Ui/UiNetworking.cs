@@ -8,9 +8,7 @@ namespace Hai.HView.Ui;
 public class UiNetworking
 {
     private readonly HVRoutine _routine;
-    private const string StartServerLabel = "Start server";
-    private const string StopServerLabel = "Stop server";
-    
+
     private readonly HNSteamworks _steamworks;
     private string _joinCode = "";
 
@@ -45,14 +43,14 @@ public class UiNetworking
     {
         ImGui.SeparatorText("Create server");
         ImGui.BeginDisabled(_steamworks.LobbyEnabled);
-        if (ImGui.Button(StartServerLabel))
+        if (ImGui.Button(HLocalizationPhrase.StartServerLabel))
         {
             _steamworks.Enqueue(() => _ = _steamworks.CreateLobby());
         }
         ImGui.EndDisabled();
         ImGui.BeginDisabled(!_steamworks.LobbyIsJoinable);
         ImGui.SameLine();
-        if (ImGui.Button(StopServerLabel))
+        if (ImGui.Button(HLocalizationPhrase.StopServerLabel))
         {
             _steamworks.Enqueue(() => _steamworks.TerminateServer());
         }
@@ -113,7 +111,7 @@ public class UiNetworking
         ImGui.Dummy(new Vector2(2, 32));
         ImGui.SameLine();
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
-        ImGui.Button("HV-", new Vector2(32, 32));
+        ImGui.Button("HV-", new Vector2(48, 32));
         ImGui.PopStyleColor();
         for (var i = 0; i < HNSteamworks.TotalDigitCount; i++)
         {
@@ -134,16 +132,17 @@ public class UiNetworking
     private void JoincodeNumpad()
     {
         ImGui.BeginDisabled(_joinCode.Length >= HNSteamworks.TotalDigitCount);
+        var size = new Vector2(40, 40);
         for (var i = 0; i < 10; i++)
         {
             var n = (i + 1) % 10;
             if (i % 3 != 0) ImGui.SameLine();
             if (n == 0)
             {
-                ImGui.Dummy(new Vector2(32, 32));
+                ImGui.Dummy(size);
                 ImGui.SameLine();
             }
-            if (ImGui.Button($"{n}", new Vector2(32, 32)))
+            if (ImGui.Button($"{n}", size))
             {
                 _joinCode += $"{n}";
                 
@@ -154,7 +153,7 @@ public class UiNetworking
         ImGui.EndDisabled();
         ImGui.SameLine();
         ImGui.BeginDisabled(_joinCode.Length == 0);
-        if (ImGui.Button("<", new Vector2(32, 32)))
+        if (ImGui.Button("<", size))
         {
             _joinCode = _joinCode.Substring(0, _joinCode.Length - 1);
         }

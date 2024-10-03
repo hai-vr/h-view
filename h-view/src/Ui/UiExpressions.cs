@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.OSC;
+using Hai.HView.Ui;
 using ImGuiNET;
 using Veldrid;
 using Veldrid.ImageSharp;
@@ -17,8 +18,8 @@ public partial class HVInnerWindow
     private readonly Dictionary<string, IntPtr> _pathToPointers = new Dictionary<string, IntPtr>();
     private readonly Dictionary<string, ImageSharpTexture> _pathToTexture = new Dictionary<string, ImageSharpTexture>();
     
-    private const int NominalImageWidth = 64;
-    private const int NominalImageHeight = 64;
+    private const int NominalImageWidth = 96;
+    private const int NominalImageHeight = 96;
     private Vector2 _imageSize;
     private Vector2 _imagelessButtonSize;
     private int _buttonTableWidth;
@@ -100,8 +101,8 @@ public partial class HVInnerWindow
         ImGui.BeginTable("Menu", 4);
         ImGui.TableSetupColumn("Menu", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
-        ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
-        ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
+        ImGui.TableSetupColumn(HLocalizationPhrase.TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
+        ImGui.TableSetupColumn(HLocalizationPhrase.ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
         ImGui.TableHeadersRow();
 
         var id = 0;
@@ -143,12 +144,12 @@ public partial class HVInnerWindow
             var key = $"{id}";
             if (hasParameter && ImGui.BeginPopupContextItem($"a popup##{key}"))
             {
-                if (ImGui.Selectable($"{CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
-                if (ImGui.Selectable($"{CopyLabel} \"{interestingParameter}\"")) ImGui.SetClipboardText(interestingParameter);
+                if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
+                if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{interestingParameter}\"")) ImGui.SetClipboardText(interestingParameter);
                 if (hasOscItem && oscItem.Values != null)
                 {
                     var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
-                    if (ImGui.Selectable($"{CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
+                    if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
                 }
                 ImGui.EndPopup();
             }
@@ -222,8 +223,8 @@ public partial class HVInnerWindow
     {
         ImGui.BeginTable("Contacts", 4);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
-        ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
-        ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
+        ImGui.TableSetupColumn(HLocalizationPhrase.TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
+        ImGui.TableSetupColumn(HLocalizationPhrase.ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
         ImGui.TableSetupColumn("Contacts", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableHeadersRow();
         
@@ -263,12 +264,12 @@ public partial class HVInnerWindow
             var key = $"{id}";
             if (ImGui.BeginPopupContextItem($"a popup##{key}"))
             {
-                if (ImGui.Selectable($"{CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
-                if (ImGui.Selectable($"{CopyLabel} \"{item.parameter}\"")) ImGui.SetClipboardText(item.parameter);
+                if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
+                if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{item.parameter}\"")) ImGui.SetClipboardText(item.parameter);
                 if (hasOscItem && oscItem.Values != null)
                 {
                     var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
-                    if (ImGui.Selectable($"{CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
+                    if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
                 }
 
                 ImGui.EndPopup();
@@ -282,8 +283,8 @@ public partial class HVInnerWindow
     {
         ImGui.BeginTable("PhysBones", 4);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
-        ImGui.TableSetupColumn(TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
-        ImGui.TableSetupColumn(ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
+        ImGui.TableSetupColumn(HLocalizationPhrase.TypeLabel, ImGuiTableColumnFlags.WidthFixed, 100);
+        ImGui.TableSetupColumn(HLocalizationPhrase.ValueLabel, ImGuiTableColumnFlags.WidthFixed, 200);
         ImGui.TableSetupColumn("PhysBones", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableHeadersRow();
         
@@ -361,12 +362,12 @@ public partial class HVInnerWindow
                 var key = $"{id}";
                 if (ImGui.BeginPopupContextItem($"a popup##{key}"))
                 {
-                    if (ImGui.Selectable($"{CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
-                    if (ImGui.Selectable($"{CopyLabel} \"{optionName}\"")) ImGui.SetClipboardText(optionName);
+                    if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
+                    if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{optionName}\"")) ImGui.SetClipboardText(optionName);
                     if (hasOscItem && oscItem.Values != null)
                     {
                         var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
-                        if (ImGui.Selectable($"{CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
+                        if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
                     }
 
                     ImGui.EndPopup();
@@ -540,12 +541,12 @@ public partial class HVInnerWindow
             var key = $"{id}";
             if (hasParameter && ImGui.BeginPopupContextItem($"a popup##{key}"))
             {
-                if (ImGui.Selectable($"{CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
-                if (ImGui.Selectable($"{CopyLabel} \"{interestingParameter}\"")) ImGui.SetClipboardText(interestingParameter);
+                if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{oscParam}\"")) ImGui.SetClipboardText(oscParam);
+                if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{interestingParameter}\"")) ImGui.SetClipboardText(interestingParameter);
                 if (hasOscItem && oscItem.Values != null)
                 {
                     var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
-                    if (ImGui.Selectable($"{CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
+                    if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{join}\"")) ImGui.SetClipboardText(join);
                 }
 
                 ImGui.EndPopup();

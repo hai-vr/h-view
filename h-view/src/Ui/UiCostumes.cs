@@ -15,14 +15,7 @@ public class UiCostumes
     
     private readonly Vector2 _portraitSize = new Vector2(256, 768);
 
-    private const string LoginLabel = "Login";
-    private const string SubmitCodeLabel = "Submit code";
-    private const string SwitchAvatarLabel = "Switch avatar";
-    private const string LoginToVrchatLabel = "Login to VRChat";
-    private const string LoggedInMsg = "You are logged in.";
-    private const string CurrentAvatarLabel = "Current avatar";
     private const uint MaxLength = 10_000;
-    private const string LogoutLabel = "Logout";
 
     private string _accountNameBuffer__sensitive = "";
     private string _accountPasswordBuffer__sensitive = "";
@@ -44,38 +37,38 @@ public class UiCostumes
 
         if (!uiExternalService.IsLoggedIn)
         {
-            ImGui.SeparatorText(LoginToVrchatLabel);
+            ImGui.SeparatorText(HLocalizationPhrase.LoginToVrchatLabel);
             LoginScreen(uiExternalService);
             ImGui.Text("");
         }
         
         ImGui.BeginTabBar("##tabs_costumes");
-        _scrollManager.MakeTab("Select", () => Costumes(uiExternalService, currentAvi));
-        _scrollManager.MakeTab("Switch", () => SwitchAvatar(uiExternalService, currentAvi));
-        if (uiExternalService.IsLoggedIn) _scrollManager.MakeTab("Login", () => LoginScreen(uiExternalService));
+        _scrollManager.MakeTab(HLocalizationPhrase.SelectTabLabel, () => Costumes(uiExternalService, currentAvi));
+        _scrollManager.MakeTab(HLocalizationPhrase.SwitchTabLabel, () => SwitchAvatar(uiExternalService, currentAvi));
+        if (uiExternalService.IsLoggedIn) _scrollManager.MakeTab(HLocalizationPhrase.LoginTabLabel, () => LoginScreen(uiExternalService));
         ImGui.EndTabBar();
     }
 
     private void SwitchAvatar(HVExternalService uiExternalService, string currentAvi)
     {
-        ImGui.SeparatorText(CurrentAvatarLabel);
+        ImGui.SeparatorText(HLocalizationPhrase.CurrentAvatarLabel);
         ImGui.Text(currentAvi);
-        if (ImGui.Button("Copy"))
+        if (ImGui.Button(HLocalizationPhrase.CopyLabel))
         {
             ImGui.SetClipboardText(currentAvi);
         }
         ImGui.SameLine();
-        if (ImGui.Button(HVInnerWindow.OpenBrowserLabel))
+        if (ImGui.Button(HLocalizationPhrase.OpenBrowserLabel))
         {
             UiUtil.OpenAvatarUrl(currentAvi);
         }
         ImGui.Text("");
         
-        ImGui.SeparatorText(SwitchAvatarLabel);
+        ImGui.SeparatorText(HLocalizationPhrase.SwitchAvatarLabel);
         
         ImGui.BeginDisabled(uiExternalService.IsProcessingSwitchAvatar);
-        ImGui.InputText("Avatar ID##avatarid.input", ref _avatarIdBuffer, MaxLength);
-        if (ImGui.Button(SwitchAvatarLabel))
+        ImGui.InputText($"{HLocalizationPhrase.AvatarIdLabel}##avatarid.input", ref _avatarIdBuffer, MaxLength);
+        if (ImGui.Button(HLocalizationPhrase.SwitchAvatarLabel))
         {
             _routine.EjectUserFromCostumeMenu();
             var userinput_avatarId = _avatarIdBuffer;
@@ -129,7 +122,7 @@ public class UiCostumes
     {
         if (_noLogin && !uiExternalService.IsLoggedIn)
         {
-            ImGui.Text("HaiView is not logged into your VRChat account. To log in, open this tab on the desktop window.");
+            ImGui.Text(HLocalizationPhrase.MsgNoVrNotLoggedIn);
             return;
         }
         
@@ -138,9 +131,9 @@ public class UiCostumes
             if (!uiExternalService.NeedsTwofer)
             {
                 ImGui.BeginDisabled(uiExternalService.IsProcessingLogin);
-                ImGui.InputText("Username##username.input", ref _accountNameBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
-                ImGui.InputText("Password##password.input", ref _accountPasswordBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
-                if (ImGui.Button(LoginLabel))
+                ImGui.InputText($"{HLocalizationPhrase.UsernameLabel}##username.input", ref _accountNameBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
+                ImGui.InputText($"{HLocalizationPhrase.PasswordLabel}##password.input", ref _accountPasswordBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
+                if (ImGui.Button(HLocalizationPhrase.LoginLabel))
                 {
                     var userinput_username__sensitive = _accountNameBuffer__sensitive;
                     var userinput_password__sensitive = _accountPasswordBuffer__sensitive;
@@ -154,9 +147,9 @@ public class UiCostumes
                 MakePasswordFieldEmpty();
                 
                 ImGui.BeginDisabled(uiExternalService.IsProcessingLogin);
-                ImGui.Text("Check your email for a 2FA code.");
-                ImGui.InputText("2FA Code##twofer.input", ref _twoferBuffer__sensitive, MaxLength);
-                if (ImGui.Button(SubmitCodeLabel))
+                ImGui.Text(HLocalizationPhrase.MsgMultifactorCheckEmails);
+                ImGui.InputText($"{HLocalizationPhrase.MultifactorCodeLabel}##twofer.input", ref _twoferBuffer__sensitive, MaxLength);
+                if (ImGui.Button(HLocalizationPhrase.SubmitCodeLabel))
                 {
                     var userinput_twoferCode__sensitive = _twoferBuffer__sensitive;
 
@@ -176,10 +169,10 @@ public class UiCostumes
         {
             MakePasswordFieldEmpty();
 
-            ImGui.Text(LoggedInMsg);
-            ImGui.TextWrapped($"Cookies have been saved in %%APPDATA%%/H-View/{HVExternalService.NewCookieFile}.");
-            ImGui.TextWrapped("Logout to delete these cookies.");
-            if (ImGui.Button(LogoutLabel))
+            ImGui.Text(HLocalizationPhrase.MsgLoggedIn);
+            ImGui.TextWrapped(string.Format(HLocalizationPhrase.MsgCookieSaveLocation, HVExternalService.NewCookieFile));
+            ImGui.TextWrapped(HLocalizationPhrase.MsgLogoutToDeleteTheseCookies);
+            if (ImGui.Button(HLocalizationPhrase.LogoutLabel))
             {
                 uiExternalService.Logout();
             }

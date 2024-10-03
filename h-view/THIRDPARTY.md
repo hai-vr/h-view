@@ -13,7 +13,6 @@ Third party acknowledgements
 
   https://github.com/ImGuiNET/ImGui.NET/tree/master/src/ImGui.NET.SampleProgram (MIT license)
 
-
 - **OpenVR API**
 
   https://github.com/ValveSoftware/openvr (BSD-3-Clause license)
@@ -21,6 +20,14 @@ Third party acknowledgements
 - **Facepunch.Steamworks**
 
   https://github.com/Facepunch/Facepunch.Steamworks (MIT license)
+
+- **Fredoka** font
+
+  https://fonts.google.com/specimen/Fredoka/about (SIL Open Font License)
+
+- **Kiwi Maru** font
+
+  https://fonts.google.com/specimen/Kiwi+Maru/about (SIL Open Font License)
 
 ---
 

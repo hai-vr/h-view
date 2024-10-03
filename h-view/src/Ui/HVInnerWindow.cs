@@ -24,22 +24,7 @@ public partial class HVInnerWindow : IDisposable
     private const int BorderHeight = BorderWidth;
     private const ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoResize;
     private const ImGuiWindowFlags WindowFlagsNoCollapse = WindowFlags | ImGuiWindowFlags.NoCollapse;
-    private const string AvatarTabLabel = "Avatar";
-    private const string ContactsTabLabel = "Contacts";
-    private const string CostumesTabLabel = "Costumes";
-    private const string DefaultTabLabel = "Default";
-    private const string FaceTrackingTabLabel = "Face Tracking";
-    private const string InputTabLabel = "Input";
-    private const string MenuTabLabel = "Menu";
-    private const string NetworkingTabLabel = "Networking";
-    private const string OptionsTabLabel = "Options";
-    private const string ParametersTabLabel = "Parameters";
-    private const string PhysBonesLabel = "PhysBones";
-    private const string ShortcutsTabLabel = "Shortcuts";
-    private const string TabsTabLabel = "Tabs";
-    private const string TrackingTabLabel = "Tracking";
-    private const string UtilityTabLabel = "Utility";
-    
+
     private const int RefreshFramesPerSecondWhenUnfocused = 100;
     private const int RefreshEventPollPerSecondWhenMinimized = 15;
 
@@ -174,6 +159,7 @@ public partial class HVInnerWindow : IDisposable
 
     private void SubmitUI()
     {
+        ImGui.PushFont(_controller.MainFont);
         while (_queuedForUi.TryDequeue(out var action))
         {
             action.Invoke();
@@ -191,21 +177,21 @@ public partial class HVInnerWindow : IDisposable
         }
         else
         {
-            sidePanel = 125;
+            sidePanel = 135;
 
             ImGui.SetNextWindowPos(new Vector2(BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
             ImGui.SetNextWindowSize(new Vector2(sidePanel - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
 
-            ImGui.Begin($"Sidebar###sidepanel", WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoScrollbar);
+            ImGui.Begin("###sidepanel", WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoScrollbar);
             
             var buttonSize = new Vector2(ImGui.GetWindowWidth() - 16, 35);
 
-            if (ColoredBg(_panel == HPanel.Shortcuts, () => HapticButton(ShortcutsTabLabel, buttonSize))) _panel = HPanel.Shortcuts;
-            if (ColoredBg(_panel == HPanel.Costumes, () => HapticButton(CostumesTabLabel, buttonSize))) _panel = HPanel.Costumes;
-            if (_networkingTabOptional != null && ColoredBg(_panel == HPanel.Networking, () => HapticButton(NetworkingTabLabel, buttonSize))) _panel = HPanel.Networking;
-            if (ColoredBg(_panel == HPanel.Parameters, () => HapticButton(ParametersTabLabel, buttonSize))) _panel = HPanel.Parameters;
-            if (ColoredBg(_panel == HPanel.Options, () => HapticButton(OptionsTabLabel, buttonSize))) _panel = HPanel.Options;
-            if (ColoredBg(_panel == HPanel.Tabs, () => HapticButton(TabsTabLabel, buttonSize))) _panel = HPanel.Tabs;
+            if (ColoredBg(_panel == HPanel.Shortcuts, () => HapticButton(HLocalizationPhrase.ShortcutsTabLabel, buttonSize))) _panel = HPanel.Shortcuts;
+            if (ColoredBg(_panel == HPanel.Costumes, () => HapticButton(HLocalizationPhrase.CostumesTabLabel, buttonSize))) _panel = HPanel.Costumes;
+            if (_networkingTabOptional != null && ColoredBg(_panel == HPanel.Networking, () => HapticButton(HLocalizationPhrase.NetworkingTabLabel, buttonSize))) _panel = HPanel.Networking;
+            if (ColoredBg(_panel == HPanel.Parameters, () => HapticButton(HLocalizationPhrase.ParametersTabLabel, buttonSize))) _panel = HPanel.Parameters;
+            if (ColoredBg(_panel == HPanel.Options, () => HapticButton(HLocalizationPhrase.OptionsTabLabel, buttonSize))) _panel = HPanel.Options;
+            if (ColoredBg(_panel == HPanel.Tabs, () => HapticButton(HLocalizationPhrase.TabsTabLabel, buttonSize))) _panel = HPanel.Tabs;
 
             var overdata = $"{VERSION.miniVersion}";
             ImGui.SetCursorPosX(16);
@@ -280,6 +266,8 @@ public partial class HVInnerWindow : IDisposable
         }
 
         ImGui.End();
+        // ImGui.PopFont();
+        ImGui.PopFont();
 
         // 3. Show the ImGui demo window. Most of the sample code is in ImGui.ShowDemoWindow(). Read its code to learn more about Dear ImGui!
         if (false)
@@ -311,12 +299,12 @@ public partial class HVInnerWindow : IDisposable
         if (!isEyeTrackingMenuBeingViewedThroughHandOverlay)
         {
             ImGui.BeginTabBar("##tabs");
-            _scrollManager.MakeUnscrollableTab(AvatarTabLabel, () =>
+            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.AvatarTabLabel, () =>
             {
                 ImGui.BeginTabBar("##tabs_menulike");
-                _scrollManager.MakeTab(ShortcutsTabLabel, () => ShortcutsTab(oscMessages));
-                _scrollManager.MakeUnscrollableTab(CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
-                if (ImGui.BeginTabItem(ParametersTabLabel))
+                _scrollManager.MakeTab(HLocalizationPhrase.ShortcutsTabLabel, () => ShortcutsTab(oscMessages));
+                _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
+                if (ImGui.BeginTabItem(HLocalizationPhrase.ParametersTabLabel))
                 {
                     ParametersTab(oscMessages);
                     ImGui.EndTabItem();
@@ -330,9 +318,9 @@ public partial class HVInnerWindow : IDisposable
                 });
                 ImGui.EndTabBar();
             });
-            if (_networkingTabOptional != null) _scrollManager.MakeTab(NetworkingTabLabel, () => _networkingTabOptional.NetworkingTab());
-            _scrollManager.MakeUnscrollableTab(UtilityTabLabel, () => UtilityTab(oscMessages));
-            _scrollManager.MakeUnscrollableTab(OptionsTabLabel, () => OptionsTab(oscMessages));
+            if (_networkingTabOptional != null) _scrollManager.MakeTab(HLocalizationPhrase.NetworkingTabLabel, () => _networkingTabOptional.NetworkingTab());
+            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.UtilityTabLabel, () => UtilityTab(oscMessages));
+            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.OptionsTabLabel, () => OptionsTab(oscMessages));
             ImGui.EndTabBar();
         }
         else
@@ -347,13 +335,13 @@ public partial class HVInnerWindow : IDisposable
     private void ParametersTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTabBar("##tabs_parameters");
-        _scrollManager.MakeTab(DefaultTabLabel, () => AvatarTab(oscMessages));
-        _scrollManager.MakeTab(FaceTrackingTabLabel, () => FaceTrackingTab(oscMessages));
-        _scrollManager.MakeTab(InputTabLabel, () => InputTab(oscMessages));
-        _scrollManager.MakeTab(TrackingTabLabel, () => TrackingTab(oscMessages));
-        _scrollManager.MakeTab(ContactsTabLabel, () => ContactsTab(oscMessages));
-        _scrollManager.MakeTab(PhysBonesLabel, () => PhysBonesTab(oscMessages));
-        _scrollManager.MakeTab(MenuTabLabel, () => ExpressionsTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.DefaultTabLabel, () => AvatarTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.FaceTrackingTabLabel, () => FaceTrackingTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.InputTabLabel, () => InputTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.TrackingTabLabel, () => TrackingTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.ContactsTabLabel, () => ContactsTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.PhysBonesLabel, () => PhysBonesTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.MenuTabLabel, () => ExpressionsTab(oscMessages));
         ImGui.EndTabBar();
     }
 

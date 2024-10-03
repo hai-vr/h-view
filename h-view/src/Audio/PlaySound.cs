@@ -1,18 +1,29 @@
-﻿namespace Hai.HView.Audio;
+﻿using System.Runtime.InteropServices;
+
+namespace Hai.HView.Audio;
 
 public class PlaySound
 {
-    private readonly string _file;
-    private System.Media.SoundPlayer _media;
+    private readonly System.Media.SoundPlayer _media;
+    private readonly bool _isPlayable;
 
     public PlaySound(string file)
     {
-        _media = new System.Media.SoundPlayer(file);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            _media = new System.Media.SoundPlayer(file);
+            _isPlayable = true;
+        }
     }
 
     public void Play()
     {
-        _media.Stop();
-        _media.Play();
+        if (_isPlayable)
+        {
+#pragma warning disable CA1416
+            _media.Stop();
+            _media.Play();
+#pragma warning restore CA1416
+        }
     }
 }

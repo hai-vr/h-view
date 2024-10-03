@@ -2,6 +2,7 @@
 using System.Reflection;
 using Veldrid;
 using System.Runtime.CompilerServices;
+using Hai.HView;
 
 namespace ImGuiNET
 {
@@ -47,6 +48,7 @@ namespace ImGuiNET
         private readonly List<IDisposable> _ownedResources = new List<IDisposable>();
         private int _lastAssignedID = 100;
         private readonly IntPtr _context;
+        public ImFontPtr MainFont;
 
         /// <summary>
         /// Constructs a new ImGuiController.
@@ -65,10 +67,30 @@ namespace ImGuiNET
                 ImGuiConfigFlags.DockingEnable;
             io.Fonts.Flags |= ImFontAtlasFlags.NoBakedLines;
 
+            AddCustomFonts(io);
+
             CreateDeviceResources(gd, outputDescription);
             SetPerFrameImGuiData(1f / 60f);
             ImGui.NewFrame();
             _frameBegun = true;
+        }
+
+        private void AddCustomFonts(ImGuiIOPtr io)
+        {
+            unsafe
+            {
+                io.Fonts.AddFontDefault();
+                var sizePixels = 24f;
+                ImFontConfigPtr configNoMerge = ImGuiNative.ImFontConfig_ImFontConfig();
+                configNoMerge.OversampleH = 2;
+                configNoMerge.OversampleV = 2;
+                MainFont = io.Fonts.AddFontFromFileTTF(HAssets.ENFont, sizePixels, configNoMerge, io.Fonts.GetGlyphRangesDefault());
+                ImFontConfigPtr configMerge = ImGuiNative.ImFontConfig_ImFontConfig();
+                configMerge.OversampleH = 2;
+                configMerge.OversampleV = 2;
+                configMerge.MergeMode = true;
+                io.Fonts.AddFontFromFileTTF(HAssets.JAFont, sizePixels, configMerge, io.Fonts.GetGlyphRangesJapanese());
+            }
         }
 
         public void WindowResized(int width, int height)
