@@ -122,6 +122,12 @@ public class HLocalization
         var key = $"label_{labelName}";
         return DoLocalize(orDefault, key);
     }
+
+    internal static string LocalizeOrElse__ImGuiTab(string labelName, string orDefault)
+    {
+        var key = $"label_{labelName}";
+        return DoLocalize(orDefault, key) + $"###{labelName}";
+    }
     
     private static string DoLocalize(string orDefault, string key)
     {

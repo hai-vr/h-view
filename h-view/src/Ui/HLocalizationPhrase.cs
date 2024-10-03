@@ -30,23 +30,23 @@ public class HLocalizationPhrase
     public static string ValueLabel => HLocalization.LocalizeOrElse(nameof(ValueLabel), "Value");
     
     // Tabs
-    public static string AvatarTabLabel => HLocalization.LocalizeOrElse(nameof(AvatarTabLabel), "Avatar");
-    public static string ContactsTabLabel => HLocalization.LocalizeOrElse(nameof(ContactsTabLabel), "Contacts");
-    public static string CostumesTabLabel => HLocalization.LocalizeOrElse(nameof(CostumesTabLabel), "Costumes");
-    public static string DefaultTabLabel => HLocalization.LocalizeOrElse(nameof(DefaultTabLabel), "Default");
-    public static string FaceTrackingTabLabel => HLocalization.LocalizeOrElse(nameof(FaceTrackingTabLabel), "Face Tracking");
-    public static string InputTabLabel => HLocalization.LocalizeOrElse(nameof(InputTabLabel), "Input");
-    public static string SignInTabLabel => HLocalization.LocalizeOrElse(nameof(SignInTabLabel), "Sign in");
-    public static string MenuTabLabel => HLocalization.LocalizeOrElse(nameof(MenuTabLabel), "Menu");
-    public static string NetworkingTabLabel => HLocalization.LocalizeOrElse(nameof(NetworkingTabLabel), "Networking");
-    public static string OptionsTabLabel => HLocalization.LocalizeOrElse(nameof(OptionsTabLabel), "Options");
-    public static string ParametersTabLabel => HLocalization.LocalizeOrElse(nameof(ParametersTabLabel), "Parameters");
-    public static string SelectTabLabel => HLocalization.LocalizeOrElse(nameof(SelectTabLabel), "Select");
-    public static string ShortcutsTabLabel => HLocalization.LocalizeOrElse(nameof(ShortcutsTabLabel), "Shortcuts");
-    public static string SwitchTabLabel => HLocalization.LocalizeOrElse(nameof(SwitchTabLabel), "Switch");
-    public static string TabsTabLabel => HLocalization.LocalizeOrElse(nameof(TabsTabLabel), "Tabs");
-    public static string TrackingTabLabel => HLocalization.LocalizeOrElse(nameof(TrackingTabLabel), "Tracking");
-    public static string UtilityTabLabel => HLocalization.LocalizeOrElse(nameof(UtilityTabLabel), "Utility");
+    public static string AvatarTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(AvatarTabLabel), "Avatar");
+    public static string ContactsTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(ContactsTabLabel), "Contacts");
+    public static string CostumesTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(CostumesTabLabel), "Costumes");
+    public static string DefaultTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(DefaultTabLabel), "Default");
+    public static string FaceTrackingTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(FaceTrackingTabLabel), "Face Tracking");
+    public static string InputTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(InputTabLabel), "Input");
+    public static string SignInTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(SignInTabLabel), "Sign in");
+    public static string MenuTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(MenuTabLabel), "Menu");
+    public static string NetworkingTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(NetworkingTabLabel), "Networking");
+    public static string OptionsTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(OptionsTabLabel), "Options");
+    public static string ParametersTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(ParametersTabLabel), "Parameters");
+    public static string SelectTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(SelectTabLabel), "Select");
+    public static string ShortcutsTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(ShortcutsTabLabel), "Shortcuts");
+    public static string SwitchTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(SwitchTabLabel), "Switch");
+    public static string TabsTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(TabsTabLabel), "Tabs");
+    public static string TrackingTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(TrackingTabLabel), "Tracking");
+    public static string UtilityTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(UtilityTabLabel), "Utility");
     
     // Messages
     public static string MsgCookieSaveLocation => HLocalization.LocalizeOrElse(nameof(MsgCookieSaveLocation), "Cookies have been saved in %%APPDATA%%/H-View/{0}.");
