@@ -45,7 +45,7 @@ public class UiCostumes
         ImGui.BeginTabBar("##tabs_costumes");
         _scrollManager.MakeTab(HLocalizationPhrase.SelectTabLabel, () => Costumes(uiExternalService, currentAvi));
         _scrollManager.MakeTab(HLocalizationPhrase.SwitchTabLabel, () => SwitchAvatar(uiExternalService, currentAvi));
-        if (uiExternalService.IsLoggedIn) _scrollManager.MakeTab(HLocalizationPhrase.LoginTabLabel, () => LoginScreen(uiExternalService));
+        if (uiExternalService.IsLoggedIn) _scrollManager.MakeTab(HLocalizationPhrase.SignInTabLabel, () => LoginScreen(uiExternalService));
         ImGui.EndTabBar();
     }
 
