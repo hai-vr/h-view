@@ -9,6 +9,7 @@ public class HNSteamNetworkingServer
     
     private bool _enabled;
     private SocketManager _socket;
+    private HNSteamNetworkingSocketManager _intermediaryManager;
 
     public HNSteamNetworkingServer(HNServer server)
     {
@@ -29,14 +30,25 @@ public class HNSteamNetworkingServer
         _enabled = true;
         
         _socket = SteamNetworkingSockets.CreateRelaySocket<SocketManager>();
-        _socket.Interface = new HNSteamNetworkingSocketManager(_server);
+        _intermediaryManager = new HNSteamNetworkingSocketManager(_server);
+        _socket.Interface = _intermediaryManager;
+        
+        Log("Created server");
     }
 
     public void Disable()
     {
         if (!_enabled) return;
         _enabled = false;
+
+        _intermediaryManager.CloseAllConnections();
         
         _socket.Close();
+        Log("Closed server");
+    }
+
+    private void Log(string s)
+    {
+        Console.WriteLine($"[Server::SteamNetworkingServer] {s}");
     }
 }

@@ -1,4 +1,5 @@
-﻿using Hai.HNetworking.Client;
+﻿using System.Collections.Concurrent;
+using Hai.HNetworking.Client;
 using Hai.HNetworking.Server;
 using Hai.HNetworking.Shared;
 using Hai.HNetworking.Steamworks.Client;
@@ -10,6 +11,11 @@ namespace Hai.HNetworking.Steamworks;
 
 public class HNSteamworks
 {
+    public const int SearchKeyDigitCount = 3;
+    public const int PasscodeDigitCount = 3;
+    public const int TotalDigitCount = SearchKeyDigitCount + PasscodeDigitCount;
+    public const bool NeedsSeparator = false;
+    
     internal const uint ExampleAppId = 480; // https://partner.steamgames.com/doc/sdk/api/example .. https://www.youtube.com/shorts/JceP5iiTh50
     public const uint RVRAppId = 2_212_290;
 
@@ -20,7 +26,7 @@ public class HNSteamworks
 
     // Server
     private string _searchKey;
-    private string _forced4digits;
+    private string _forcedDigits;
     private Lobby? _lobbyNullable;
     private HNServer _serverNullable;
     private HNSteamNetworkingServer _steamNetworkingServerNullable;
@@ -40,7 +46,9 @@ public class HNSteamworks
     // Debug Lobby
     public List<DebugLobbySearch> DebugSearchLobbies { get; private set; } = new List<DebugLobbySearch>();
     public bool Refreshing { get; private set; }
-
+    
+    private readonly ConcurrentQueue<Action> _queued = new ConcurrentQueue<Action>();
+    
     public void Start()
     {
     }
@@ -60,7 +68,7 @@ public class HNSteamworks
         SteamClient.Init(appId);
     }
 
-    public async void Join(string joinCode)
+    public async Task Join(string joinCode)
     {
         if (ClientEnabled) return;
         if (!IsJoinCodeValid(joinCode)) return;
@@ -78,7 +86,7 @@ public class HNSteamworks
             ClientEnabled = false;
         };
 
-        var key = joinCode.Substring(0, 4);
+        var key = joinCode.Substring(0, PasscodeDigitCount);
         Console.WriteLine($"Searching for {key}");
         
         var resultsMatchingKey = await SearchFor(key);
@@ -86,6 +94,7 @@ public class HNSteamworks
         
         if (resultsMatchingKey.Count != 1)
         {
+            Console.WriteLine($"Incorrect number of results found to join {joinCode} ({resultsMatchingKey.Count})");
             JoinError = resultsMatchingKey.Count == 0 ? ClientJoinError.CannotFindLobby : ClientJoinError.FoundTooManyLobbies;
             ClientEnabled = false;
             return;
@@ -98,12 +107,14 @@ public class HNSteamworks
 
     private static bool IsJoinCodeValid(string joinCode)
     {
-        if (joinCode.Length != 8) return false;
+        if (joinCode.Length != TotalDigitCount) return false;
         
         var isParseable = int.TryParse(joinCode, out var number);
         if (!isParseable) return false;
         
-        return number is >= 1000_000 and <= 9999_9999;
+        var minValue = (int)Math.Pow(10, TotalDigitCount - 1);
+        var maxValue = (int)Math.Pow(10, TotalDigitCount) - 1;
+        return number >= minValue && number <= maxValue;
     }
 
     public async Task CreateLobby()
@@ -122,7 +133,7 @@ public class HNSteamworks
         _lobbyNullable = lobby;
         
         _searchKey = DeriveSearchKey(lobby);
-        _forced4digits = NewPasscode();
+        _forcedDigits = NewPasscode();
         
         lobby.SetData("HV_IsHV", "1");
         lobby.SetData("HV_Protocol", $"{HNProtocol.HandshakeProtocolVersion}");
@@ -136,6 +147,29 @@ public class HNSteamworks
         lobby.SetInvisible();
 
         LobbyIsJoinable = true;
+
+        if (true)
+        {
+            ClientEnabled = true;
+            
+            _clientNullable = new HNClient();
+            _steamNetworkingClientNullable = new HNSteamNetworkingClient(_clientNullable);
+            _steamNetworkingClientNullable.OnDisconnected += () =>
+            {
+                _steamNetworkingClientNullable = null;
+                _clientNullable = null;
+                ClientEnabled = false;
+            };
+            try
+            {
+                _steamNetworkingClientNullable.Join(SteamClient.SteamId, _searchKey + _forcedDigits);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
     }
 
     private void CreateServer()
@@ -158,7 +192,7 @@ public class HNSteamworks
 
     public string LobbyShareable()
     {
-        return $"HV-{_searchKey}-{_forced4digits}";
+        return $"HV-{_searchKey}{(NeedsSeparator ? "-" : "")}{_forcedDigits}";
     }
 
     private static string DeriveSearchKey(Lobby it)
@@ -178,20 +212,26 @@ public class HNSteamworks
         // Simply use a random seed. If we ever need something stronger, we might need some actual uniform
         // hashing functions, and a longer search key, or just host a real server.
         var rand = new Random((int)(it.Id.Value % int.MaxValue));
-        var generated = rand.Next(1_000, 9_999);
+        var minValue = (int)Math.Pow(10, SearchKeyDigitCount - 1);
+        var maxValue = (int)Math.Pow(10, SearchKeyDigitCount) - 1;
+        var generated = rand.Next(minValue, maxValue);
         return $"{generated}";
     }
 
     private static string NewPasscode()
     {
-        // The last 4 digits that the owner shares with other users is actually the passcode which is transmitted to
+        // The last N=`PasscodeDigitCount` digits that the owner shares with other users is actually the passcode which is transmitted to
         // the room owner after the connection is established.
         //
         // The joining user should still transmit the lobby ID or the search key that lead to opening the connection,
         // in order to know where they're coming from, or support multiple lobbies.
-        var randomDigits09999 = new Random().Next(0, 9999);
-        var forced4digits = $"{randomDigits09999:0000}";
-        return forced4digits;
+        var maxValue = (int)Math.Pow(10, PasscodeDigitCount) - 1;
+        var randomDigits09999 = new Random().Next(0, maxValue);
+        
+        var joiner = string.Join("", Enumerable.Repeat("0", PasscodeDigitCount));
+        var format = "{0:" + joiner + "}";
+        var forcedDigits = string.Format(format, randomDigits09999);
+        return forcedDigits;
     }
 
     public void TerminateServer()
@@ -204,6 +244,9 @@ public class HNSteamworks
             _lobbyNullable = null;
             LobbyIsJoinable = false;
             LobbyEnabled = false;
+
+            _serverNullable = null;
+            _steamNetworkingServerNullable = null;
         }
     }
 
@@ -212,7 +255,7 @@ public class HNSteamworks
         if (Refreshing) return;
         Refreshing = true;
         DebugSearchLobbies = await SearchFor(null);
-
+        
         Refreshing = false;
     }
 
@@ -250,9 +293,17 @@ public class HNSteamworks
         return DeriveSearchKey(lobby) == lobby.GetData("HV_SearchKey");
     }
 
+    public void Enqueue(Action action)
+    {
+        _queued.Enqueue(action);
+    }
+
     public void Update()
     {
-        if (_steamNetworkingServerNullable != null) _steamNetworkingServerNullable.Update(); 
+        while (_queued.TryDequeue(out var action)) action();
+        
+        if (_steamNetworkingServerNullable != null) _steamNetworkingServerNullable.Update();
+        if (_steamNetworkingClientNullable != null) _steamNetworkingClientNullable.Update();
     }
 }
 

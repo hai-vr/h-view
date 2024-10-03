@@ -47,14 +47,14 @@ public class UiNetworking
         ImGui.BeginDisabled(_steamworks.LobbyEnabled);
         if (ImGui.Button(StartServerLabel))
         {
-            _steamworks.CreateLobby();
+            _steamworks.Enqueue(() => _ = _steamworks.CreateLobby());
         }
         ImGui.EndDisabled();
         ImGui.BeginDisabled(!_steamworks.LobbyIsJoinable);
         ImGui.SameLine();
         if (ImGui.Button(StopServerLabel))
         {
-            _steamworks.TerminateServer();
+            _steamworks.Enqueue(() => _steamworks.TerminateServer());
         }
         ImGui.EndDisabled();
         if (_steamworks.LobbyIsJoinable)
@@ -75,10 +75,10 @@ public class UiNetworking
             DisplayCode(_joinCode);
             ImGui.SameLine();
         
-            ImGui.BeginDisabled(_joinCode.Length < 8 || _steamworks.ClientEnabled);
+            ImGui.BeginDisabled(_joinCode.Length < HNSteamworks.TotalDigitCount || _steamworks.ClientEnabled);
             if (ImGui.Button("Join", new Vector2(64, 32)))
             {
-                _steamworks.Join(_joinCode);
+                _steamworks.Enqueue(() => _ = _steamworks.Join(_joinCode));
             }
             ImGui.EndDisabled();
         
@@ -96,14 +96,14 @@ public class UiNetworking
         ImGui.BeginDisabled(_steamworks.Refreshing);
         if (ImGui.Button("Refresh lobbies"))
         {
-            _steamworks.RefreshLobbies();
+            _steamworks.Enqueue(() => _ = _steamworks.RefreshLobbies());
         }
         ImGui.EndDisabled();
 
         var copy = _steamworks.DebugSearchLobbies.ToArray();
         foreach (var searchLobby in copy)
         {
-            ImGui.Text($"({searchLobby.SearchKey} ????) {searchLobby.Id} {searchLobby.OwnerName}");
+            ImGui.Text($"({searchLobby.SearchKey}...) {searchLobby.Id} {searchLobby.OwnerName}");
         }
     }
 
@@ -115,12 +115,12 @@ public class UiNetworking
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
         ImGui.Button("HV-", new Vector2(32, 32));
         ImGui.PopStyleColor();
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < HNSteamworks.TotalDigitCount; i++)
         {
             var num = i < code.Length ? $"{code[i]}###n{i}" : "";
             ImGui.SameLine();
             ImGui.Button(num, new Vector2(24, 32));
-            if (i == 3)
+            if (HNSteamworks.NeedsSeparator && i == HNSteamworks.SearchKeyDigitCount - 1)
             {
                 ImGui.SameLine();
                 ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
@@ -133,7 +133,7 @@ public class UiNetworking
 
     private void JoincodeNumpad()
     {
-        ImGui.BeginDisabled(_joinCode.Length >= 8);
+        ImGui.BeginDisabled(_joinCode.Length >= HNSteamworks.TotalDigitCount);
         for (var i = 0; i < 10; i++)
         {
             var n = (i + 1) % 10;

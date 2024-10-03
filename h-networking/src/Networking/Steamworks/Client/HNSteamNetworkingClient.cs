@@ -26,10 +26,11 @@ public class HNSteamNetworkingClient
         
         _client.SetJoinCode(joinCode);
         
-        Console.WriteLine($"Creating connections");
+        Log("Creating connections");
         _connectionManager = new HNClientConnectionManager(_client);
-        _connectionManager.onDisconnectedFully += WhenDisconnectedFully;
+        _connectionManager.OnDisconnectedFully += WhenDisconnectedFully;
         _intermediaryManager = SteamNetworkingSockets.ConnectRelay<ConnectionManager>(steamId);
+        Log("Connected");
         _intermediaryManager.Interface = _connectionManager;
         _handle = new HNClientConnectionHandle(_intermediaryManager.Connection, new HNSteamIdentity(steamId));
         _connectionManager.Handle = _handle;
@@ -37,8 +38,23 @@ public class HNSteamNetworkingClient
 
     private void WhenDisconnectedFully()
     {
+        Log("WhenDisconnectedFully");
         _intermediaryManager.Close();
         _enabled = false;
         OnDisconnected?.Invoke();
+    }
+
+    private void Log(string s)
+    {
+        Console.WriteLine($"[Client::SteamNetworkingClient] {s}");
+    }
+
+    public void Update()
+    {
+        if (!_enabled) return;
+        if (_intermediaryManager == null) return; // Can be null when connection is being established
+        
+        _intermediaryManager.Receive();
+        _client.PostReceive();
     }
 }

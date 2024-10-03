@@ -8,13 +8,15 @@ namespace Hai.HNetworking.Steamworks.Client;
 
 public class HNClientConnectionManager : IConnectionManager
 {
-    public event OnDisconnectedFully onDisconnectedFully;
-    public delegate void OnDisconnectedFully();
+    public event DisconnectedFully OnDisconnectedFully;
+    public delegate void DisconnectedFully();
         
     private readonly HNClient _client;
     private ClientConnectionState _state = ClientConnectionState.NotStarted;
         
     [NonSerialized] public IHNClientConnectionHandle Handle;
+    
+    private bool _disconnected;
 
     public HNClientConnectionManager(HNClient client)
     {
@@ -23,30 +25,33 @@ public class HNClientConnectionManager : IConnectionManager
 
     public void OnConnecting(ConnectionInfo info)
     {
-        Console.WriteLine($"OnConnecting");
+        Log("OnConnecting");
         _state = ClientConnectionState.Connecting;
     }
 
     public void OnConnected(ConnectionInfo info)
     {
-        Console.WriteLine($"OnConnected");
+        Log("OnConnected");
         _state = ClientConnectionState.Connected;
         _client.OnConnected(Handle);
     }
-
+    
     public void OnDisconnected(ConnectionInfo info)
     {
-        Console.WriteLine($"OnDisconnected");
+        if (_disconnected) return; // Prevent double-call
+        _disconnected = true;
+        
+        Log("OnDisconnected");
         _state = ClientConnectionState.Disconnected;
         _client.OnDisconnected(Handle);
-        onDisconnectedFully?.Invoke();
+        OnDisconnectedFully?.Invoke();
     }
 
     public void OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel)
     {
         if (size > HNSteamNetworkingSocketManager.MaximumMessageLength)
         {
-            Console.WriteLine($"Ignored rogue message of size {size} which is larger than the maximum allowed {HNSteamNetworkingSocketManager.MaximumMessageLength}");
+            Log($"Ignored rogue message of size {size} which is larger than the maximum allowed {HNSteamNetworkingSocketManager.MaximumMessageLength}");
             return;
         }
         _client.OnMessage(Handle, new HNMessage
@@ -55,6 +60,11 @@ public class HNClientConnectionManager : IConnectionManager
             messageNum = messageNum,
             segment = HNSteamNetworkingSocketManager.ToArraySegment(data, size)
         });
+    }
+
+    private void Log(string s)
+    {
+        Console.WriteLine($"[Client::ConnectionManager] {s}");
     }
 }
 
