@@ -9,6 +9,7 @@ using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;
 using hcontroller.Lyuma;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Valve.VR;
 
 namespace Hai.HView.Core;
@@ -35,7 +36,7 @@ public class HVRoutine
     public event Action OnHideCostumes;
 
     private EMManifest _expressionsManifest;
-    private string[] _manifestFiles = new string[0];
+    private ManifestFile[] _manifestFiles = new ManifestFile[0];
     private bool _autoLaunch;
     private bool _isAutoLaunchAvailable;
     private Costume[] _costumes;
@@ -62,10 +63,64 @@ public class HVRoutine
         _timer.Start();
 
         var notARegex = $"{EEMPrefix}*.json";
-        _manifestFiles = GetFilesInLocalLowVRChatDirectories(notARegex);
+        var manifestFilePaths = GetFilesInLocalLowVRChatDirectories(notARegex);
+        var oscFileNames = GetFilesInLocalLowVRChatDirectories("avtr_*.json");
+        var lengthOfSuffix = ".json".Length;
+        
+        Task.Run(() =>
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            _manifestFiles = manifestFilePaths
+                .Select(path =>
+                {
+                    var fileName = Path.GetFileName(path);
+
+                    var avtrJson = fileName.Substring(EEMPrefix.Length);
+                    var oscFilePathNullable = oscFileNames.FirstOrDefault(oscFileName => oscFileName.EndsWith(avtrJson));
+                    var avatarId = fileName.Substring(EEMPrefix.Length, fileName.Length - EEMPrefix.Length - lengthOfSuffix);
+                    
+                    return new ManifestFile
+                    {
+                        FilePath = path,
+                        FileName = fileName,
+                        OscFilePathNullable = oscFilePathNullable,
+                        AvatarJson = avtrJson,
+                        AvatarId = avatarId,
+                        LastModified = File.GetLastWriteTime(path),
+                        ConvenientName = oscFilePathNullable != null && TryParseNameFromOscFile(oscFilePathNullable, out var result)
+                            ? result
+                            : avatarId
+                    };
+                })
+                .OrderByDescending(file => file.LastModified)
+                .ToArray();
+            Console.WriteLine($"Took {sw.ElapsedMilliseconds}ms to resolve all manifest files. {_manifestFiles.Count(file => file.OscFilePathNullable != null)} out of {_manifestFiles.Length} manifest files have a corresponding OSC json file.");
+        });
         
         Directory.CreateDirectory(SaveUtil.GetCostumesFolder());
         CollectCostumes();
+    }
+
+    private static bool TryParseNameFromOscFile(string oscFilePath, out string result)
+    {
+        try
+        {
+            var obj = JObject.Parse(File.ReadAllText(oscFilePath, Encoding.UTF8));
+            if (obj.TryGetValue("name", out var value))
+            {
+                result = value.Value<string>();
+                return true;
+            }
+
+            result = null;
+            return false;
+        }
+        catch (Exception _)
+        {
+            result = null;
+            return false;
+        }
     }
 
     private void CollectCostumes()
@@ -275,7 +330,7 @@ public class HVRoutine
         return _messageBox.CopyForUi();
     }
 
-    public string[] UiManifestSafeFilePaths()
+    public ManifestFile[] UiManifestSafeFiles()
     {
         return _manifestFiles.ToArray();
     }
@@ -365,6 +420,17 @@ public class HVRoutine
         _config.locale = code;
         _config.SaveConfig();
     }
+}
+
+public class ManifestFile
+{
+    public string FilePath;
+    public string FileName;
+    public string OscFilePathNullable;
+    public string AvatarJson;
+    public string AvatarId;
+    public string ConvenientName;
+    public DateTime LastModified;
 }
 
 public class Costume

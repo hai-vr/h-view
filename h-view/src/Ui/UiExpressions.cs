@@ -382,14 +382,14 @@ public partial class HVInnerWindow
     {
         UpdateIconSize();
         
-        var safeFilePaths = _routine.UiManifestSafeFilePaths();
-        var names = new[] { " " }.Concat(safeFilePaths.Select(Path.GetFileName)).ToArray();
+        var safeFiles = _routine.UiManifestSafeFiles();
+        var names = new[] { " " }.Concat(safeFiles.Select(file => file.ConvenientName)).ToArray();
         var current = 0;
         var changed = ImGui.Combo("File", ref current, names, names.Length);
         if (changed && current != 0)
         {
             var actualIndex = current - 1;
-            _routine.ManuallyLoadManifestFromFile(safeFilePaths[actualIndex]);
+            _routine.ManuallyLoadManifestFromFile(safeFiles[actualIndex].FilePath);
         }
         
         var id = 0;
