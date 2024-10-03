@@ -8,6 +8,7 @@ namespace Hai.HView.Gui;
 public partial class HVInnerWindow
 {
     private const string KeysTabLabel = "Keys";
+    private const string LanguagesNonTranslated = "Languages";
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     
     private void UtilityTab(Dictionary<string, HOscItem> oscMessages)
@@ -24,6 +25,19 @@ public partial class HVInnerWindow
         if (ImGui.Checkbox(HLocalizationPhrase.StartWithSteamVRLabel, ref autoLaunch))
         {
             _routine.SetAutoLaunch(autoLaunch);
+        }
+        
+        ImGui.Text("");
+        ImGui.SeparatorText(LanguagesNonTranslated);
+        var languages = HLocalization.GetLanguages();
+        for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
+        {
+            var language = languages[languageIndex];
+            if (ImGui.Button(language))
+            {
+                _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
+                HLocalization.SwitchLanguage(languageIndex);
+            }
         }
     }
 

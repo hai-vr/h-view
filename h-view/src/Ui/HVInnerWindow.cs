@@ -177,7 +177,7 @@ public partial class HVInnerWindow : IDisposable
         }
         else
         {
-            sidePanel = 135;
+            sidePanel = 165;
 
             ImGui.SetNextWindowPos(new Vector2(BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
             ImGui.SetNextWindowSize(new Vector2(sidePanel - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
@@ -185,23 +185,34 @@ public partial class HVInnerWindow : IDisposable
             ImGui.Begin("###sidepanel", WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoScrollbar);
             
             var buttonSize = new Vector2(ImGui.GetWindowWidth() - 16, 35);
-
-            if (ColoredBg(_panel == HPanel.Shortcuts, () => HapticButton(HLocalizationPhrase.ShortcutsTabLabel, buttonSize))) _panel = HPanel.Shortcuts;
-            if (ColoredBg(_panel == HPanel.Costumes, () => HapticButton(HLocalizationPhrase.CostumesTabLabel, buttonSize))) _panel = HPanel.Costumes;
-            if (_networkingTabOptional != null && ColoredBg(_panel == HPanel.Networking, () => HapticButton(HLocalizationPhrase.NetworkingTabLabel, buttonSize))) _panel = HPanel.Networking;
-            if (ColoredBg(_panel == HPanel.Parameters, () => HapticButton(HLocalizationPhrase.ParametersTabLabel, buttonSize))) _panel = HPanel.Parameters;
-            if (ColoredBg(_panel == HPanel.Options, () => HapticButton(HLocalizationPhrase.OptionsTabLabel, buttonSize))) _panel = HPanel.Options;
-            if (ColoredBg(_panel == HPanel.Tabs, () => HapticButton(HLocalizationPhrase.TabsTabLabel, buttonSize))) _panel = HPanel.Tabs;
+            ShowSidebarButton(buttonSize, HLocalizationPhrase.ShortcutsTabLabel, HPanel.Shortcuts);
+            ShowSidebarButton(buttonSize, HLocalizationPhrase.CostumesTabLabel, HPanel.Costumes);
+            if (_networkingTabOptional != null) ShowSidebarButton(buttonSize, HLocalizationPhrase.NetworkingTabLabel, HPanel.Networking);
+            ShowSidebarButton(buttonSize, HLocalizationPhrase.ParametersTabLabel, HPanel.Parameters);
+            ShowSidebarButton(buttonSize, HLocalizationPhrase.OptionsTabLabel, HPanel.Options);
+            ShowSidebarButton(buttonSize, HLocalizationPhrase.TabsTabLabel, HPanel.Tabs);
             
             var languages = HLocalization.GetLanguages();
-            ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * (3 + languages.Count));
-            for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
+            var desiredY = ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * (3 + languages.Count);
+            if (ImGui.GetCursorPosY() < desiredY) // Only show the language selector if we have room for it
             {
-                var language = languages[languageIndex].Replace(" (ChatGPT)" , " GPT");
-                if (ImGui.Button(language, buttonSize))
+                ImGui.SetCursorPosY(desiredY);
+                for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
                 {
-                    _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
-                    HLocalization.SwitchLanguage(languageIndex);
+                    var language = languages[languageIndex].Replace(" (ChatGPT)" , " GPT");
+                    if (ImGui.Button(language, buttonSize))
+                    {
+                        _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
+                        HLocalization.SwitchLanguage(languageIndex);
+                    }
+                }
+            }
+            else
+            {
+                ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 3);
+                if (ImGui.Button(LanguagesNonTranslated, buttonSize))
+                {
+                    _panel = HPanel.Options;
                 }
             }
 
@@ -290,6 +301,11 @@ public partial class HVInnerWindow : IDisposable
             var _showImGuiDemoWindow = false;
             ImGui.ShowDemoWindow(ref _showImGuiDemoWindow);
         }
+    }
+
+    private void ShowSidebarButton(Vector2 buttonSize, string label, HPanel target)
+    {
+        if (ColoredBg(_panel == target, () => HapticButton(label, buttonSize))) _panel = target;
     }
 
     private bool ColoredBg(bool useColor, Func<bool> func)
