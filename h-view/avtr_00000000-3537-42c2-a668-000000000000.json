@@ -1,0 +1,11 @@
+﻿{
+  "id": "avtr_00000000-3537-42c2-a668-000000000000",
+  "name": "H-View Fake Client EyesOnly",
+  "parameters": [
+    {"name": "FT/v2/EyeLeftX", "input": {"address": "FT/v2/EyeLeftX", "type": "Float"}, "output": {"address": "FT/v2/EyeLeftX", "type": "Float"}},
+    {"name": "FT/v2/EyeRightX", "input": {"address": "FT/v2/EyeRightX", "type": "Float"}, "output": {"address": "FT/v2/EyeRightX", "type": "Float"}},
+    {"name": "FT/v2/EyeY", "input": {"address": "FT/v2/EyeY", "type": "Float"}, "output": {"address": "FT/v2/EyeY", "type": "Float"}},
+    {"name": "FT/v2/EyeLidLeft", "input": {"address": "FT/v2/EyeLidLeft", "type": "Float"}, "output": {"address": "FT/v2/EyeLidLeft", "type": "Float"}},
+    {"name": "FT/v2/EyeLidRight", "input": {"address": "FT/v2/EyeLidRight", "type": "Float"}, "output": {"address": "FT/v2/EyeLidRight", "type": "Float"}}
+  ]
+}

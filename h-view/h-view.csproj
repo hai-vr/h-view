@@ -80,6 +80,12 @@
       <None Update="EyeTrackingCursor.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="avtr_00000000-bc83-4caa-b77f-000000000000.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="avtr_00000000-3537-42c2-a668-000000000000.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="HAssets\click.wav">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

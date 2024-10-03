@@ -6,7 +6,8 @@ namespace Hai.HView.OSC.PretendToBeVRC;
 /// send information to this application (i.e. face tracking).
 public class FakeVRCOSC
 {
-    private const string FakeHViewAvatarId = "avtr_00000000-bc83-4caa-b77f-000000000000";
+    private const string FakeHViewAvatarIdMulti = "avtr_00000000-bc83-4caa-b77f-000000000000";
+    private const string FakeHViewAvatarIdEyesOnly = "avtr_00000000-3537-42c2-a668-000000000000";
     private const int VrcOscPort = 9000;
     private const int VrcFtPort = 9001;
 
@@ -25,7 +26,7 @@ public class FakeVRCOSC
 
     public void SendAvatarChange()
     {
-        _client.SendOsc(CommonOSCAddresses.AvatarChangeOscAddress, FakeHViewAvatarId);
+        _client.SendOsc(CommonOSCAddresses.AvatarChangeOscAddress, FakeHViewAvatarIdMulti);
     }
 
     public void Finish()

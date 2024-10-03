@@ -1,6 +1,6 @@
 ﻿{
-  "id": "avtr_00000000-bc83-4caa-b77f-000000000000",
-  "name": "H-View Fake Client Multi",
+  "id": "avtr_00000000-d7dc-4a90-ab09-000000000000",
+  "name": "HVR Basis Fake Client",
   "parameters": [
     {"name": "FT/v2/BrowInnerUpLeft", "input": {"address": "FT/v2/BrowInnerUpLeft", "type": "Float"}, "output": {"address": "FT/v2/BrowInnerUpLeft", "type": "Float"}},
     {"name": "FT/v2/BrowInnerUpRight", "input": {"address": "FT/v2/BrowInnerUpRight", "type": "Float"}, "output": {"address": "FT/v2/BrowInnerUpRight", "type": "Float"}},
