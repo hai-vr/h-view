@@ -8,6 +8,7 @@ public class VERSION
 {
     // ReSharper disable once InconsistentNaming
     public static string version { get; private set; }
+    public static string miniVersion { get; private set; }
 
     static VERSION()
     {
@@ -24,10 +25,12 @@ public class VERSION
                 }
             }
             version = $"v{packageVer}-ExecutingFromSource";
+            miniVersion = $"v{packageVer}-EFS";
         }
         else
         {
             version = string.Format(CultureInfo.InvariantCulture, "v{0}.{1}.{2}", v.Major, v.Minor, v.Build);
+            miniVersion = version;
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using Hai.HView.Audio;
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.Overlay;
@@ -10,8 +11,11 @@ namespace Hai.HView.OVR;
 public class HVOpenVRThread
 {
     // Action manifest files cannot have a hyphen in it, it crashes the bindings UI when saving.
-    private const int TotalWindowWidth = 600;
-    private const int TotalWindowHeight = 510;
+    
+    public const int TotalWindowWidth = (int)(VRWindowWidth * 0.6f);
+    public const int TotalWindowHeight = (int)(VRWindowHeight * 0.6f);
+    private const int VRWindowWidth = 1400;
+    private const int VRWindowHeight = 800;
     public const string VrManifestAppKey = "Hai.HView";
 
     // TODO: Add a runtime switch
@@ -21,6 +25,7 @@ public class HVOpenVRThread
     private readonly HVOpenVRManagement _ovr;
     private readonly bool _registerAppManifest;
     private readonly ConcurrentQueue<Action> _queuedForOvr = new ConcurrentQueue<Action>();
+    private PlaySound _playSound;
 
     public HVOpenVRThread(HVRoutine routine, bool registerAppManifest)
     {
@@ -79,14 +84,27 @@ public class HVOpenVRThread
 
         if (shouldContinue)
         {
-            var width = 1400;
-            var height = 800;
-            var innerWindow = new HVInnerWindow(_routine, true, width, width, width, height);
+            var innerWindow = new HVInnerWindow(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight);
             innerWindow.SetupUi(true);
 
-            var windowRatio = width / (height * 1f);
+            var windowRatio = VRWindowWidth / (VRWindowHeight * 1f);
             var dashboard = new HVImGuiOverlay(innerWindow, "main", true, windowRatio);
             dashboard.Start();
+            
+            innerWindow.OnHoverChanged += () =>
+            {
+                _queuedForOvr.Enqueue(() => OpenVR.System.TriggerHapticPulse(dashboard.LastMouseMoveDeviceIndex, 0, 25_000));
+            };
+            
+            innerWindow.OnButtonPressed += () =>
+            {
+                _queuedForOvr.Enqueue(() =>
+                {
+                    OpenVR.System.TriggerHapticPulse(dashboard.LastMouseMoveDeviceIndex, 0, 50_000);
+                    _playSound ??= new PlaySound(HAssets.AudioClick);
+                    _playSound.Play();
+                });
+            };
 
             var overlayables = new List<IOverlayable>();
             overlayables.Add(dashboard);

@@ -12,12 +12,17 @@ public class UiScrollManager
     {
         if (ImGui.BeginTabItem(tabLabel))
         {
-            ImGui.BeginChild("scroll");
-            action.Invoke();
-            HandleScrollOnDrag();
-            ImGui.EndChild();
-            ImGui.EndTabItem();
+            MakeScroll(action);
         }
+    }
+
+    public void MakeScroll(Action action)
+    {
+        ImGui.BeginChild("scroll");
+        action.Invoke();
+        HandleScrollOnDrag();
+        ImGui.EndChild();
+        ImGui.EndTabItem();
     }
 
     public void MakeUnscrollableTab(string tabLabel, Action action)

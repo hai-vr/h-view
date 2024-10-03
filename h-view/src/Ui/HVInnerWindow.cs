@@ -1,20 +1,25 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Numerics;
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.Core;
 using Hai.HView.Gui.Tab;
+using Hai.HView.OSC;
 using Hai.HView.Ui;
 using ImGuiNET;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
 
 namespace Hai.HView.Gui;
 
 public partial class HVInnerWindow : IDisposable
 {
+    public event ButtonEvent OnHoverChanged;
+    public event ButtonEvent OnButtonPressed;
+    public delegate void ButtonEvent();
+    
     private const int BorderWidth = 0;
     private const int BorderHeight = BorderWidth;
     private const ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoResize;
@@ -22,11 +27,16 @@ public partial class HVInnerWindow : IDisposable
     private const string AvatarTabLabel = "Avatar";
     private const string ContactsTabLabel = "Contacts";
     private const string CostumesTabLabel = "Costumes";
+    private const string DefaultTabLabel = "Default";
     private const string FaceTrackingTabLabel = "Face Tracking";
     private const string InputTabLabel = "Input";
     private const string MenuTabLabel = "Menu";
+    private const string NetworkingTabLabel = "Networking";
+    private const string OptionsTabLabel = "Options";
+    private const string ParametersTabLabel = "Parameters";
     private const string PhysBonesLabel = "PhysBones";
     private const string ShortcutsTabLabel = "Shortcuts";
+    private const string TabsTabLabel = "Tabs";
     private const string TrackingTabLabel = "Tracking";
     private const string UtilityTabLabel = "Utility";
     
@@ -34,7 +44,7 @@ public partial class HVInnerWindow : IDisposable
     private const int RefreshEventPollPerSecondWhenMinimized = 15;
 
     private const bool ShowFrameCounter = false;
-    
+
     private readonly HVRoutine _routine;
     private readonly bool _isWindowlessStyle;
 
@@ -76,6 +86,9 @@ public partial class HVInnerWindow : IDisposable
     
     // Debug
     private long frameNumber;
+    private HPanel _panel = HPanel.Shortcuts;
+    private bool _debugTransparency;
+    private string _hovered;
 
     public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight)
     {
@@ -115,21 +128,90 @@ public partial class HVInnerWindow : IDisposable
         }
     }
 
+    private bool HapticButton(string label)
+    {
+        var clicked = ImGui.Button(label);
+        CheckHapticButton(label);
+        return clicked;
+    }
+
+    private bool HapticButton(string label, Vector2 size)
+    {
+        var clicked = ImGui.Button(label, size);
+        CheckHapticButton(label);
+        return clicked;
+    }
+
+    private void CheckHapticButton(string label)
+    {
+        if (ImGui.IsItemHovered())
+        {
+            _hovered = label;
+        }
+
+        if (ImGui.IsItemClicked())
+        {
+            OnButtonPressed?.Invoke();
+        }
+    }
+
+    private enum HPanel
+    {
+        Shortcuts,
+        Costumes,
+        Networking,
+        Parameters,
+        Options,
+        Tabs,
+    }
+
     private void SubmitUI()
     {
         while (_queuedForUi.TryDequeue(out var action))
         {
             action.Invoke();
         }
-        
+
         var windowHeight = _window.Height - BorderHeight * 2;
-        ImGui.SetNextWindowPos(new Vector2(BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(new Vector2(_window.Width - BorderWidth * 2 - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
-        var flags = WindowFlagsNoCollapse;
-        if (_isWindowlessStyle)
+
+        var useTabs = false;
+        var prevHover = _hovered;
+
+        int sidePanel;
+        if (useTabs)
         {
-            flags |= ImGuiWindowFlags.NoTitleBar;
+            sidePanel = 0;
         }
+        else
+        {
+            sidePanel = 125;
+
+            ImGui.SetNextWindowPos(new Vector2(BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(sidePanel - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
+
+            ImGui.Begin($"Sidebar###sidepanel", WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoScrollbar);
+            
+            var buttonSize = new Vector2(ImGui.GetWindowWidth() - 16, 35);
+
+            if (ColoredBg(_panel == HPanel.Shortcuts, () => HapticButton(ShortcutsTabLabel, buttonSize))) _panel = HPanel.Shortcuts;
+            if (ColoredBg(_panel == HPanel.Costumes, () => HapticButton(CostumesTabLabel, buttonSize))) _panel = HPanel.Costumes;
+            if (_networkingTabOptional != null && ColoredBg(_panel == HPanel.Networking, () => HapticButton(NetworkingTabLabel, buttonSize))) _panel = HPanel.Networking;
+            if (ColoredBg(_panel == HPanel.Parameters, () => HapticButton(ParametersTabLabel, buttonSize))) _panel = HPanel.Parameters;
+            if (ColoredBg(_panel == HPanel.Options, () => HapticButton(OptionsTabLabel, buttonSize))) _panel = HPanel.Options;
+            if (ColoredBg(_panel == HPanel.Tabs, () => HapticButton(TabsTabLabel, buttonSize))) _panel = HPanel.Tabs;
+
+            var overdata = $"{VERSION.miniVersion}";
+            ImGui.SetCursorPosX(16);
+            ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() - 8);
+            ImGui.Text(overdata);
+
+            ImGui.End();
+        }
+
+        var windowWidth = _window.Width - BorderWidth * 2 - sidePanel;
+        ImGui.SetNextWindowPos(new Vector2(sidePanel + BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new Vector2(windowWidth - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
+        var flags = WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar;
 
         var isEyeTrackingMenuBeingViewedThroughHandOverlay = _isWindowlessStyle && _isBeingViewedThroughHandOverlay && _eyeTrackingMenuActiveLastFrame;
         if (isEyeTrackingMenuBeingViewedThroughHandOverlay)
@@ -139,48 +221,57 @@ public partial class HVInnerWindow : IDisposable
 
         frameNumber++;
         ImGui.Begin($"{HVApp.AppTitleTab} {VERSION.version}", flags);
-        if (ShowFrameCounter)
-        {
-            ImGui.Text($"[frame {frameNumber}, delta {(ImGui.GetIO().DeltaTime * 1000):0}ms]");
-        }
         var oscMessages = _routine.UiOscMessages();
-
-        if (!isEyeTrackingMenuBeingViewedThroughHandOverlay)
+        if (useTabs)
         {
-            ImGui.BeginTabBar("##tabs");
-            _scrollManager.MakeTab(ShortcutsTabLabel, () => ShortcutsTab(oscMessages));
-            _scrollManager.MakeUnscrollableTab(CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
-            if (ImGui.BeginTabItem("Parameters"))
-            {
-                ImGui.BeginTabBar("##tabs_parameters");
-                _scrollManager.MakeTab(AvatarTabLabel, () => AvatarTab(oscMessages));
-                _scrollManager.MakeTab(FaceTrackingTabLabel, () => FaceTrackingTab(oscMessages));
-                _scrollManager.MakeTab(InputTabLabel, () => InputTab(oscMessages));
-                _scrollManager.MakeTab(TrackingTabLabel, () => TrackingTab(oscMessages));
-                _scrollManager.MakeTab(ContactsTabLabel, () => ContactsTab(oscMessages));
-                _scrollManager.MakeTab(PhysBonesLabel, () => PhysBonesTab(oscMessages));
-                _scrollManager.MakeTab(MenuTabLabel, () => ExpressionsTab(oscMessages));
-                ImGui.EndTabBar();
-                ImGui.EndTabItem();
-            }
-            _eyeTrackingMenuActiveLastFrame = false;
-            _scrollManager.MakeUnscrollableTab("Eye Tracking", () =>
-            {
-                _eyeTrackingMenuActiveLastFrame = true;
-                _eyeTrackingMenu.EyeTrackingMenuTab();
-            });
-            if (_networkingTabOptional != null) _scrollManager.MakeTab("Networking", () => _networkingTabOptional.NetworkingTab());
-            _scrollManager.MakeUnscrollableTab(UtilityTabLabel, () => UtilityTab(oscMessages));
-            ImGui.EndTabBar();
+            DisplayAsTabs(isEyeTrackingMenuBeingViewedThroughHandOverlay, oscMessages);
         }
         else
         {
-            _eyeTrackingMenuActiveLastFrame = true;
-            _eyeTrackingMenu.EyeTrackingMenuTab();
+            switch (_panel)
+            {
+                case HPanel.Shortcuts:
+                {
+                    _scrollManager.MakeScroll(() => ShortcutsTab(oscMessages));
+                    break;
+                }
+                case HPanel.Costumes:
+                {
+                    _scrollManager.MakeScroll(() => _costumesTab.CostumesTab(oscMessages));
+                    break;
+                }
+                case HPanel.Networking:
+                {
+                    _scrollManager.MakeScroll(() => _networkingTabOptional?.NetworkingTab());
+                    break;
+                }
+                case HPanel.Parameters:
+                {
+                    _scrollManager.MakeScroll(() => ParametersTab(oscMessages));
+                    break;
+                }
+                case HPanel.Options:
+                {
+                    _scrollManager.MakeScroll(() => OptionsTab(oscMessages));
+                    break;
+                }
+                case HPanel.Tabs:
+                {
+                    DisplayAsTabs(isEyeTrackingMenuBeingViewedThroughHandOverlay, oscMessages);
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            _scrollManager.StoreIfAnyItemHovered();
+        }
+        
+        if (_isWindowlessStyle && _hovered != prevHover)
+        {
+            OnHoverChanged?.Invoke();
         }
 
-        _scrollManager.StoreIfAnyItemHovered();
-        
         ImGui.End();
 
         // 3. Show the ImGui demo window. Most of the sample code is in ImGui.ShowDemoWindow(). Read its code to learn more about Dear ImGui!
@@ -192,6 +283,71 @@ public partial class HVInnerWindow : IDisposable
             var _showImGuiDemoWindow = false;
             ImGui.ShowDemoWindow(ref _showImGuiDemoWindow);
         }
+    }
+
+    private bool ColoredBg(bool useColor, Func<bool> func)
+    {
+        if (useColor) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
+        var result = func.Invoke();
+        if (useColor) ImGui.PopStyleColor();
+        
+        return result;
+    }
+
+    private void DisplayAsTabs(bool isEyeTrackingMenuBeingViewedThroughHandOverlay, Dictionary<string, HOscItem> oscMessages)
+    {
+        if (ShowFrameCounter)
+        {
+            ImGui.Text($"[frame {frameNumber}, delta {(ImGui.GetIO().DeltaTime * 1000):0}ms]");
+        }
+
+        if (!isEyeTrackingMenuBeingViewedThroughHandOverlay)
+        {
+            ImGui.BeginTabBar("##tabs");
+            _scrollManager.MakeUnscrollableTab(AvatarTabLabel, () =>
+            {
+                ImGui.BeginTabBar("##tabs_menulike");
+                _scrollManager.MakeTab(ShortcutsTabLabel, () => ShortcutsTab(oscMessages));
+                _scrollManager.MakeUnscrollableTab(CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
+                if (ImGui.BeginTabItem(ParametersTabLabel))
+                {
+                    ParametersTab(oscMessages);
+                    ImGui.EndTabItem();
+                }
+
+                _eyeTrackingMenuActiveLastFrame = false;
+                _scrollManager.MakeUnscrollableTab("Eye Tracking", () =>
+                {
+                    _eyeTrackingMenuActiveLastFrame = true;
+                    _eyeTrackingMenu.EyeTrackingMenuTab();
+                });
+                ImGui.EndTabBar();
+            });
+            if (_networkingTabOptional != null) _scrollManager.MakeTab(NetworkingTabLabel, () => _networkingTabOptional.NetworkingTab());
+            _scrollManager.MakeUnscrollableTab(UtilityTabLabel, () => UtilityTab(oscMessages));
+            _scrollManager.MakeUnscrollableTab(OptionsTabLabel, () => OptionsTab(oscMessages));
+            ImGui.EndTabBar();
+        }
+        else
+        {
+            _eyeTrackingMenuActiveLastFrame = true;
+            _eyeTrackingMenu.EyeTrackingMenuTab();
+        }
+
+        _scrollManager.StoreIfAnyItemHovered();
+    }
+
+    private void ParametersTab(Dictionary<string, HOscItem> oscMessages)
+    {
+        ImGui.BeginTabBar("##tabs_parameters");
+        _scrollManager.MakeTab(DefaultTabLabel, () => AvatarTab(oscMessages));
+        _scrollManager.MakeTab(FaceTrackingTabLabel, () => FaceTrackingTab(oscMessages));
+        _scrollManager.MakeTab(InputTabLabel, () => InputTab(oscMessages));
+        _scrollManager.MakeTab(TrackingTabLabel, () => TrackingTab(oscMessages));
+        _scrollManager.MakeTab(ContactsTabLabel, () => ContactsTab(oscMessages));
+        _scrollManager.MakeTab(PhysBonesLabel, () => PhysBonesTab(oscMessages));
+        _scrollManager.MakeTab(MenuTabLabel, () => ExpressionsTab(oscMessages));
+        ImGui.EndTabBar();
     }
 
     public bool UpdateIteration(Stopwatch stopwatch)
@@ -452,12 +608,17 @@ public partial class HVInnerWindow : IDisposable
 
     public void SetIsHandOverlay(bool isHandOverlay)
     {
-        _isBeingViewedThroughHandOverlay = true;
+        _isBeingViewedThroughHandOverlay = isHandOverlay;
     }
 
     private void DoClearColor()
     {
         // This makes the background transparent for the eye tracking menus.
         _cl.ClearColorTarget(0, _transparentClearColor);
+
+        if (_debugTransparency)
+        {
+            _cl.ClearColorTarget(0, new RgbaFloat(1f, 0f, 0f, 1f));
+        }
     }
 }

@@ -5,8 +5,8 @@ namespace Hai.HView.Gui;
 
 public class HVWindow
 {
-    private const int TotalWindowWidth = 600;
-    private const int TotalWindowHeight = 510;
+    private const int TotalWindowWidth = HVOpenVRThread.TotalWindowWidth;
+    private const int TotalWindowHeight = HVOpenVRThread.TotalWindowHeight;
     
     private readonly HVRoutine _routine;
     private readonly Action _whenWindowClosed;

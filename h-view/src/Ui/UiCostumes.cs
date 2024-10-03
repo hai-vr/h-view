@@ -50,7 +50,7 @@ public class UiCostumes
         }
         
         ImGui.BeginTabBar("##tabs_costumes");
-        _scrollManager.MakeTab("Costumes", () => Costumes(uiExternalService, currentAvi));
+        _scrollManager.MakeTab("Select", () => Costumes(uiExternalService, currentAvi));
         _scrollManager.MakeTab("Switch", () => SwitchAvatar(uiExternalService, currentAvi));
         if (uiExternalService.IsLoggedIn) _scrollManager.MakeTab("Login", () => LoginScreen(uiExternalService));
         ImGui.EndTabBar();

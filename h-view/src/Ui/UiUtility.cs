@@ -14,6 +14,16 @@ public partial class HVInnerWindow
         _scrollManager.MakeTab("Keys", () => KeysTab(oscMessages));
         ImGui.EndTabBar();
     }
+    
+    private void OptionsTab(Dictionary<string, HOscItem> oscMessages)
+    {
+        ImGui.SeparatorText("SteamVR");
+        var autoLaunch = _routine.IsAutoLaunch();
+        if (ImGui.Checkbox("Start with SteamVR", ref autoLaunch))
+        {
+            _routine.SetAutoLaunch(autoLaunch);
+        }
+    }
 
     private void KeysTab(Dictionary<string, HOscItem> oscMessages)
     {
@@ -51,14 +61,6 @@ public partial class HVInnerWindow
             ImGui.Button("Turn ON", size2);
             SimplePressEvent(ref id, "/input/Voice");
             ImGui.EndDisabled();
-        }
-        ImGui.Text("");
-        ImGui.Text("");
-        ImGui.SeparatorText("Options");
-        var autoLaunch = _routine.IsAutoLaunch();
-        if (ImGui.Checkbox("Start with SteamVR", ref autoLaunch))
-        {
-            _routine.SetAutoLaunch(autoLaunch);
         }
     }
 

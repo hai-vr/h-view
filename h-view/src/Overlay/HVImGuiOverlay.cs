@@ -32,6 +32,8 @@ public class HVImGuiOverlay : IOverlayable
     private Vector3 _eyePos;
     private Quaternion _eyeGaze;
 
+    public uint LastMouseMoveDeviceIndex { get; private set; }
+
     public HVImGuiOverlay(HVInnerWindow innerWindow, string name, bool isDashboard, float ratio)
     {
         _innerWindow = innerWindow;
@@ -145,6 +147,7 @@ public class HVImGuiOverlay : IOverlayable
             case EVREventType.VREvent_MouseMove:
             {
                 var data = evt.data.mouse;
+                LastMouseMoveDeviceIndex = evt.trackedDeviceIndex;
                 _inputSnapshot.MouseMove(new Vector2(data.x, 1 - data.y));
                 break;
             }
