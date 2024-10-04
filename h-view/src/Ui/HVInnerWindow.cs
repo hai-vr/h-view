@@ -158,6 +158,7 @@ public partial class HVInnerWindow : IDisposable
         Parameters,
         Options,
         Tabs,
+        Thirdparty
     }
 
     private void SubmitUI()
@@ -279,6 +280,11 @@ public partial class HVInnerWindow : IDisposable
                 case HPanel.Tabs:
                 {
                     DisplayAsTabs(isEyeTrackingMenuBeingViewedThroughHandOverlay, oscMessages);
+                    break;
+                }
+                case HPanel.Thirdparty:
+                {
+                    ThirdPartyTab();
                     break;
                 }
                 default:

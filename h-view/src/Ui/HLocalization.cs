@@ -160,12 +160,20 @@ public class HLocalization
 
     private static void INTROSPECT_INVOKE_ALL(Type type)
     {
+        var separatorFound = false;
         foreach (var methodInfo in type.GetMethods()
                      .Where(info => info.ReturnType == typeof(string))
                      .Where(info => info.IsStatic)
                 )
         {
-            methodInfo.Invoke(null, Array.Empty<object>());
+            if (separatorFound)
+            {
+                methodInfo.Invoke(null, Array.Empty<object>());
+            }
+            else
+            {
+                if (methodInfo.Name == $"get_{nameof(HLocalizationPhrase.Separator)}") separatorFound = true;
+            }
         }
     }
 }

@@ -67,5 +67,10 @@
     "label_JoinServerLabel": "サーバーに参加",
     "label_UseSmallFontDesktopLabel": "小さいフォントを使用 (デスクトップ)",
     "label_UseSmallFontVRLabel": "小さいフォントを使用 (VR)",
-    "label_OtherLabel": "その他"
+    "label_OtherLabel": "その他",
+    "label_MsgCreditsHViewInfo": "H-ViewはMIT Licenseの下でオープンソースです。",
+    "label_MsgCreditsHViewMore": "詳細については、https://github.com/hai-vr/h-view をご覧ください。",
+    "label_MsgCreditsFindNearExecutableFile": "以下のテキストは、アプリケーションの実行ファイルと同じフォルダーにあるTHIRDPARTY.mdにも記載されています。",
+    "label_CreditsThirdPartyAcknowledgementsLabel": "サードパーティーの謝辞",
+    "label_ShowThirdPartyAcknowledgementsLabel": "サードパーティーの謝辞を表示"
 }

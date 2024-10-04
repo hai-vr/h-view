@@ -68,5 +68,10 @@
     "label_JoinServerLabel": "Join server",
     "label_UseSmallFontDesktopLabel": "Use small font (Desktop)",
     "label_UseSmallFontVRLabel": "Use small font (VR)",
-    "label_OtherLabel": "Other"
+    "label_OtherLabel": "Other",
+    "label_MsgCreditsHViewInfo": "H-View is open source under the MIT License.",
+    "label_MsgCreditsHViewMore": "For more information, visit: https://github.com/hai-vr/h-view",
+    "label_MsgCreditsFindNearExecutableFile": "You can also find the text below in THIRDPARTY.md, located in the same folder as the executable file of this application.",
+    "label_CreditsThirdPartyAcknowledgementsLabel": "Third party acknowledgements",
+    "label_ShowThirdPartyAcknowledgementsLabel": "Show third party acknowledgements"
 }

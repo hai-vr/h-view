@@ -2,7 +2,7 @@
 
 public class HLocalizationPhrase
 {
-    // Labels
+    // Labels and Messages
     public static string AddressLabel => HLocalization.LocalizeOrElse(nameof(AddressLabel), "Address");
     public static string AvatarIdLabel => HLocalization.LocalizeOrElse(nameof(AvatarIdLabel), "Avatar ID");
     public static string ContactsLabel => HLocalization.LocalizeOrElse(nameof(ContactsLabel), "Contacts");
@@ -38,12 +38,28 @@ public class HLocalizationPhrase
     public static string TypeLabel => HLocalization.LocalizeOrElse(nameof(TypeLabel), "Type");
     public static string UsernameLabel => HLocalization.LocalizeOrElse(nameof(UsernameLabel), "Username");
     public static string ValueLabel => HLocalization.LocalizeOrElse(nameof(ValueLabel), "Value");
+    public static string MsgAskOtherUsersToJoin => HLocalization.LocalizeOrElse(nameof(MsgAskOtherUsersToJoin), "Ask other users to join: {0}");
+    public static string MsgCannotJoinWhenHostingAServer => HLocalization.LocalizeOrElse(nameof(MsgCannotJoinWhenHostingAServer), "Cannot join when hosting a server.");
+    public static string MsgCookieSaveLocation => HLocalization.LocalizeOrElse(nameof(MsgCookieSaveLocation), "Cookies have been saved in %%APPDATA%%/H-View/{0}.");
+    public static string MsgJoinMyLobbyChatMessage => HLocalization.LocalizeOrElse(nameof(MsgJoinMyLobbyChatMessage), "Join my lobby: {0}");
+    public static string MsgLoggedIn => HLocalization.LocalizeOrElse(nameof(MsgLoggedIn), "You are logged in.");
+    public static string MsgLogoutToDeleteTheseCookies => HLocalization.LocalizeOrElse(nameof(MsgLogoutToDeleteTheseCookies), "Logout to delete these cookies.");
+    public static string MsgMultifactorCheckEmails => HLocalization.LocalizeOrElse(nameof(MsgMultifactorCheckEmails), "Check your email for a 2FA code.");
+    public static string MsgNoVrNotLoggedIn => HLocalization.LocalizeOrElse(nameof(MsgNoVrNotLoggedIn), "HaiView is not logged into your VRChat account. To log in, open this tab on the desktop window.");
+    public static string MsgSteamworksAppId => HLocalization.LocalizeOrElse(nameof(MsgSteamworksAppId), "Steamworks will use AppId {0}.");
+    public static string MsgSteamworksPrivacy => HLocalization.LocalizeOrElse(nameof(MsgSteamworksPrivacy), "Privacy: By enabling Steamworks, other users may be able to discover your Steam account.");
     // Adding in 1.6:
     public static string CreateServerLabel => HLocalization.LocalizeOrElse(nameof(CreateServerLabel), "Create server");
     public static string JoinServerLabel => HLocalization.LocalizeOrElse(nameof(JoinServerLabel), "Join server");
     public static string UseSmallFontDesktopLabel => HLocalization.LocalizeOrElse(nameof(UseSmallFontDesktopLabel), "Use small font (Desktop)");
     public static string UseSmallFontVRLabel => HLocalization.LocalizeOrElse(nameof(UseSmallFontVRLabel), "Use small font (VR)");
     public static string OtherLabel => HLocalization.LocalizeOrElse(nameof(OtherLabel), "Other");
+    // Adding in 1.7
+    public static string MsgCreditsHViewInfo => HLocalization.LocalizeOrElse(nameof(MsgCreditsHViewInfo), "H-View is open source under the MIT License.");
+    public static string MsgCreditsHViewMore => HLocalization.LocalizeOrElse(nameof(MsgCreditsHViewMore), "For more information, visit: https://github.com/hai-vr/h-view");
+    public static string MsgCreditsFindNearExecutableFile => HLocalization.LocalizeOrElse(nameof(MsgCreditsFindNearExecutableFile), "You can also find the text below in THIRDPARTY.md, located in the same folder as the executable file of this application.");
+    public static string CreditsThirdPartyAcknowledgementsLabel => HLocalization.LocalizeOrElse(nameof(CreditsThirdPartyAcknowledgementsLabel), "Third party acknowledgements");
+    public static string ShowThirdPartyAcknowledgementsLabel => HLocalization.LocalizeOrElse(nameof(ShowThirdPartyAcknowledgementsLabel), "Show third party acknowledgements");
     
     // Tabs
     public static string AvatarTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(AvatarTabLabel), "Avatar");
@@ -65,19 +81,8 @@ public class HLocalizationPhrase
     public static string TrackingTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(TrackingTabLabel), "Tracking");
     public static string UtilityTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(UtilityTabLabel), "Utility");
     
-    // Messages
-    public static string MsgAskOtherUsersToJoin => HLocalization.LocalizeOrElse(nameof(MsgAskOtherUsersToJoin), "Ask other users to join: {0}");
-    public static string MsgCannotJoinWhenHostingAServer => HLocalization.LocalizeOrElse(nameof(MsgCannotJoinWhenHostingAServer), "Cannot join when hosting a server.");
-    public static string MsgCookieSaveLocation => HLocalization.LocalizeOrElse(nameof(MsgCookieSaveLocation), "Cookies have been saved in %%APPDATA%%/H-View/{0}.");
-    public static string MsgJoinMyLobbyChatMessage => HLocalization.LocalizeOrElse(nameof(MsgJoinMyLobbyChatMessage), "Join my lobby: {0}");
-    public static string MsgLoggedIn => HLocalization.LocalizeOrElse(nameof(MsgLoggedIn), "You are logged in.");
-    public static string MsgLogoutToDeleteTheseCookies => HLocalization.LocalizeOrElse(nameof(MsgLogoutToDeleteTheseCookies), "Logout to delete these cookies.");
-    public static string MsgMultifactorCheckEmails => HLocalization.LocalizeOrElse(nameof(MsgMultifactorCheckEmails), "Check your email for a 2FA code.");
-    public static string MsgNoVrNotLoggedIn => HLocalization.LocalizeOrElse(nameof(MsgNoVrNotLoggedIn), "HaiView is not logged into your VRChat account. To log in, open this tab on the desktop window.");
-    public static string MsgSteamworksAppId => HLocalization.LocalizeOrElse(nameof(MsgSteamworksAppId), "Steamworks will use AppId {0}.");
-    public static string MsgSteamworksPrivacy => HLocalization.LocalizeOrElse(nameof(MsgSteamworksPrivacy), "Privacy: By enabling Steamworks, other users may be able to discover your Steam account.");
-    
-    // -- Staging --
+    // -- Staging -- => HLocalization.LocalizeOrElse(nameof(Object), 
+    public static string Separator => "-----------------------------";
     // - Labels
     // - Tabs
     // - Messages

@@ -5,6 +5,9 @@ namespace Hai.HView;
 public static class HAssets
 {
     private static readonly string _directoryName;
+    
+    // Text
+    public static readonly HAsset ThirdParty = new("THIRDPARTY.md");
 
     // UI
     public static readonly HAsset K14JaFont = new("HAssets/fonts/JF-Dot-K14.ttf"); // https://devforum.play.date/t/japanese-pixel-fonts-with-kanji-support/1807

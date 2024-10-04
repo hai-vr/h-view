@@ -10,7 +10,8 @@ public partial class HVInnerWindow
     private const string LanguagesNonTranslated = "Languages";
     private const string KeysTabLabel = "Keys";
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
-    
+    private string[] _thirdPartyLateInit;
+
     private void UtilityTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTabBar("##tabs_keys");
@@ -37,6 +38,10 @@ public partial class HVInnerWindow
         {
             _config.SaveConfig();
         }
+        if (ImGui.Button(HLocalizationPhrase.ShowThirdPartyAcknowledgementsLabel))
+        {
+            _panel = HPanel.Thirdparty;
+        }
         
         ImGui.Text("");
         ImGui.SeparatorText(LanguagesNonTranslated);
@@ -51,6 +56,26 @@ public partial class HVInnerWindow
                 HLocalization.SwitchLanguage(languageIndex);
             }
         }
+    }
+
+    private void ThirdPartyTab()
+    {
+        _thirdPartyLateInit ??= File.ReadAllText(HAssets.ThirdParty.Absolute()).Split("- ");
+        
+        ImGui.TextWrapped(HLocalizationPhrase.MsgCreditsHViewInfo);
+        ImGui.TextWrapped(HLocalizationPhrase.MsgCreditsHViewMore);
+        
+        ImGui.Text("");
+        ImGui.SeparatorText(HLocalizationPhrase.CreditsThirdPartyAcknowledgementsLabel);
+        ImGui.TextWrapped(HLocalizationPhrase.MsgCreditsFindNearExecutableFile);
+        
+        _scrollManager.MakeScroll(() =>
+        {
+            foreach (var text in _thirdPartyLateInit)
+            {
+                ImGui.TextWrapped("- " + text);
+            }
+        });
     }
 
     private void KeysTab(Dictionary<string, HOscItem> oscMessages)
