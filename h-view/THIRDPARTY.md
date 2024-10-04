@@ -21,13 +21,21 @@ Third party acknowledgements
 
   https://github.com/Facepunch/Facepunch.Steamworks (MIT license)
 
-- **Fredoka** font
+- **Fredoka** font -- Designed by Milena Brandão, Hafontia
 
   https://fonts.google.com/specimen/Fredoka/about (SIL Open Font License)
 
-- **Kiwi Maru** font
+- **Kiwi Maru** font -- Designed by Hiroki-Chan
 
   https://fonts.google.com/specimen/Kiwi+Maru/about (SIL Open Font License)
+
+- **K14** font -- Developed by Hiroshi Tachibana
+
+  https://ja.wikipedia.org/wiki/K14_(フォント) (Public domain)
+
+- **ProggyClean** font -- Developed by Tristan Grimmer
+
+  http://www.proggyfonts.net/ (Embedded according to https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#monospace-fonts )
 
 ---
 

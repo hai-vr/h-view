@@ -63,20 +63,16 @@ internal class HViewProgram
         
         routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworksOptional, fakeVrcOptional, config);
         
-        ovrThreadOptional = isOverlay ? new HVOpenVRThread(routine, registerManifest) : null;
+        ovrThreadOptional = isOverlay ? new HVOpenVRThread(routine, registerManifest, config) : null;
         
-        uiThread = new Thread(() =>
+        uiThread = new Thread(isOverlay ? () =>
         {
-            if (isOverlay)
-            {
-                Console.WriteLine("Starting as a hybrid desktop / VR app.");
-                new HVOvrStarter(ovrThreadOptional, WhenWindowClosed).Run();
-            }
-            else
-            {
-                Console.WriteLine("Starting as a desktop window.");
-                new HVWindow(routine, WhenWindowClosed, simulateWindowlessStyle).Run();
-            }
+            Console.WriteLine("Starting as a hybrid desktop / VR app.");
+            new HVOvrStarter(ovrThreadOptional, WhenWindowClosed).Run();
+        } : () =>
+        {
+            Console.WriteLine("Starting as a desktop window.");
+            new HVWindow(routine, WhenWindowClosed, simulateWindowlessStyle, config).Run();
         })
         {
             CurrentCulture = CultureInfo.InvariantCulture, // We don't want locale-specific numbers

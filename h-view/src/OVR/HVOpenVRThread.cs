@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using Hai.HView.Audio;
 using Hai.HView.Core;
+using Hai.HView.Data;
 using Hai.HView.Gui;
 using Hai.HView.Overlay;
 using Valve.VR;
@@ -25,18 +26,20 @@ public class HVOpenVRThread
     private readonly HVOpenVRManagement _ovr;
     private readonly bool _registerAppManifest;
     private readonly ConcurrentQueue<Action> _queuedForOvr = new ConcurrentQueue<Action>();
+    private readonly SavedData _config;
     private PlaySound _playSound;
 
-    public HVOpenVRThread(HVRoutine routine, bool registerAppManifest)
+    public HVOpenVRThread(HVRoutine routine, bool registerAppManifest, SavedData config)
     {
         _routine = routine;
         _registerAppManifest = registerAppManifest;
+        _config = config;
         _ovr = new HVOpenVRManagement();
     }
 
     public void Run()
     {
-        var desktopWindow = new HVInnerWindow(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight);
+        var desktopWindow = new HVInnerWindow(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config);
         desktopWindow.SetupUi(false);
         
         var ovr = _ovr;
@@ -84,7 +87,7 @@ public class HVOpenVRThread
 
         if (shouldContinue)
         {
-            var innerWindow = new HVInnerWindow(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight);
+            var innerWindow = new HVInnerWindow(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight, _config);
             innerWindow.SetupUi(true);
 
             var windowRatio = VRWindowWidth / (VRWindowHeight * 1f);

@@ -11,6 +11,8 @@ public class SavedData
     private static string Backup => Path.Combine(SaveUtil.GetUserDataFolder(), BackupFilename);
     
     public string locale = "en";
+    public bool useSmallFontDesktop = true;
+    public bool useSmallFontVR = false;
 
     public static SavedData OpenConfig()
     {

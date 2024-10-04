@@ -7,8 +7,8 @@ namespace Hai.HView.Gui;
 
 public partial class HVInnerWindow
 {
-    private const string KeysTabLabel = "Keys";
     private const string LanguagesNonTranslated = "Languages";
+    private const string KeysTabLabel = "Keys";
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     
     private void UtilityTab(Dictionary<string, HOscItem> oscMessages)
@@ -28,7 +28,19 @@ public partial class HVInnerWindow
         }
         
         ImGui.Text("");
+        ImGui.SeparatorText(HLocalizationPhrase.OtherLabel);
+
+        var needsSave = false;
+        if (!_isWindowlessStyle) needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontDesktopLabel, ref _config.useSmallFontDesktop);
+        else needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontVRLabel, ref _config.useSmallFontVR);
+        if (needsSave)
+        {
+            _config.SaveConfig();
+        }
+        
+        ImGui.Text("");
         ImGui.SeparatorText(LanguagesNonTranslated);
+        
         var languages = HLocalization.GetLanguages();
         for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
         {

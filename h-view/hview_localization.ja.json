@@ -62,5 +62,10 @@
     "label_TypeLabel": "タイプ",
     "label_UsernameLabel": "ユーザー名",
     "label_UtilityTabLabel": "ユーティリティ",
-    "label_ValueLabel": "値"
+    "label_ValueLabel": "値",
+    "label_CreateServerLabel": "サーバーを作成",
+    "label_JoinServerLabel": "サーバーに参加",
+    "label_UseSmallFontDesktopLabel": "小さいフォントを使用 (デスクトップ)",
+    "label_UseSmallFontVRLabel": "小さいフォントを使用 (VR)",
+    "label_OtherLabel": "その他"
 }

@@ -1,4 +1,5 @@
 using Hai.HView.Core;
+using Hai.HView.Data;
 using Hai.HView.OVR;
 
 namespace Hai.HView.Gui;
@@ -11,17 +12,19 @@ public class HVWindow
     private readonly HVRoutine _routine;
     private readonly Action _whenWindowClosed;
     private readonly bool _simulateWindowlessStyle;
+    private SavedData _config;
 
-    public HVWindow(HVRoutine routine, Action whenWindowClosed, bool simulateWindowlessStyle)
+    public HVWindow(HVRoutine routine, Action whenWindowClosed, bool simulateWindowlessStyle, SavedData config)
     {
         _routine = routine;
         _whenWindowClosed = whenWindowClosed;
         _simulateWindowlessStyle = simulateWindowlessStyle;
+        _config = config;
     }
 
     public void Run()
     {
-        new HVInnerWindow(_routine, _simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight).UiLoop(); // This call blocks until the user closes the window.
+        new HVInnerWindow(_routine, _simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config).UiLoop(); // This call blocks until the user closes the window.
         _whenWindowClosed();
     }
 }

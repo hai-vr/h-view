@@ -80,6 +80,9 @@
       <None Update="HAssets\fonts\KiwiMaru-Medium.ttf">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="HAssets\fonts\JF-Dot-K14.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
       <None Update="hview_localization.en.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

@@ -38,6 +38,12 @@ public class HLocalizationPhrase
     public static string TypeLabel => HLocalization.LocalizeOrElse(nameof(TypeLabel), "Type");
     public static string UsernameLabel => HLocalization.LocalizeOrElse(nameof(UsernameLabel), "Username");
     public static string ValueLabel => HLocalization.LocalizeOrElse(nameof(ValueLabel), "Value");
+    // Adding in 1.6:
+    public static string CreateServerLabel => HLocalization.LocalizeOrElse(nameof(CreateServerLabel), "Create server");
+    public static string JoinServerLabel => HLocalization.LocalizeOrElse(nameof(JoinServerLabel), "Join server");
+    public static string UseSmallFontDesktopLabel => HLocalization.LocalizeOrElse(nameof(UseSmallFontDesktopLabel), "Use small font (Desktop)");
+    public static string UseSmallFontVRLabel => HLocalization.LocalizeOrElse(nameof(UseSmallFontVRLabel), "Use small font (VR)");
+    public static string OtherLabel => HLocalization.LocalizeOrElse(nameof(OtherLabel), "Other");
     
     // Tabs
     public static string AvatarTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(AvatarTabLabel), "Avatar");

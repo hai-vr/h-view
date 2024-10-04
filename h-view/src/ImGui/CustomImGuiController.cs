@@ -49,6 +49,7 @@ namespace ImGuiNET
         private int _lastAssignedID = 100;
         private readonly IntPtr _context;
         public ImFontPtr MainFont;
+        public ImFontPtr SmallFont;
 
         /// <summary>
         /// Constructs a new ImGuiController.
@@ -80,6 +81,14 @@ namespace ImGuiNET
             unsafe
             {
                 io.Fonts.AddFontDefault();
+                
+                ImFontConfigPtr configMergePixel = ImGuiNative.ImFontConfig_ImFontConfig();
+                configMergePixel.MergeMode = true;
+                configMergePixel.OversampleH = 4; // FIXME: How to correctly load pixel perfect fonts?
+                configMergePixel.OversampleV = 4;
+                io.Fonts.AddFontFromFileTTF(HAssets.K14JaFont.Absolute(), 14, configMergePixel, io.Fonts.GetGlyphRangesJapanese());
+                
+                //
                 var sizePixels = 24f;
                 ImFontConfigPtr configNoMerge = ImGuiNative.ImFontConfig_ImFontConfig();
                 configNoMerge.OversampleH = 2;

@@ -63,5 +63,10 @@
     "label_TypeLabel": "Type",
     "label_UsernameLabel": "Username",
     "label_UtilityTabLabel": "Utility",
-    "label_ValueLabel": "Value"
+    "label_ValueLabel": "Value",
+    "label_CreateServerLabel": "Create server",
+    "label_JoinServerLabel": "Join server",
+    "label_UseSmallFontDesktopLabel": "Use small font (Desktop)",
+    "label_UseSmallFontVRLabel": "Use small font (VR)",
+    "label_OtherLabel": "Other"
 }

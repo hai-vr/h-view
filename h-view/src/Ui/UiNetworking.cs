@@ -41,7 +41,7 @@ public class UiNetworking
 
     private void IfEnabled()
     {
-        ImGui.SeparatorText("Create server");
+        ImGui.SeparatorText(HLocalizationPhrase.CreateServerLabel);
         ImGui.BeginDisabled(_steamworks.LobbyEnabled);
         if (ImGui.Button(HLocalizationPhrase.StartServerLabel))
         {
@@ -66,7 +66,7 @@ public class UiNetworking
             }
         }
         
-        ImGui.SeparatorText("Join server");
+        ImGui.SeparatorText(HLocalizationPhrase.JoinServerLabel);
         if (!_steamworks.LobbyEnabled)
         {
             DisplayCode(_joinCode);

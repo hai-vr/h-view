@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Numerics;
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.Core;
+using Hai.HView.Data;
 using Hai.HView.Gui.Tab;
 using Hai.HView.OSC;
 using Hai.HView.Ui;
@@ -66,6 +67,7 @@ public partial class HVInnerWindow : IDisposable
     private readonly UiEyeTrackingMenu _eyeTrackingMenu;
     private readonly int _windowWidth;
     private readonly int _windowHeight;
+    private readonly SavedData _config;
     private readonly int _trimWidth;
     private readonly int _trimHeight;
     
@@ -75,7 +77,7 @@ public partial class HVInnerWindow : IDisposable
     private bool _debugTransparency;
     private string _hovered;
 
-    public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight)
+    public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config)
     {
         _routine = routine;
         _isWindowlessStyle = isWindowlessStyle;
@@ -83,6 +85,7 @@ public partial class HVInnerWindow : IDisposable
 
         _windowWidth = windowWidth;
         _windowHeight = windowHeight;
+        _config = config;
         _trimWidth = (windowWidth - innerWidth) / 2;
         _trimHeight = (windowHeight - innerHeight) / 2;
 
@@ -159,7 +162,9 @@ public partial class HVInnerWindow : IDisposable
 
     private void SubmitUI()
     {
-        ImGui.PushFont(_controller.MainFont);
+        var smallFont = _isWindowlessStyle ? _config.useSmallFontVR : _config.useSmallFontDesktop;
+
+        ImGui.PushFont(smallFont ? _controller.SmallFont : _controller.MainFont);
         while (_queuedForUi.TryDequeue(out var action))
         {
             action.Invoke();
@@ -193,7 +198,7 @@ public partial class HVInnerWindow : IDisposable
             ShowSidebarButton(buttonSize, HLocalizationPhrase.TabsTabLabel, HPanel.Tabs);
             
             var languages = HLocalization.GetLanguages();
-            var desiredY = ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * (3 + languages.Count);
+            var desiredY = ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 2f - (buttonSize.Y + 6) * languages.Count;
             if (ImGui.GetCursorPosY() < desiredY) // Only show the language selector if we have room for it
             {
                 ImGui.SetCursorPosY(desiredY);
@@ -289,7 +294,6 @@ public partial class HVInnerWindow : IDisposable
         }
 
         ImGui.End();
-        // ImGui.PopFont();
         ImGui.PopFont();
 
         // 3. Show the ImGui demo window. Most of the sample code is in ImGui.ShowDemoWindow(). Read its code to learn more about Dear ImGui!

@@ -7,6 +7,7 @@ public static class HAssets
     private static readonly string _directoryName;
 
     // UI
+    public static readonly HAsset K14JaFont = new("HAssets/fonts/JF-Dot-K14.ttf"); // https://devforum.play.date/t/japanese-pixel-fonts-with-kanji-support/1807
     public static readonly HAsset FredokaEnFont = new("HAssets/fonts/Fredoka-Regular.ttf");
     public static readonly HAsset KiwiMaruJaFont = new("HAssets/fonts/KiwiMaru-Medium.ttf");
     public static readonly HAsset ClickAudio = new("HAssets/audio/click.wav");
