@@ -1,7 +1,7 @@
 {
   "name": "dev.hai-vr.app.h-view",
   "displayName": "Haï ~ App - H-View",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "unity": "2019.4",
   "description": "(Contains .exe) H-View https://docs.hai-vr.dev/docs/products/h-view",
   "vrchatVersion" : "2022.1.1",
