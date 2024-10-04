@@ -47,7 +47,11 @@ public class UiHardware
             _config.SaveConfig();
         }
         ImGui.SameLine();
-        ImGui.Checkbox(HLocalizationPhrase.EditNamesLabel, ref _editNames);
+        if (ImGui.Checkbox(HLocalizationPhrase.EditNamesLabel, ref _editNames))
+        {
+            // Only save when unchecking
+            if (!_editNames) _config.SaveConfig();
+        }
     }
     
     private void TrackersWindow()
@@ -75,7 +79,6 @@ public class UiHardware
         ImGui.TableSetupColumn(HLocalizationPhrase.StatusLabel, ImGuiTableColumnFlags.WidthFixed, ImGui.CalcTextSize("Calibrating_OutOfRange").X + 10);
         ImGui.TableHeadersRow();
         var preferredOrder = hardwareTrackers;
-        var anyChanged = false;
         var now = DateTime.Now;
         foreach (var hardware in preferredOrder)
         {
@@ -120,11 +123,12 @@ public class UiHardware
                 var name = found ? (preference.name == hardware.SerialNumber && hardware.DeviceClass == ETrackedDeviceClass.Controller ? $"{hardware.ControllerRole}" : preference.name) : "";
                 if (_editNames && found)
                 {
-                    anyChanged = ImGui.InputText($"##edit{hardware.SerialNumber}", ref options.ovrSerialToPreference[hardware.SerialNumber].name, 10_000);
+                    ImGui.InputText($"##edit{hardware.SerialNumber}", ref options.ovrSerialToPreference[hardware.SerialNumber].name, 10_000);
                     ItemHovered(hardware, color);
                     ImGui.SameLine();
                     if (_inner.HapticButton($"{HLocalizationPhrase.OkLabel}##ok{hardware.SerialNumber}"))
                     {
+                        _config.SaveConfig();
                         _editNames = false;
                     }
                 }
@@ -165,10 +169,6 @@ public class UiHardware
                 ImGui.Text($"{(hardware.Exists ? debugTrackingResult == 0 ? "" : debugTrackingResult : $"<{HLocalizationPhrase.NotConnectedLabel}>")}");
                 ImGui.PopStyleColor();
             }
-        }
-        if (anyChanged)
-        {
-            options.SaveConfig();
         }
         ImGui.EndTable();
     }
