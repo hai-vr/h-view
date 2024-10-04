@@ -65,6 +65,7 @@ public partial class HVInnerWindow : IDisposable
     private readonly UiCostumes _costumesTab;
     private readonly UiNetworking _networkingTabOptional;
     private readonly UiEyeTrackingMenu _eyeTrackingMenu;
+    private readonly UiHardware _hardwareTab;
     private readonly int _windowWidth;
     private readonly int _windowHeight;
     private readonly SavedData _config;
@@ -92,6 +93,7 @@ public partial class HVInnerWindow : IDisposable
         _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle);
         _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
         _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle);
+        _hardwareTab = new UiHardware(this, _routine, _config);
     }
 
     public void Dispose()
@@ -156,6 +158,7 @@ public partial class HVInnerWindow : IDisposable
         Costumes,
         Networking,
         Parameters,
+        Hardware,
         Options,
         Tabs,
         Thirdparty
@@ -163,6 +166,9 @@ public partial class HVInnerWindow : IDisposable
 
     private void SubmitUI()
     {
+        var sw = new Stopwatch();
+        sw.Start();
+        
         var smallFont = _isWindowlessStyle ? _config.useSmallFontVR : _config.useSmallFontDesktop;
 
         ImGui.PushFont(smallFont ? _controller.SmallFont : _controller.MainFont);
@@ -195,6 +201,7 @@ public partial class HVInnerWindow : IDisposable
             ShowSidebarButton(buttonSize, HLocalizationPhrase.CostumesTabLabel, HPanel.Costumes);
             if (_networkingTabOptional != null) ShowSidebarButton(buttonSize, HLocalizationPhrase.NetworkingTabLabel, HPanel.Networking);
             ShowSidebarButton(buttonSize, HLocalizationPhrase.ParametersTabLabel, HPanel.Parameters);
+            if (ConditionalCompilation.IncludesOpenVR) ShowSidebarButton(buttonSize, HLocalizationPhrase.HardwareTabLabel, HPanel.Hardware);
             ShowSidebarButton(buttonSize, HLocalizationPhrase.OptionsTabLabel, HPanel.Options);
             ShowSidebarButton(buttonSize, HLocalizationPhrase.TabsTabLabel, HPanel.Tabs);
             
@@ -270,6 +277,11 @@ public partial class HVInnerWindow : IDisposable
                 case HPanel.Parameters:
                 {
                     _scrollManager.MakeScroll(() => ParametersTab(oscMessages));
+                    break;
+                }
+                case HPanel.Hardware:
+                {
+                    _scrollManager.MakeScroll(() => _hardwareTab.HardwareTab());
                     break;
                 }
                 case HPanel.Options:
@@ -358,6 +370,7 @@ public partial class HVInnerWindow : IDisposable
             });
             if (_networkingTabOptional != null) _scrollManager.MakeTab(HLocalizationPhrase.NetworkingTabLabel, () => _networkingTabOptional.NetworkingTab());
             _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.UtilityTabLabel, () => UtilityTab(oscMessages));
+            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.HardwareTabLabel, () => _hardwareTab.HardwareTab());
             _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.OptionsTabLabel, () => OptionsTab(oscMessages));
             ImGui.EndTabBar();
         }

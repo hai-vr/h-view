@@ -72,5 +72,22 @@
     "label_MsgCreditsHViewMore": "詳細については、https://github.com/hai-vr/h-view をご覧ください。",
     "label_MsgCreditsFindNearExecutableFile": "以下のテキストは、アプリケーションの実行ファイルと同じフォルダーにあるTHIRDPARTY.mdにも記載されています。",
     "label_CreditsThirdPartyAcknowledgementsLabel": "サードパーティーの謝辞",
-    "label_ShowThirdPartyAcknowledgementsLabel": "サードパーティーの謝辞を表示"
+    "label_ShowThirdPartyAcknowledgementsLabel": "サードパーティーの謝辞を表示",
+    "label_HardwareTabLabel": "ハードウェア",
+    "label_BatteryLabel": "バッテリー",
+    "label_CopySerialNumberLabel": "シリアル番号をコピー",
+    "label_DeviceClassLabel": "デバイスクラス",
+    "label_DistanceToClosestDeviceLabel": "最も近いデバイスとの距離",
+    "label_EditNamesLabel": "名前を編集",
+    "label_ManufacturerLabel": "メーカー",
+    "label_ModelNumberLabel": "モデル番号",
+    "label_NameLabel": "名前",
+    "label_NotConnectedLabel": "未接続",
+    "label_OkLabel": "OK",
+    "label_RenameLabel": "名前を変更",
+    "label_RoleLabel": "ロール",
+    "label_SensorLabel": "センサー",
+    "label_SerialLabel": "シリアル",
+    "label_ShowLighthousesLabel": "Lighthousesを表示",
+    "label_ShowSerialLabel": "シリアルを表示"
 }

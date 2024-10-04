@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using Hai.HView.Hardware;
 using Hai.ExternalExpressionsMenu;
 using Hai.HNetworking.Steamworks;
 using Hai.HView.Data;
@@ -27,6 +28,7 @@ public class HVRoutine
     private readonly FakeVRCOSC _fakeVrcOptional;
     private readonly SavedData _config;
     private readonly HOsc _osc;
+    private readonly HHardwareRoutine _hardwareRouting;
     
     private readonly Regex _avoidPathTraversalInAvtrPipelineName = new Regex(@"^avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
@@ -44,6 +46,9 @@ public class HVRoutine
     
     private EyeTrackingData _eyeTracking;
     public EyeTrackingData EyeTracking => _eyeTracking;
+    
+    private Stopwatch _lastHardwareRequired = new Stopwatch();
+    private bool _hardwareRequiredAtLeastOnce;
 
     public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional, FakeVRCOSC fakeVrcOptional, SavedData config)
     {
@@ -54,6 +59,9 @@ public class HVRoutine
         _steamworksOptional = steamworksOptional;
         _fakeVrcOptional = fakeVrcOptional;
         _config = config;
+
+        _hardwareRouting = new HHardwareRoutine(_config);
+        _lastHardwareRequired.Start();
     }
 
     public void Start()
@@ -163,6 +171,20 @@ public class HVRoutine
         _externalService.ProcessTaskCompletion();
         
         _steamworksOptional?.Update();
+    }
+
+    public void HardwareUpdateIfNecessary()
+    {
+        if (_hardwareRequiredAtLeastOnce && _lastHardwareRequired.ElapsedMilliseconds < 1000)
+        {
+            _hardwareRouting.UpdateHardwareTrackers();
+        }
+    }
+
+    public void RequireHardware()
+    {
+        _hardwareRequiredAtLeastOnce = true;
+        _lastHardwareRequired.Restart();
     }
 
     private void ProcessQueryEvents(List<object> queryMessages)
@@ -419,6 +441,11 @@ public class HVRoutine
     {
         _config.locale = code;
         _config.SaveConfig();
+    }
+
+    public UiHardwareResponse UiHardware()
+    {
+        return _hardwareRouting.UiHardware();
     }
 }
 

@@ -60,6 +60,22 @@ public class HLocalizationPhrase
     public static string MsgCreditsFindNearExecutableFile => HLocalization.LocalizeOrElse(nameof(MsgCreditsFindNearExecutableFile), "You can also find the text below in THIRDPARTY.md, located in the same folder as the executable file of this application.");
     public static string CreditsThirdPartyAcknowledgementsLabel => HLocalization.LocalizeOrElse(nameof(CreditsThirdPartyAcknowledgementsLabel), "Third party acknowledgements");
     public static string ShowThirdPartyAcknowledgementsLabel => HLocalization.LocalizeOrElse(nameof(ShowThirdPartyAcknowledgementsLabel), "Show third party acknowledgements");
+    public static string BatteryLabel => HLocalization.LocalizeOrElse(nameof(BatteryLabel), "Battery");
+    public static string CopySerialNumberLabel => HLocalization.LocalizeOrElse(nameof(CopySerialNumberLabel), "Copy serial number");
+    public static string DeviceClassLabel => HLocalization.LocalizeOrElse(nameof(DeviceClassLabel), "Device Class");
+    public static string DistanceToClosestDeviceLabel => HLocalization.LocalizeOrElse(nameof(DistanceToClosestDeviceLabel), "Distance to closest device");
+    public static string EditNamesLabel => HLocalization.LocalizeOrElse(nameof(EditNamesLabel), "Edit names");
+    public static string ManufacturerLabel => HLocalization.LocalizeOrElse(nameof(ManufacturerLabel), "Manufacturer");
+    public static string ModelNumberLabel => HLocalization.LocalizeOrElse(nameof(ModelNumberLabel), "Model number");
+    public static string NameLabel => HLocalization.LocalizeOrElse(nameof(NameLabel), "Name");
+    public static string NotConnectedLabel => HLocalization.LocalizeOrElse(nameof(NotConnectedLabel), "Not connected");
+    public static string OkLabel => HLocalization.LocalizeOrElse(nameof(OkLabel), "OK");
+    public static string RenameLabel => HLocalization.LocalizeOrElse(nameof(RenameLabel), "Rename");
+    public static string RoleLabel => HLocalization.LocalizeOrElse(nameof(RoleLabel), "Role");
+    public static string SensorLabel => HLocalization.LocalizeOrElse(nameof(SensorLabel), "Sensor");
+    public static string SerialLabel => HLocalization.LocalizeOrElse(nameof(SerialLabel), "Serial");
+    public static string ShowLighthousesLabel => HLocalization.LocalizeOrElse(nameof(ShowLighthousesLabel), "Show Lighthouses");
+    public static string ShowSerialLabel => HLocalization.LocalizeOrElse(nameof(ShowSerialLabel), "Show Serial");
     
     // Tabs
     public static string AvatarTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(AvatarTabLabel), "Avatar");
@@ -80,6 +96,8 @@ public class HLocalizationPhrase
     public static string TabsTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(TabsTabLabel), "Tabs");
     public static string TrackingTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(TrackingTabLabel), "Tracking");
     public static string UtilityTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(UtilityTabLabel), "Utility");
+    // Adding in 1.7
+    public static string HardwareTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(HardwareTabLabel), "Hardware");
     
     // -- Staging -- => HLocalization.LocalizeOrElse(nameof(Object), 
     public static string Separator => "-----------------------------";

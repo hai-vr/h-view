@@ -160,6 +160,7 @@ public class HVOpenVRThread
                 }
 
                 var poseData = ovr.PoseData();
+                _routine.HardwareUpdateIfNecessary();
                 
                 foreach (var overlayable in overlayables) overlayable.ProvidePoseData(poseData);
             

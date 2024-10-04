@@ -3,6 +3,14 @@ using Newtonsoft.Json;
 
 namespace Hai.HView.Data;
 
+public class HOpenVrHardwarePreference
+{
+    public int positionX;
+    public int positionY;
+    public string name = "";
+    public bool includeInHapticsMeasurements = true;
+}
+
 public class SavedData
 {
     private const string MainFilename = "user_config.json";
@@ -13,6 +21,10 @@ public class SavedData
     public string locale = "en";
     public bool useSmallFontDesktop = true;
     public bool useSmallFontVR = false;
+    public Dictionary<string, HOpenVrHardwarePreference> ovrSerialToPreference = new();
+    
+    public bool showLighthouses;
+    public bool showSerial;
 
     public static SavedData OpenConfig()
     {
