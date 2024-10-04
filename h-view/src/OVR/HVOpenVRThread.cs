@@ -76,7 +76,7 @@ public class HVOpenVRThread
                 var isApplicationInstalled = OpenVR.Applications.IsApplicationInstalled(VrManifestAppKey);
                 if (!isApplicationInstalled)
                 {
-                    OpenVR.Applications.AddApplicationManifest(Path.GetFullPath("manifest.vrmanifest"), false);
+                    OpenVR.Applications.AddApplicationManifest(HAssets.ApplicationManifest.Absolute(), false);
                 }
             }
             _routine.InitializeAutoLaunch(OpenVR.Applications.GetApplicationAutoLaunch(VrManifestAppKey));
@@ -101,7 +101,7 @@ public class HVOpenVRThread
                 _queuedForOvr.Enqueue(() =>
                 {
                     OpenVR.System.TriggerHapticPulse(dashboard.LastMouseMoveDeviceIndex, 0, 50_000);
-                    _playSound ??= new PlaySound(HAssets.AudioClick);
+                    _playSound ??= new PlaySound(HAssets.ClickAudio.Absolute());
                     _playSound.Play();
                 });
             };

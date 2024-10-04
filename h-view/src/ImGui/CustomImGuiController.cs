@@ -84,12 +84,12 @@ namespace ImGuiNET
                 ImFontConfigPtr configNoMerge = ImGuiNative.ImFontConfig_ImFontConfig();
                 configNoMerge.OversampleH = 2;
                 configNoMerge.OversampleV = 2;
-                MainFont = io.Fonts.AddFontFromFileTTF(HAssets.ENFont, sizePixels, configNoMerge, io.Fonts.GetGlyphRangesDefault());
+                MainFont = io.Fonts.AddFontFromFileTTF(HAssets.FredokaEnFont.Absolute(), sizePixels, configNoMerge, io.Fonts.GetGlyphRangesDefault());
                 ImFontConfigPtr configMerge = ImGuiNative.ImFontConfig_ImFontConfig();
                 configMerge.OversampleH = 2;
                 configMerge.OversampleV = 2;
                 configMerge.MergeMode = true;
-                io.Fonts.AddFontFromFileTTF(HAssets.JAFont, sizePixels, configMerge, io.Fonts.GetGlyphRangesJapanese());
+                io.Fonts.AddFontFromFileTTF(HAssets.KiwiMaruJaFont.Absolute(), sizePixels, configMerge, io.Fonts.GetGlyphRangesJapanese());
             }
         }
 

@@ -7,7 +7,6 @@ namespace Hai.HView.Overlay;
 
 public class HVOpenVRManagement
 {
-    private const string ActionManifestFileName = "h_view_actions.json";
     public static readonly uint SizeOfVrEvent = (uint)Marshal.SizeOf(typeof(VREvent_t));
     private static readonly uint SizeOfActionSet = (uint)Marshal.SizeOf(typeof(VRActiveActionSet_t));
 
@@ -59,10 +58,10 @@ public class HVOpenVRManagement
         var isStarted = err == EVRInitError.None;
         if (isStarted)
         {
-            var actionManifestPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ActionManifestFileName);
+            var actionManifestPath = HAssets.ActionManifest.Absolute();
             if (!File.Exists(actionManifestPath))
             {
-                Console.WriteLine($"{ActionManifestFileName} does not exist.");
+                Console.WriteLine($"{HAssets.ActionManifest.Relative()} does not exist.");
             }
             OpenVR.Input.SetActionManifestPath(actionManifestPath);
             

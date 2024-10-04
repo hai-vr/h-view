@@ -66,4 +66,4 @@ If the project is compiled with `INCLUDE_STEAMWORKS` (only on Debug and ReleaseS
 This is used to build my own application for distribution through Steam. See [Steamworks API](https://partner.steamgames.com/doc/sdk/api).
 
 ---
-<img src="https://raw.githubusercontent.com/hai-vr/h-view/refs/heads/main/h-view/DashboardThumb.png" width="128" height="128" alt="Logo" />
+<img src="https://raw.githubusercontent.com/hai-vr/h-view/refs/heads/main/h-view/HAssets/img/DashboardThumb.png" width="128" height="128" alt="Logo" />

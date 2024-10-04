@@ -68,25 +68,10 @@
       <None Update="THIRDPARTY.md">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="DashboardThumb.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="manifest.vrmanifest">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="h_view_actions.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="EyeTrackingCursor.png">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
       <None Update="avtr_00000000-bc83-4caa-b77f-000000000000.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="avtr_00000000-3537-42c2-a668-000000000000.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="HAssets\click.wav">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="HAssets\fonts\Fredoka-Regular.ttf">
@@ -99,6 +84,21 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="hview_localization.ja.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="HAssets\img\DashboardThumb.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HAssets\img\EyeTrackingCursor.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HAssets\openvr\h_view_actions.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="HAssets\openvr\manifest.vrmanifest">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="HAssets\audio\click.wav">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

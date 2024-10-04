@@ -11,7 +11,7 @@ public class HEyeTrackingOverlay : IOverlayable
     private readonly HVImGuiOverlay _dashboard;
     private HHandOverlay _handOverlayNullable;
     private const string Name = "eyetracking";
-    
+
     private ulong _handle;
     private HVPoseData _poseData;
     
@@ -31,7 +31,7 @@ public class HEyeTrackingOverlay : IOverlayable
     public void Start()
     {
         OpenVR.Overlay.CreateOverlay($"{HVImGuiOverlay.OverlayKey}-{Name}", HVApp.AppTitle, ref _handle);
-        OpenVR.Overlay.SetOverlayFromFile(_handle, Path.GetFullPath("EyeTrackingCursor.png"));
+        OpenVR.Overlay.SetOverlayFromFile(_handle, HAssets.EyeTrackingCursor.Absolute());
         OpenVR.Overlay.SetOverlayAlpha(_handle, 1f);
         OpenVR.Overlay.SetOverlayColor(_handle, 1f, 1f, 1f);
         OpenVR.Overlay.SetOverlayWidthInMeters(_handle, 0.05f);

@@ -47,7 +47,7 @@ public class HVImGuiOverlay : IOverlayable
         if (_isDashboard)
         {
             OpenVR.Overlay.CreateDashboardOverlay($"{DashboardKey}-{_name}", HVApp.AppTitle, ref _handle, ref _thumbHandle);
-            OpenVR.Overlay.SetOverlayFromFile(_thumbHandle, Path.GetFullPath("DashboardThumb.png"));
+            OpenVR.Overlay.SetOverlayFromFile(_thumbHandle, HAssets.DashboardThumbnail.Absolute());
         }
         else
         {
