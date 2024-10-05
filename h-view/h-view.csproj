@@ -95,10 +95,10 @@
       <None Update="HAssets\img\EyeTrackingCursor.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="HAssets\openvr\h_view_actions.json">
+      <None Update="h_view_actions.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="HAssets\openvr\manifest.vrmanifest">
+      <None Update="manifest.vrmanifest">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="HAssets\audio\click.wav">

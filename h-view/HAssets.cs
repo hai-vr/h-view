@@ -16,8 +16,11 @@ public static class HAssets
     public static readonly HAsset ClickAudio = new("HAssets/audio/click.wav");
     
     // OpenVR
-    public static readonly HAsset ApplicationManifest = new("HAssets/openvr/manifest.vrmanifest");
-    public static readonly HAsset ActionManifest = new("HAssets/openvr/h_view_actions.json");
+    // 2024-10: I was not able to make the Action manifest work when placed in HAssets/openvr/, so I put both
+    // the Application manifest and Action manifest files at the root. Maybe this could be revisited at a later time.
+    // Putting the asset at another location would switch the bindings to legacy mode.
+    public static readonly HAsset ApplicationManifest = new("manifest.vrmanifest");
+    public static readonly HAsset ActionManifest = new("h_view_actions.json");
     
     // Overlays
     public static readonly HAsset DashboardThumbnail = new("HAssets/img/DashboardThumb.png"); // Also used in README
