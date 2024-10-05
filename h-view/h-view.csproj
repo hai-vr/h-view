@@ -104,6 +104,42 @@
       <None Update="HAssets\audio\click.wav">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="HThirdParty\README.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\thirdparty-lookup.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\AESIMPLEOSC-LYUMA-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\IMGUI-OCORNUT-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\IMGUINET-IMGUINET-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\IMGUINETSAMPLEPROGRAM-IMGUINET-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\NEWTONSOFTJSON-JAMESNK-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\OPENVR-VALVE-BSD3.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\STEAMWORKS-FACEPUNCH-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\TEMPLATE-SILOFL.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\VELDRID-VELDRID-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\VRCOSCQUERYLIB-VRCHAT-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>

@@ -12,12 +12,17 @@ public static class UiUtil
         OpenUrl(string.Format(VRCAvatarUrlFormat, avatarIdStr));
     }
 
+    public static void OpenProjectUrl(string projectUrl)
+    {
+        OpenUrl(projectUrl);
+    }
+
     // https://stackoverflow.com/a/43232486
     private static void OpenUrl(string url)
     {
         // SECURITY: We really want to avoid opening any user-provided URL here,
         // as we're starting a process to open this URL.
-        if (!url.StartsWith("https://")) return;
+        if (!(url.StartsWith("https://") || url.StartsWith("http://"))) return;
 
         DANGER_StartUrl(url);
     }

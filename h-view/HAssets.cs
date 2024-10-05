@@ -8,6 +8,7 @@ public static class HAssets
     
     // Text
     public static readonly HAsset ThirdParty = new("THIRDPARTY.md");
+    public static readonly HAsset ThirdPartyLookup = new("HThirdParty/thirdparty-lookup.json");
 
     // UI
     public static readonly HAsset K14JaFont = new("HAssets/fonts/JF-Dot-K14.ttf"); // https://devforum.play.date/t/japanese-pixel-fonts-with-kanji-support/1807
@@ -35,6 +36,11 @@ public static class HAssets
     public static string MakeAbsoluteToApplicationPath(string relativeAssetPath)
     {
         return Path.Combine(_directoryName, relativeAssetPath);
+    }
+
+    public static HAsset HThirdPartyLicense(string fullLicenseTextFile)
+    {
+        return new HAsset($"HThirdParty/THIRDPARTY-LICENSES/{fullLicenseTextFile}");
     }
 }
 

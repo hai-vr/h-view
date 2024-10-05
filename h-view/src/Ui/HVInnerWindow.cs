@@ -66,6 +66,7 @@ public partial class HVInnerWindow : IDisposable
     private readonly UiNetworking _networkingTabOptional;
     private readonly UiEyeTrackingMenu _eyeTrackingMenu;
     private readonly UiHardware _hardwareTab;
+    private readonly UiOptions _optionsTab;
     private readonly int _windowWidth;
     private readonly int _windowHeight;
     private readonly SavedData _config;
@@ -94,6 +95,7 @@ public partial class HVInnerWindow : IDisposable
         _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
         _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle);
         _hardwareTab = new UiHardware(this, _routine, _config);
+        _optionsTab = new UiOptions(this, _routine, _config, _isWindowlessStyle, _scrollManager);
     }
 
     public void Dispose()
@@ -152,7 +154,7 @@ public partial class HVInnerWindow : IDisposable
         }
     }
 
-    private enum HPanel
+    public enum HPanel
     {
         Shortcuts,
         Costumes,
@@ -666,5 +668,10 @@ public partial class HVInnerWindow : IDisposable
         {
             _cl.ClearColorTarget(0, new RgbaFloat(1f, 0f, 0f, 1f));
         }
+    }
+
+    public void SwitchPanel(HPanel newPanel)
+    {
+        _panel = newPanel;
     }
 }

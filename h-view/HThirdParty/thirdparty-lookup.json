@@ -1,0 +1,211 @@
+{
+    "kinds": [
+        {
+            "tag": "Source-Included",
+            "description": "Source code of that dependency is included as part of the source code of this project."
+        },
+        {
+            "tag": "Direct-Dependency-Invocation",
+            "description": "That dependency is included through a package manager, and directly invoked by the source code of this project."
+        },
+        {
+            "tag": "Indirect-Dependency-Invocation",
+            "description": "That dependency is included as a dependency of another dependency, and directly invoked by the source code of this project."
+        },
+        {
+            "tag": "Binary-DLL-Included",
+            "description": "A binary DLL of that dependency is included as part of the source code of this project."
+        },
+        {
+            "tag": "Asset-Included",
+            "description": "An asset of that dependency is included as part of the source code of this project."
+        }
+    ],
+    "entries": [
+        {
+            "projectName": "A3ESimpleOSC for C#, version 0.1",
+            "attributedTo": "Lyuma",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/lyuma/Av3Emulator/blob/master/Runtime/Scripts/A3ESimpleOSC.cs",
+            "projectUrl": "https://github.com/lyuma/Av3Emulator/blob/master/Runtime/Scripts/A3ESimpleOSC.cs",
+            "kind": [
+                "Source-Included"
+            ],
+            "fullLicenseTextFile": "AESIMPLEOSC-LYUMA-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "Dear ImGui",
+            "attributedTo": "Omar Cornut",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/ocornut/imgui/blob/master/LICENSE.txt",
+            "projectUrl": "https://github.com/ocornut/imgui",
+            "kind": [
+                "Indirect-Dependency-Invocation"
+            ],
+            "fullLicenseTextFile": "IMGUI-OCORNUT-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "ImGui.NET",
+            "attributedTo": "Eric Mellino and ImGui.NET contributors",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/ImGuiNET/ImGui.NET/blob/master/LICENSE",
+            "projectUrl": "https://github.com/ImGuiNET/ImGui.NET",
+            "kind": [
+                "Direct-Dependency-Invocation"
+            ],
+            "fullLicenseTextFile": "IMGUINET-IMGUINET-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "ImGui.NET SampleProgram",
+            "attributedTo": "Eric Mellino and ImGui.NET contributors",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/ImGuiNET/ImGui.NET/blob/master/LICENSE",
+            "projectUrl": "https://github.com/ImGuiNET/ImGui.NET/tree/master/src/ImGui.NET.SampleProgram",
+            "kind": [
+                "Source-Included"
+            ],
+            "fullLicenseTextFile": "IMGUINETSAMPLEPROGRAM-IMGUINET-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "Veldrid",
+            "attributedTo": "Eric Mellino and Veldrid contributors",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/veldrid/veldrid/blob/master/LICENSE",
+            "projectUrl": "https://github.com/veldrid/veldrid",
+            "kind": [
+                "Direct-Dependency-Invocation"
+            ],
+            "fullLicenseTextFile": "IMGUI-OCORNUT-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "OpenVR API",
+            "attributedTo": "Valve Corporation",
+            "licenseName": "BSD-3-Clause license",
+            "SPDX": "BSD-3-Clause",
+            "licenseUrl": "https://github.com/ValveSoftware/openvr/blob/master/LICENSE",
+            "projectUrl": "https://github.com/ValveSoftware/openvr",
+            "kind": [
+                "Source-Included",
+                "Binary-DLL-Included"
+            ],
+            "fullLicenseTextFile": "OPENVR-VALVE-BSD3.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "Facepunch.Steamworks",
+            "attributedTo": "Facepunch Studios LTD",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/Facepunch/Facepunch.Steamworks/blob/master/LICENSE",
+            "projectUrl": "https://github.com/Facepunch/Facepunch.Steamworks",
+            "kind": [
+                "Direct-Dependency-Invocation"
+            ],
+            "fullLicenseTextFile": "STEAMWORKS-FACEPUNCH-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": [
+                "INCLUDES_STEAMWORKS"
+            ]
+        },
+        {
+            "projectName": "VRChat.OSCQuery",
+            "attributedTo": "VRChat Inc.",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/Facepunch/Facepunch.Steamworks/blob/master/LICENSE",
+            "projectUrl": "https://github.com/vrchat-community/vrc-oscquery-lib",
+            "kind": [
+                "Direct-Dependency-Invocation"
+            ],
+            "fullLicenseTextFile": "VRCOSCQUERYLIB-VRCHAT-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "Newtonsoft.Json",
+            "attributedTo": "James Newton-King",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md",
+            "projectUrl": "https://github.com/JamesNK/Newtonsoft.Json",
+            "kind": [
+                "Direct-Dependency-Invocation"
+            ],
+            "fullLicenseTextFile": "NEWTONSOFTJSON-JAMESNK-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "Fredoka font",
+            "attributedTo": "Milena Brandão, Hafontia",
+            "licenseName": "SIL Open Font License",
+            "SPDX": "OFL-1.1",
+            "licenseUrl": "https://fonts.google.com/attribution",
+            "projectUrl": "https://fonts.google.com/specimen/Fredoka/about",
+            "kind": [
+                "Asset-Included"
+            ],
+            "fullLicenseTextFile": "TEMPLATE-SILOFL.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "Kiwi Maru font",
+            "attributedTo": "Hiroki-Chan",
+            "licenseName": "SIL Open Font License",
+            "SPDX": "OFL-1.1",
+            "licenseUrl": "https://fonts.google.com/attribution",
+            "projectUrl": "https://fonts.google.com/specimen/Kiwi+Maru/about",
+            "kind": [
+                "Asset-Included"
+            ],
+            "fullLicenseTextFile": "TEMPLATE-SILOFL.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "K14 font",
+            "attributedTo": "Hiroshi Tachibana (橘浩志)",
+            "licenseName": "Public domain",
+            "SPDX": "",
+            "licenseUrl": "https://ja.wikipedia.org/wiki/K14_(フォント)",
+            "projectUrl": "https://ja.wikipedia.org/wiki/K14_(フォント)",
+            "kind": [
+                "Asset-Included"
+            ],
+            "fullLicenseTextFile": "",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "ProggyClean font",
+            "attributedTo": "Tristan Grimmer",
+            "licenseName": "MIT License (According to https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#creditslicenses-for-fonts-included-in-repository)",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#creditslicenses-for-fonts-included-in-repository",
+            "projectUrl": "http://www.proggyfonts.net/",
+            "kind": [
+                "Asset-Included"
+            ],
+            "fullLicenseTextFile": "",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        }
+    ]
+}

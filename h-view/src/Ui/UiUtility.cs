@@ -7,7 +7,7 @@ namespace Hai.HView.Gui;
 
 public partial class HVInnerWindow
 {
-    private const string LanguagesNonTranslated = "Languages";
+    internal const string LanguagesNonTranslated = "Languages";
     private const string KeysTabLabel = "Keys";
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     private string[] _thirdPartyLateInit;
@@ -21,61 +21,12 @@ public partial class HVInnerWindow
     
     private void OptionsTab(Dictionary<string, HOscItem> oscMessages)
     {
-        ImGui.SeparatorText(HLocalizationPhrase.SteamVRLabel);
-        var autoLaunch = _routine.IsAutoLaunch();
-        if (ImGui.Checkbox(HLocalizationPhrase.StartWithSteamVRLabel, ref autoLaunch))
-        {
-            _routine.SetAutoLaunch(autoLaunch);
-        }
-        
-        ImGui.Text("");
-        ImGui.SeparatorText(HLocalizationPhrase.OtherLabel);
-
-        var needsSave = false;
-        if (!_isWindowlessStyle) needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontDesktopLabel, ref _config.useSmallFontDesktop);
-        else needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontVRLabel, ref _config.useSmallFontVR);
-        if (needsSave)
-        {
-            _config.SaveConfig();
-        }
-        if (ImGui.Button(HLocalizationPhrase.ShowThirdPartyAcknowledgementsLabel))
-        {
-            _panel = HPanel.Thirdparty;
-        }
-        
-        ImGui.Text("");
-        ImGui.SeparatorText(LanguagesNonTranslated);
-        
-        var languages = HLocalization.GetLanguages();
-        for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
-        {
-            var language = languages[languageIndex];
-            if (ImGui.Button(language))
-            {
-                _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
-                HLocalization.SwitchLanguage(languageIndex);
-            }
-        }
+        _optionsTab.OptionsTab();
     }
 
     private void ThirdPartyTab()
     {
-        _thirdPartyLateInit ??= File.ReadAllText(HAssets.ThirdParty.Absolute()).Split("- ");
-        
-        ImGui.TextWrapped(HLocalizationPhrase.MsgCreditsHViewInfo);
-        ImGui.TextWrapped(HLocalizationPhrase.MsgCreditsHViewMore);
-        
-        ImGui.Text("");
-        ImGui.SeparatorText(HLocalizationPhrase.CreditsThirdPartyAcknowledgementsLabel);
-        ImGui.TextWrapped(HLocalizationPhrase.MsgCreditsFindNearExecutableFile);
-        
-        _scrollManager.MakeScroll(() =>
-        {
-            foreach (var text in _thirdPartyLateInit)
-            {
-                ImGui.TextWrapped("- " + text);
-            }
-        });
+        _optionsTab.ThirdPartyTab();
     }
 
     private void KeysTab(Dictionary<string, HOscItem> oscMessages)
