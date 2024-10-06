@@ -4,7 +4,7 @@ using Hai.HView.OVR;
 
 namespace Hai.HView.Gui;
 
-public class HVWindow
+public class HVDesktopStarter
 {
     private const int TotalWindowWidth = HVOpenVRThread.TotalWindowWidth;
     private const int TotalWindowHeight = HVOpenVRThread.TotalWindowHeight;
@@ -14,7 +14,7 @@ public class HVWindow
     private readonly bool _simulateWindowlessStyle;
     private SavedData _config;
 
-    public HVWindow(HVRoutine routine, Action whenWindowClosed, bool simulateWindowlessStyle, SavedData config)
+    public HVDesktopStarter(HVRoutine routine, Action whenWindowClosed, bool simulateWindowlessStyle, SavedData config)
     {
         _routine = routine;
         _whenWindowClosed = whenWindowClosed;
@@ -25,9 +25,9 @@ public class HVWindow
     public void Run()
     {
         var imageLoader = new HVImageLoader();
-        var inner = new HVInnerWindow(_routine, _simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, imageLoader);
+        var mainApp = new UiMainApplication(_routine, _simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, imageLoader);
         var imGuiManagement = new HVRendering(_simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, imageLoader);
-        imGuiManagement.OnSubmitUi += inner.SubmitUI;
+        imGuiManagement.OnSubmitUi += mainApp.SubmitUI;
         
         imGuiManagement.UiLoop(); // This call blocks until the user closes the window.
         _whenWindowClosed();

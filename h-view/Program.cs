@@ -72,7 +72,7 @@ internal class HViewProgram
         } : () =>
         {
             Console.WriteLine("Starting as a desktop window.");
-            new HVWindow(routine, WhenWindowClosed, simulateWindowlessStyle, config).Run();
+            new HVDesktopStarter(routine, WhenWindowClosed, simulateWindowlessStyle, config).Run();
         })
         {
             CurrentCulture = CultureInfo.InvariantCulture, // We don't want locale-specific numbers

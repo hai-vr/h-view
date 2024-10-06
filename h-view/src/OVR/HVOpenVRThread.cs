@@ -37,9 +37,9 @@ public class HVOpenVRThread
     public void Run()
     {
         var desktopImageLoader = new HVImageLoader();
-        var desktopWindow = new HVInnerWindow(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, desktopImageLoader);
+        var desktopMainApp = new UiMainApplication(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, desktopImageLoader);
         var desktopImGuiManagement = new HVRendering(false, TotalWindowWidth, TotalWindowHeight, desktopImageLoader);
-        desktopImGuiManagement.OnSubmitUi += desktopWindow.SubmitUI;
+        desktopImGuiManagement.OnSubmitUi += desktopMainApp.SubmitUI;
         desktopImGuiManagement.SetupUi(false);
         
         var ovr = _ovr;
@@ -88,21 +88,22 @@ public class HVOpenVRThread
         if (shouldContinue)
         {
             var imageLoader = new HVImageLoader();
-            var innerWindow = new HVInnerWindow(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight, _config, imageLoader);
+            // We pass the width twice (as width and height) because we want OpenVR to deal with a square texture, which will be trimmed by the overlay window ratio.
+            var mainApp = new UiMainApplication(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight, _config, imageLoader);
             var imGuiManagement = new HVRendering(true, VRWindowWidth, VRWindowWidth, imageLoader);
-            imGuiManagement.OnSubmitUi += innerWindow.SubmitUI;
+            imGuiManagement.OnSubmitUi += mainApp.SubmitUI;
             imGuiManagement.SetupUi(true);
 
             var windowRatio = VRWindowWidth / (VRWindowHeight * 1f);
-            var dashboard = new HVImGuiOverlay(imGuiManagement, innerWindow, "main", true, windowRatio);
+            var dashboard = new HVImGuiOverlay(imGuiManagement, "main", true, windowRatio, mainApp);
             dashboard.Start();
             
-            innerWindow.RegisterHoverChanged(() =>
+            mainApp.RegisterHoverChanged(() =>
             {
                 _queuedForOvr.Enqueue(() => OpenVR.System.TriggerHapticPulse(dashboard.LastMouseMoveDeviceIndex, 0, 25_000));
             });
             
-            innerWindow.RegisterButtonPressed(() =>
+            mainApp.RegisterButtonPressed(() =>
             {
                 _queuedForOvr.Enqueue(() =>
                 {
@@ -120,11 +121,11 @@ public class HVOpenVRThread
             HHandOverlay handOverlay = null;
             var onShowCostumes = () => _queuedForOvr.Enqueue(() =>
             {
-                handOverlay = new HHandOverlay(imGuiManagement, innerWindow, windowRatio, _routine, false);
+                handOverlay = new HHandOverlay(imGuiManagement, mainApp, windowRatio, _routine, false);
                 handOverlay.Start();
                 handOverlay.MoveToInitialPosition(ovr.PoseData());
                 eyeTrackingOptional?.SetHandOverlay(handOverlay);
-                innerWindow.SetIsHandOverlay(true);
+                mainApp.SetIsHandOverlay(true);
                 
                 overlayables.Add(handOverlay);
             });
@@ -138,7 +139,7 @@ public class HVOpenVRThread
                 handOverlay.Teardown();
                 eyeTrackingOptional?.SetHandOverlay(null);
                 overlayables.Remove(handOverlay);
-                innerWindow.SetIsHandOverlay(false);
+                mainApp.SetIsHandOverlay(false);
                 
                 handOverlay = null;
             });

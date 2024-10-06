@@ -16,7 +16,7 @@ public class HVImGuiOverlay : IOverlayable
 
     // Specific to this overlay window
     private readonly HVRendering _rendering;
-    private readonly HVInnerWindow _innerWindow;
+    private readonly IEyeTrackingCapable _eyeTrackingCapableOptional;
     private readonly string _name;
     private readonly bool _isDashboard;
     private readonly float _ratio;
@@ -38,10 +38,10 @@ public class HVImGuiOverlay : IOverlayable
 
     public uint LastMouseMoveDeviceIndex { get; private set; }
 
-    public HVImGuiOverlay(HVRendering rendering, HVInnerWindow innerWindow, string name, bool isDashboard, float ratio)
+    public HVImGuiOverlay(HVRendering rendering, string name, bool isDashboard, float ratio, IEyeTrackingCapable eyeTrackingCapableOptional)
     {
         _rendering = rendering;
-        _innerWindow = innerWindow;
+        _eyeTrackingCapableOptional = eyeTrackingCapableOptional;
         _name = name;
         _isDashboard = isDashboard;
         _ratio = ratio;
@@ -231,13 +231,13 @@ public class HVImGuiOverlay : IOverlayable
         _usingEyeTracking = true;
         _eyePos = eyePos;
         _eyeGaze = eyeGaze;
-        _innerWindow.SetEyeTracking(_usingEyeTracking);
+        _eyeTrackingCapableOptional?.SetEyeTracking(_usingEyeTracking);
     }
 
     public void ForgetEyeTracking()
     {
         _usingEyeTracking = false;
-        _innerWindow.SetEyeTracking(_usingEyeTracking);
+        _eyeTrackingCapableOptional?.SetEyeTracking(_usingEyeTracking);
     }
 
     private void ProcessEyeTracking()

@@ -10,7 +10,7 @@ namespace Hai.HView.Ui;
 
 public class UiOptions
 {
-    private readonly Action<HVInnerWindow.HPanel> _switchPanelCallback;
+    private readonly Action<UiMainApplication.HPanel> _switchPanelCallback;
     private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly SavedData _config;
@@ -20,7 +20,7 @@ public class UiOptions
     private HThirdPartyRegistry _thirdPartyRegistry;
     private int _selectedIndex = -1;
 
-    public UiOptions(ImGuiVRCore imGuiVr, Action<HVInnerWindow.HPanel> switchPanelCallback, HVRoutine routine, SavedData config, bool isWindowlessStyle, UiScrollManager scrollManager)
+    public UiOptions(ImGuiVRCore imGuiVr, Action<UiMainApplication.HPanel> switchPanelCallback, HVRoutine routine, SavedData config, bool isWindowlessStyle, UiScrollManager scrollManager)
     {
         _switchPanelCallback = switchPanelCallback;
         ImGuiVR = imGuiVr;
@@ -52,11 +52,11 @@ public class UiOptions
         if (ImGuiVR.HapticButton(HLocalizationPhrase.ShowThirdPartyAcknowledgementsLabel))
         {
             _selectedIndex = -1;
-            _switchPanelCallback.Invoke(HVInnerWindow.HPanel.Thirdparty);
+            _switchPanelCallback.Invoke(UiMainApplication.HPanel.Thirdparty);
         }
         if (ImGuiVR.HapticButton("Open Developer tools"))
         {
-            _switchPanelCallback.Invoke(HVInnerWindow.HPanel.DevTools);
+            _switchPanelCallback.Invoke(UiMainApplication.HPanel.DevTools);
         }
         
         ImGui.Text("");

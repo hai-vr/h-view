@@ -13,7 +13,7 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace Hai.HView.Gui;
 
-public class HVInnerWindow : IDisposable
+public class UiMainApplication : IDisposable, IEyeTrackingCapable
 {
     private const int BorderWidth = 0;
     private const int BorderHeight = BorderWidth;
@@ -55,7 +55,7 @@ public class HVInnerWindow : IDisposable
     private long frameNumber;
     private HPanel _panel = HPanel.Shortcuts;
 
-    public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config, HVImageLoader imageLoader)
+    public UiMainApplication(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config, HVImageLoader imageLoader)
     {
         _routine = routine;
         _isWindowlessStyle = isWindowlessStyle;
