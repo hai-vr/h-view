@@ -1,5 +1,5 @@
 ﻿using Hai.ExternalExpressionsMenu;
-using static Hai.HView.Gui.UiShortcuts.HVShortcutType;
+using static Hai.HView.Gui.HVShortcutType;
 
 namespace Hai.HView.Gui;
 
@@ -30,11 +30,11 @@ TODO:
     - (DONE) Add a way to track press/releasing a non-boolean control (i.e. Toggle sets parameter to value 126).
 
     */
-public class UiShortcuts
+public class ShortcutResolver
 {
     private readonly UiSharedData _sharedData;
 
-    public UiShortcuts(UiSharedData sharedData)
+    public ShortcutResolver(UiSharedData sharedData)
     {
         _sharedData = sharedData;
     }
@@ -111,54 +111,54 @@ public class UiShortcuts
         // TODO: This can throw an exception.
         return Enum.Parse<HVReferencedParameterType>(type);
     }
+}
 
-    public class HVShortcutHost
-    {
-        public HVShortcut[] pressables;
-        public HVShortcut[] slidables;
-        public HVShortcut[] subs;
-        /// Shortcuts does not include separator items that do nothing.
-        public HVShortcut[] shortcuts;
-        /// Everything includes separator items that do nothing.
-        public HVShortcut[] everything;
-    }
+public class HVShortcutHost
+{
+    public HVShortcut[] pressables;
+    public HVShortcut[] slidables;
+    public HVShortcut[] subs;
+    /// Shortcuts does not include separator items that do nothing.
+    public HVShortcut[] shortcuts;
+    /// Everything includes separator items that do nothing.
+    public HVShortcut[] everything;
+}
 
-    public class HVShortcut
-    {
-        public string label;
-        public int icon;
-        public HVShortcutType type;
-        public string parameter;
-        public float value;
-        public int subMenuId;
-        public bool isSubMenuRecursive;
-        public EMAxis axis0;
-        public EMAxis axis1;
-        public EMAxis axis2;
-        public EMAxis axis3;
-        // Derived from Manifest
-        public HVReferencedParameterType referencedParameterType;
-        public HVShortcutHost subs;
-    }
+public class HVShortcut
+{
+    public string label;
+    public int icon;
+    public HVShortcutType type;
+    public string parameter;
+    public float value;
+    public int subMenuId;
+    public bool isSubMenuRecursive;
+    public EMAxis axis0;
+    public EMAxis axis1;
+    public EMAxis axis2;
+    public EMAxis axis3;
+    // Derived from Manifest
+    public HVReferencedParameterType referencedParameterType;
+    public HVShortcutHost subs;
+}
 
-    public enum HVShortcutType
-    {
-        Toggle,
-        Button,
-        RadialPuppet,
-        TwoAxisPuppet,
-        FourAxisPuppet,
-        SubMenu
-    }
+public enum HVShortcutType
+{
+    Toggle,
+    Button,
+    RadialPuppet,
+    TwoAxisPuppet,
+    FourAxisPuppet,
+    SubMenu
+}
 
-    public enum HVReferencedParameterType
-    {
-        // Type is unresolved if the parameter name is empty, or somehow doesn't exist in the Expression Parameters.
-        // In theory "Somehow doesn't exist" only happens when the avatar being built is invalid, as there are post-process checks
-        // to ensure that all Expression Menu parameters are covered by Expression Parameters.
-        Unresolved,
-        Float,
-        Int,
-        Bool
-    }
+public enum HVReferencedParameterType
+{
+    // Type is unresolved if the parameter name is empty, or somehow doesn't exist in the Expression Parameters.
+    // In theory "Somehow doesn't exist" only happens when the avatar being built is invalid, as there are post-process checks
+    // to ensure that all Expression Menu parameters are covered by Expression Parameters.
+    Unresolved,
+    Float,
+    Int,
+    Bool
 }

@@ -348,7 +348,7 @@ public class UiExpressions
         ImGui.Text("");
     }
 
-    private void PrintShortcuts(UiShortcuts.HVShortcutHost host, Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, UiShortcuts.HVShortcut parentMenuOrNullIfRoot)
+    private void PrintShortcuts(HVShortcutHost host, Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVShortcut parentMenuOrNullIfRoot)
     {
         if (parentMenuOrNullIfRoot != null)
         {
@@ -380,7 +380,7 @@ public class UiExpressions
         IterateThrough(oscMessages, ref id, icons, host.subs, false);
     }
 
-    private void IterateThrough(Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, UiShortcuts.HVShortcut[] orderedMenuItems, bool isPressables)
+    private void IterateThrough(Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVShortcut[] orderedMenuItems, bool isPressables)
     {
         if (orderedMenuItems.Length == 0) return;
 
@@ -403,16 +403,16 @@ public class UiExpressions
             var item = orderedMenuItems[inx];
             var isLastItemOfThatList = inx == orderedMenuItems.Length - 1;
             
-            var interestingParameter = item.type == UiShortcuts.HVShortcutType.RadialPuppet ? item.axis0.parameter : item.parameter;
+            var interestingParameter = item.type == HVShortcutType.RadialPuppet ? item.axis0.parameter : item.parameter;
 
             var oscParam = OscParameterize(interestingParameter);
             var hasOscItem = oscMessages.TryGetValue(oscParam, out var oscItem);
-            var isSubMenu = item.type == UiShortcuts.HVShortcutType.SubMenu;
+            var isSubMenu = item.type == HVShortcutType.SubMenu;
             var hasParameter = interestingParameter != "";
 
             if (!isSubMenu)
             {
-                if (item.type is not UiShortcuts.HVShortcutType.RadialPuppet and not UiShortcuts.HVShortcutType.TwoAxisPuppet and not UiShortcuts.HVShortcutType.FourAxisPuppet)
+                if (item.type is not HVShortcutType.RadialPuppet and not HVShortcutType.TwoAxisPuppet and not HVShortcutType.FourAxisPuppet)
                 {
                     ImGui.BeginGroup();
 
@@ -420,11 +420,11 @@ public class UiExpressions
                     if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
 
                     var button = DrawButtonFor(id, icons, item);
-                    if (hasOscItem && button && item.type == UiShortcuts.HVShortcutType.Toggle)
+                    if (hasOscItem && button && item.type == HVShortcutType.Toggle)
                     {
                         _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, !isMatch ? item.value : 0f));
                     }
-                    if (item.type == UiShortcuts.HVShortcutType.Button)
+                    if (item.type == HVShortcutType.Button)
                     {
                         _buttonPressState.TryGetValue(id, out var wasPressed); // The return value does not matter in this scenario
                         var isPressed = ImGui.IsItemActive();
@@ -457,7 +457,7 @@ public class UiExpressions
                     ImGui.EndGroup();
 
                     ImGui.TableSetColumnIndex(1);
-                    if (item.type == UiShortcuts.HVShortcutType.RadialPuppet)
+                    if (item.type == HVShortcutType.RadialPuppet)
                     {
                         // FIXME: The control won't show up if the OSC Query module isn't working.
                         // It should always be shown, regardless of the OSC Query availability, because we have all the information needed to display it.
@@ -514,7 +514,7 @@ public class UiExpressions
         }
     }
 
-    private bool DrawButtonFor(int id, string[] icons, UiShortcuts.HVShortcut item)
+    private bool DrawButtonFor(int id, string[] icons, HVShortcut item)
     {
         bool button;
         if (item.icon != -1)
@@ -529,34 +529,34 @@ public class UiExpressions
         return button;
     }
 
-    private object TransformFloatToType(UiShortcuts.HVReferencedParameterType referencedType, float itemValue)
+    private object TransformFloatToType(HVReferencedParameterType referencedType, float itemValue)
     {
         switch (referencedType)
         {
-            case UiShortcuts.HVReferencedParameterType.Unresolved:
+            case HVReferencedParameterType.Unresolved:
                 return itemValue;
-            case UiShortcuts.HVReferencedParameterType.Float:
+            case HVReferencedParameterType.Float:
                 return itemValue;
-            case UiShortcuts.HVReferencedParameterType.Int:
+            case HVReferencedParameterType.Int:
                 return (int)itemValue;
-            case UiShortcuts.HVReferencedParameterType.Bool:
+            case HVReferencedParameterType.Bool:
                 return itemValue > 0.5f;
             default:
                 throw new ArgumentOutOfRangeException(nameof(referencedType), referencedType, null);
         }
     }
 
-    private static bool IsControlMatchingOscValue(UiShortcuts.HVShortcut item, HOscItem oscItem)
+    private static bool IsControlMatchingOscValue(HVShortcut item, HOscItem oscItem)
     {
         switch (item.referencedParameterType)
         {
-            case UiShortcuts.HVReferencedParameterType.Unresolved:
+            case HVReferencedParameterType.Unresolved:
                 return false;
-            case UiShortcuts.HVReferencedParameterType.Float:
+            case HVReferencedParameterType.Float:
                 return oscItem.WriteOnlyValueRef is float f && f == item.value;
-            case UiShortcuts.HVReferencedParameterType.Int:
+            case HVReferencedParameterType.Int:
                 return oscItem.WriteOnlyValueRef is int i && i == (int)item.value;
-            case UiShortcuts.HVReferencedParameterType.Bool:
+            case HVReferencedParameterType.Bool:
                 return oscItem.WriteOnlyValueRef is bool b && b == (item.value > 0.5f);
             default:
                 throw new ArgumentOutOfRangeException();

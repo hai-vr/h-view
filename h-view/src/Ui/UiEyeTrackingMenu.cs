@@ -91,7 +91,7 @@ public class UiEyeTrackingMenu
         return resultSize;
     }
 
-    private void ShowMenu(UiShortcuts.HVShortcutHost host, float x, float y, string[] icons)
+    private void ShowMenu(HVShortcutHost host, float x, float y, string[] icons)
     {
         var xCenter = ImGui.GetWindowWidth() / 2;
         var yCenter = ImGui.GetWindowHeight() / 2;
@@ -109,10 +109,10 @@ public class UiEyeTrackingMenu
                 
             }
 
-            if (DrawEyeTrackingButtonFor(-1, icons, new UiShortcuts.HVShortcut
+            if (DrawEyeTrackingButtonFor(-1, icons, new HVShortcut
                 {
                     label = "Back",
-                    type = UiShortcuts.HVShortcutType.Button,
+                    type = HVShortcutType.Button,
                     icon = -1
                 }))
             {
@@ -152,7 +152,7 @@ public class UiEyeTrackingMenu
             var pos = ImGui.GetCursorPos();
             if (shortcutNullWhenUnclocked != null && DrawEyeTrackingButtonFor(clocked, icons, shortcutNullWhenUnclocked))
             {
-                if (shortcutNullWhenUnclocked.type == UiShortcuts.HVShortcutType.SubMenu)
+                if (shortcutNullWhenUnclocked.type == HVShortcutType.SubMenu)
                 {
                     _menuState.Push(new MenuState
                     {
@@ -164,10 +164,10 @@ public class UiEyeTrackingMenu
             }
             else if (shortcutNullWhenUnclocked == null)
             {
-                if (DrawEyeTrackingButtonFor(-2, icons, new UiShortcuts.HVShortcut
+                if (DrawEyeTrackingButtonFor(-2, icons, new HVShortcut
                     {
                         label = "Back",
-                        type = UiShortcuts.HVShortcutType.Button,
+                        type = HVShortcutType.Button,
                         icon = -1
                     }))
                 {
@@ -237,7 +237,7 @@ public class UiEyeTrackingMenu
         return index - itemsInRow / 2f + 0.5f;
     }
 
-    private bool DrawEyeTrackingButtonFor(int id, string[] icons, UiShortcuts.HVShortcut item)
+    private bool DrawEyeTrackingButtonFor(int id, string[] icons, HVShortcut item)
     {
         // No haptics here, the eyes are the controllers.
         
@@ -258,7 +258,7 @@ public class UiEyeTrackingMenu
     {
         public int Id;
         public string Name;
-        public UiShortcuts.HVShortcutHost Host;
+        public HVShortcutHost Host;
         public float X;
         public float Y;
     }
