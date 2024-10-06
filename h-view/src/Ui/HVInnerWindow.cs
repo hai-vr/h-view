@@ -163,7 +163,8 @@ public partial class HVInnerWindow : IDisposable
         Hardware,
         Options,
         Tabs,
-        Thirdparty
+        Thirdparty,
+        DevTools
     }
 
     private void SubmitUI()
@@ -299,6 +300,11 @@ public partial class HVInnerWindow : IDisposable
                 case HPanel.Thirdparty:
                 {
                     ThirdPartyTab();
+                    break;
+                }
+                case HPanel.DevTools:
+                {
+                    _optionsTab.DevToolsTab();
                     break;
                 }
                 default:

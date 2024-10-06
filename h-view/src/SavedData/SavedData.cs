@@ -25,6 +25,7 @@ public class SavedData
     
     public bool showLighthouses;
     public bool showSerial;
+    [JsonIgnore] public bool devTools__EyeTracking;
 
     public static SavedData OpenConfig()
     {

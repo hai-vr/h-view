@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using Hai.HView.Audio;
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.OVR;
@@ -31,6 +32,8 @@ public class HVImGuiOverlay : IOverlayable
     private bool _usingEyeTracking;
     private Vector3 _eyePos;
     private Quaternion _eyeGaze;
+    private bool _eyeTrackingIsInteract;
+    private PlaySound _playSound;
 
     public uint LastMouseMoveDeviceIndex { get; private set; }
 
@@ -80,6 +83,21 @@ public class HVImGuiOverlay : IOverlayable
         _inputSnapshot.SetWindowSize(_innerWindow.WindowSize());
         PollOverlayEvents();
         ProcessEyeTracking();
+        if (_usingEyeTracking && !_eyeTrackingIsInteract && _mgtPoseData.Interact.bChanged && _mgtPoseData.Interact.bState)
+        {
+            _inputSnapshot.MouseDown(MouseButton.Left);
+            _eyeTrackingIsInteract = true;
+            // _playSound ??= new PlaySound(HAssets.ClickAudio.Absolute());
+            // _playSound.Play();
+        }
+        if (
+            (_usingEyeTracking && _eyeTrackingIsInteract && _mgtPoseData.Interact.bChanged && !_mgtPoseData.Interact.bState)
+            || (!_usingEyeTracking && _eyeTrackingIsInteract)
+            )
+        {
+            _inputSnapshot.MouseUp(MouseButton.Left);
+            _eyeTrackingIsInteract = false;
+        }
 
         // Only render when the overlay is visible
         // TODO: Input events may need some special handling
@@ -211,6 +229,12 @@ public class HVImGuiOverlay : IOverlayable
         _usingEyeTracking = true;
         _eyePos = eyePos;
         _eyeGaze = eyeGaze;
+        _innerWindow.SetEyeTracking(_usingEyeTracking);
+    }
+
+    public void ForgetEyeTracking()
+    {
+        _usingEyeTracking = false;
         _innerWindow.SetEyeTracking(_usingEyeTracking);
     }
 

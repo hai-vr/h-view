@@ -47,10 +47,14 @@ public class UiOptions
         {
             _config.SaveConfig();
         }
-        if (ImGui.Button(HLocalizationPhrase.ShowThirdPartyAcknowledgementsLabel))
+        if (_inner.HapticButton(HLocalizationPhrase.ShowThirdPartyAcknowledgementsLabel))
         {
             _selectedIndex = -1;
             _inner.SwitchPanel(HVInnerWindow.HPanel.Thirdparty);
+        }
+        if (_inner.HapticButton("Open Developer tools"))
+        {
+            _inner.SwitchPanel(HVInnerWindow.HPanel.DevTools);
         }
         
         ImGui.Text("");
@@ -60,7 +64,7 @@ public class UiOptions
         for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
         {
             var language = languages[languageIndex];
-            if (ImGui.Button(language))
+            if (_inner.HapticButton(language))
             {
                 _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
                 HLocalization.SwitchLanguage(languageIndex);
@@ -125,6 +129,12 @@ public class UiOptions
                 DisplayEntries(entries, true);
             }
         });
+    }
+
+    public void DevToolsTab()
+    {
+        ImGui.SeparatorText("DevTools");
+        ImGui.Checkbox("[DEV] Use Eye Tracking instead of controllers as input", ref _config.devTools__EyeTracking);
     }
 
     private void DisplayEntries(HThirdPartyEntry[] entries, bool sameLine)

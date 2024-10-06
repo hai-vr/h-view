@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Hai.HView.OVR;
 using Valve.VR;
 
 namespace Hai.HView.Overlay;
@@ -118,8 +119,8 @@ public class HVOpenVRManagement
         // TODO: These are related to the management of overlays (plural) in general.
         // Eventually we'll have to separate the concept of managing overlays, and managing that specific overlay bound to that ImGui window.
         OverlayManagementPollVREvents();
-        OverlayManagementFillPose();
         OpenVR.Input.UpdateActionState(_actionsets, SizeOfActionSet);
+        OverlayManagementFillPose();
     }
 
     private void OverlayManagementFillPose()
@@ -132,6 +133,7 @@ public class HVOpenVRManagement
         OpenVR.System.GetDeviceToAbsoluteTrackingPose(OpenVR.Compositor.GetTrackingSpace(), fPredictedSecondsToPhotonsFromNow, _mgtPoseData.Poses);
         _mgtPoseData.LeftHandDeviceIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.LeftHand);
         _mgtPoseData.RightHandDeviceIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.RightHand);
+        _mgtPoseData.Interact = OpenVRUtils.GetDigitalInput(_actionInteract);
     }
 
     private void OverlayManagementPollVREvents()
