@@ -139,7 +139,7 @@ internal class UiOptions
         ImGui.Checkbox("[DEV] Use Eye Tracking instead of controllers as input", ref _config.devTools__EyeTracking);
     }
 
-    private void DisplayEntries(HThirdPartyEntry[] entries, bool sameLine)
+    private void DisplayEntries(HThirdPartyEntry[] entries, bool aerated)
     {
         for (var index = 0; index < entries.Length; index++)
         {
@@ -149,8 +149,9 @@ internal class UiOptions
                 _selectedIndex = index;
             }
 
-            if (sameLine) ImGui.SameLine();
+            if (aerated) ImGui.SameLine();
             ImGui.TextWrapped($"by {entry.attributedTo} ({DisplaySpdxOrFallback(entry)})");
+            if (!aerated) ImGui.Separator();
         }
     }
 
