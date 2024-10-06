@@ -2,7 +2,7 @@
 using Veldrid;
 using Veldrid.ImageSharp;
 
-namespace Hai.HView.Gui;
+namespace Hai.HView.Rendering;
 
 public class HVImageLoader
 {

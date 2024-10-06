@@ -1,12 +1,13 @@
 ﻿using System.Numerics;
 using Hai.HView.Core;
+using Hai.HView.Gui;
 using Hai.HView.OSC;
-using Hai.HView.Ui;
+using Hai.HView.Rendering;
 using ImGuiNET;
 
-namespace Hai.HView.Gui.Tab;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiCostumes
+internal class UiCostumes
 {
     private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;

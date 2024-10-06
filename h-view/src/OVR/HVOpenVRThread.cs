@@ -3,8 +3,9 @@ using System.Diagnostics;
 using Hai.HView.Audio;
 using Hai.HView.Core;
 using Hai.HView.Data;
-using Hai.HView.Gui;
 using Hai.HView.Overlay;
+using Hai.HView.Rendering;
+using Hai.HView.Ui.MainApp;
 using Valve.VR;
 
 namespace Hai.HView.OVR;

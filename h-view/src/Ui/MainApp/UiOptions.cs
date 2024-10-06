@@ -6,9 +6,9 @@ using Hai.HView.Gui;
 using Hai.HView.HThirdParty;
 using ImGuiNET;
 
-namespace Hai.HView.Ui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiOptions
+internal class UiOptions
 {
     private readonly Action<UiMainApplication.HPanel> _switchPanelCallback;
     private readonly ImGuiVRCore ImGuiVR;

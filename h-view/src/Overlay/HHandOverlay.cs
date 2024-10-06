@@ -3,6 +3,7 @@ using System.Numerics;
 using Hai.HView.Core;
 using Hai.HView.Gui;
 using Hai.HView.OVR;
+using Hai.HView.Rendering;
 using Valve.VR;
 
 namespace Hai.HView.Overlay;

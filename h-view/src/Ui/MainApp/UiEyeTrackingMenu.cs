@@ -1,10 +1,10 @@
 ﻿using System.Numerics;
-using Hai.HView.Gui;
+using Hai.HView.Rendering;
 using ImGuiNET;
 
-namespace Hai.HView.Ui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiEyeTrackingMenu
+internal class UiEyeTrackingMenu
 {
     private const float IconBorder = 3;
     private const float DefaultIconWidth = 128;

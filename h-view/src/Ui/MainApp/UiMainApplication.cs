@@ -4,16 +4,16 @@ using System.Numerics;
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.Core;
 using Hai.HView.Data;
-using Hai.HView.Gui.Tab;
+using Hai.HView.Gui;
 using Hai.HView.OSC;
-using Hai.HView.Ui;
+using Hai.HView.Rendering;
 using ImGuiNET;
 using Veldrid.Sdl2;
 using Vector2 = System.Numerics.Vector2;
 
-namespace Hai.HView.Gui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiMainApplication : IDisposable, IEyeTrackingCapable
+internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 {
     private const int BorderWidth = 0;
     private const int BorderHeight = BorderWidth;

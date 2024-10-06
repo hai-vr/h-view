@@ -1,12 +1,12 @@
 ﻿using System.Numerics;
 using Hai.HView.Core;
+using Hai.HView.Gui;
 using Hai.HView.OSC;
-using Hai.HView.Ui;
 using ImGuiNET;
 
-namespace Hai.HView.Gui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiOscQuery
+internal class UiOscQuery
 {
     private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;

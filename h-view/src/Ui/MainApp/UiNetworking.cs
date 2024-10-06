@@ -3,9 +3,9 @@ using Hai.HNetworking.Steamworks;
 using Hai.HView.Core;
 using ImGuiNET;
 
-namespace Hai.HView.Ui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiNetworking
+internal class UiNetworking
 {
     private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;

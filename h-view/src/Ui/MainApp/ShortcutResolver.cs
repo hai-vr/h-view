@@ -1,9 +1,9 @@
 ﻿using Hai.ExternalExpressionsMenu;
-using static Hai.HView.Gui.HVShortcutType;
+using static Hai.HView.Ui.MainApp.HVShortcutType;
 
-namespace Hai.HView.Gui;
+namespace Hai.HView.Ui.MainApp;
 
-public static class ShortcutResolver
+internal static class ShortcutResolver
 {
     public static HVShortcutHost RebuildManifestAsShortcuts(EMManifest manifest)
     {
@@ -79,7 +79,7 @@ public static class ShortcutResolver
     }
 }
 
-public class HVShortcutHost
+internal class HVShortcutHost
 {
     public HVShortcut[] pressables;
     public HVShortcut[] slidables;
@@ -90,7 +90,7 @@ public class HVShortcutHost
     public HVShortcut[] everything;
 }
 
-public class HVShortcut
+internal class HVShortcut
 {
     public string label;
     public int icon;

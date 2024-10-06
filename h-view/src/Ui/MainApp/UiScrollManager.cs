@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
 using ImGuiNET;
 
-namespace Hai.HView.Ui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiScrollManager
+internal class UiScrollManager
 {
     private bool _isScrollDragging;
     private bool _anyHighlightLastFrame;

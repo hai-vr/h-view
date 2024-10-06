@@ -1,6 +1,8 @@
 using Hai.HView.Core;
 using Hai.HView.Data;
 using Hai.HView.OVR;
+using Hai.HView.Rendering;
+using Hai.HView.Ui.MainApp;
 
 namespace Hai.HView.Gui;
 

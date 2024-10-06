@@ -6,7 +6,7 @@ using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 using Vector2 = System.Numerics.Vector2;
 
-namespace Hai.HView.Gui;
+namespace Hai.HView.Rendering;
 
 public class HVRendering
 {

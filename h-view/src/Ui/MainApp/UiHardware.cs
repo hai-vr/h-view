@@ -1,12 +1,12 @@
-﻿using Hai.HView.Hardware;
-using Hai.HView.Core;
+﻿using Hai.HView.Core;
 using Hai.HView.Data;
+using Hai.HView.Hardware;
 using ImGuiNET;
 using Valve.VR;
 
-namespace Hai.HView.Ui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiHardware
+internal class UiHardware
 {
     private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;

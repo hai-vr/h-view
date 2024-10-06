@@ -1,12 +1,11 @@
 ﻿using System.Numerics;
 using Hai.HView.Core;
 using Hai.HView.OSC;
-using Hai.HView.Ui;
 using ImGuiNET;
 
-namespace Hai.HView.Gui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiUtility
+internal class UiUtility
 {
     private readonly ImGuiVRCore ImGuiVR;
     private readonly UiScrollManager _scrollManager;

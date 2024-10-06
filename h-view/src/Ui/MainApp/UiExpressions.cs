@@ -2,12 +2,12 @@
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.Core;
 using Hai.HView.OSC;
-using Hai.HView.Ui;
+using Hai.HView.Rendering;
 using ImGuiNET;
 
-namespace Hai.HView.Gui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiExpressions
+internal class UiExpressions
 {
     private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;

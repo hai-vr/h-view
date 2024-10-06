@@ -1,8 +1,8 @@
 ﻿using Hai.ExternalExpressionsMenu;
 
-namespace Hai.HView.Gui;
+namespace Hai.HView.Ui.MainApp;
 
-public class UiSharedData
+internal class UiSharedData
 {
     public HVShortcutHost ShortcutsNullable { get; set; }
     public EMManifest ManifestNullable { get; set; }
