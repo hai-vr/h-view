@@ -12,6 +12,7 @@ public class UiExpressions
     private readonly HVInnerWindow _inner;
     private readonly HVRoutine _routine;
     private readonly HVImageLoader _imageLoader;
+    private readonly UiOscQuery _oscQueryTab;
     private readonly Dictionary<int, bool> _buttonPressState = new Dictionary<int, bool>();
     
     private const int NominalImageWidth = 96;
@@ -20,11 +21,12 @@ public class UiExpressions
     private Vector2 _imagelessButtonSize;
     private int _buttonTableWidth;
 
-    public UiExpressions(HVInnerWindow inner, HVRoutine routine, HVImageLoader imageLoader)
+    public UiExpressions(HVInnerWindow inner, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab)
     {
         _inner = inner;
         _routine = routine;
         _imageLoader = imageLoader;
+        _oscQueryTab = oscQueryTab;
     }
 
     private void UpdateIconSize()
@@ -142,7 +144,7 @@ public class UiExpressions
             }
             else if (hasOscItem)
             {
-                _inner.BuildControls(oscItem, 0, oscItem.Key);
+                _oscQueryTab.BuildControls(oscItem, 0, oscItem.Key);
             }
 
             id++;
@@ -198,7 +200,7 @@ public class UiExpressions
             ImGui.TableSetColumnIndex(i++);
             if (hasOscItem)
             {
-                _inner.BuildControls(oscItem, 0, oscItem.Key);
+                _oscQueryTab.BuildControls(oscItem, 0, oscItem.Key);
             }
             
             ImGui.TableSetColumnIndex(i++);
@@ -296,7 +298,7 @@ public class UiExpressions
                 ImGui.TableSetColumnIndex(i++);
                 if (hasOscItem)
                 {
-                    _inner.BuildControls(oscItem, 0, oscItem.Key);
+                    _oscQueryTab.BuildControls(oscItem, 0, oscItem.Key);
                 }
                 
                 ImGui.TableSetColumnIndex(i++);
@@ -457,7 +459,7 @@ public class UiExpressions
                     {
                         // FIXME: The control won't show up if the OSC Query module isn't working.
                         // It should always be shown, regardless of the OSC Query availability, because we have all the information needed to display it.
-                        _inner.BuildControls(oscItem, 0f, $"kk{id}");
+                        _oscQueryTab.BuildControls(oscItem, 0f, $"kk{id}");
                     }
                     else
                     {

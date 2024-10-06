@@ -11,7 +11,6 @@ public class UiUtility
     private readonly UiScrollManager _scrollManager;
     private readonly HVRoutine _routine;
 
-    internal const string LanguagesNonTranslated = "Languages";
     private const string KeysTabLabel = "Keys";
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     private string[] _thirdPartyLateInit;

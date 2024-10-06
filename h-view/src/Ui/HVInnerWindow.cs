@@ -43,7 +43,7 @@ public partial class HVInnerWindow : IDisposable
 
     public EMManifest ManifestNullable { get; private set; }
     private readonly ConcurrentQueue<Action> _queuedForUi = new ConcurrentQueue<Action>();
-    private Dictionary<string, bool> _isLocal = new Dictionary<string, bool>();
+    internal Dictionary<string, bool> _isLocal = new Dictionary<string, bool>();
     private bool _eyeTrackingMenuActiveLastFrame;
     
     // Externally set
@@ -52,9 +52,6 @@ public partial class HVInnerWindow : IDisposable
 
     // UI state
     private readonly RgbaFloat _transparentClearColor = new RgbaFloat(0f, 0f, 0f, 0f);
-    private string _chatboxBuffer = "";
-    private bool _chatboxB;
-    private bool _chatboxN;
     
     // Overlay only
     private Texture _overlayTexture;
@@ -81,6 +78,7 @@ public partial class HVInnerWindow : IDisposable
     private HPanel _panel = HPanel.Shortcuts;
     private bool _debugTransparency;
     private string _hovered;
+    private readonly UiOscQuery _oscQueryTab;
 
     public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config)
     {
@@ -96,8 +94,10 @@ public partial class HVInnerWindow : IDisposable
         
         _imageLoader = new HVImageLoader();
 
-        _expressionsTab = new UiExpressions(this, _routine, _imageLoader);
+        var oscQueryTab = new UiOscQuery(this, _routine, _scrollManager);
+        _expressionsTab = new UiExpressions(this, _routine, _imageLoader, oscQueryTab);
         _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
+        _oscQueryTab = oscQueryTab;
         _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
         _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle, _imageLoader);
         _hardwareTab = new UiHardware(this, _routine, _config);
@@ -233,7 +233,7 @@ public partial class HVInnerWindow : IDisposable
             else
             {
                 ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 3);
-                if (ImGui.Button(UiUtility.LanguagesNonTranslated, buttonSize))
+                if (ImGui.Button(UiOptions.LanguagesNonTranslated, buttonSize))
                 {
                     _panel = HPanel.Options;
                 }
@@ -401,10 +401,10 @@ public partial class HVInnerWindow : IDisposable
     private void ParametersTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTabBar("##tabs_parameters");
-        _scrollManager.MakeTab(HLocalizationPhrase.DefaultTabLabel, () => AvatarTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.FaceTrackingTabLabel, () => FaceTrackingTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.InputTabLabel, () => InputTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.TrackingTabLabel, () => TrackingTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.DefaultTabLabel, () => _oscQueryTab.AvatarTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.FaceTrackingTabLabel, () => _oscQueryTab.FaceTrackingTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.InputTabLabel, () => _oscQueryTab.InputTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.TrackingTabLabel, () => _oscQueryTab.TrackingTab(oscMessages));
         _scrollManager.MakeTab(HLocalizationPhrase.ContactsTabLabel, () => _expressionsTab.ContactsTab(oscMessages));
         _scrollManager.MakeTab(HLocalizationPhrase.PhysBonesLabel, () => _expressionsTab.PhysBonesTab(oscMessages));
         _scrollManager.MakeTab(HLocalizationPhrase.MenuTabLabel, () => _expressionsTab.ExpressionsTab(oscMessages));

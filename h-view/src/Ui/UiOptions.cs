@@ -58,7 +58,7 @@ public class UiOptions
         }
         
         ImGui.Text("");
-        ImGui.SeparatorText(HVInnerWindow.LanguagesNonTranslated);
+        ImGui.SeparatorText(LanguagesNonTranslated);
         
         var languages = HLocalization.GetLanguages();
         for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
@@ -156,4 +156,6 @@ public class UiOptions
     {
         return entry.SPDX != "" ? entry.SPDX : entry.licenseName;
     }
+
+    internal const string LanguagesNonTranslated = "Languages";
 }
