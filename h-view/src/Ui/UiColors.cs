@@ -24,4 +24,20 @@ public static class UiColors
         
         return result;
     }
+
+    public static bool Colored(bool useColor, ImGuiCol element, Func<bool> func)
+    {
+        if (useColor) ImGui.PushStyleColor(element, EnabledButtonTransparentCyan);
+        var result = func.Invoke();
+        if (useColor) ImGui.PopStyleColor();
+        
+        return result;
+    }
+
+    public static void Colored(bool useColor, ImGuiCol element, Action action)
+    {
+        if (useColor) ImGui.PushStyleColor(element, EnabledButtonTransparentCyan);
+        action.Invoke();
+        if (useColor) ImGui.PopStyleColor();
+    }
 }

@@ -274,13 +274,10 @@ internal class UiOscQuery
             else if (oscItem.OscType == BoolOscTypeT && oscItem.WriteOnlyValueRef is bool)
             {
                 var b = (bool)oscItem.WriteOnlyValueRef;
-                var doit = b;
-                if (doit) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.EnabledButtonTransparentCyan);
-                if (ImGuiVR.HapticButton($"{b}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f)))
+                if (UiColors.ColoredBackground(b, () => ImGuiVR.HapticButton($"{b}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f))))
                 {
                     _routine.UpdateMessage(oscItem.Key, !b);
                 }
-                if (doit) ImGui.PopStyleColor();
                 ImGui.SameLine();
                 if (ImGuiVR.HapticButton($"{HLocalizationPhrase.HoldLabel}##{key}.hold",
                         new Vector2(50, 0f))) ;
@@ -307,13 +304,10 @@ internal class UiOscQuery
 
                 ImGui.SameLine();
                 ImGui.PushItemWidth(80);
-                var doit = ii == 1;
-                if (doit) ImGui.PushStyleColor(ImGuiCol.SliderGrab, UiColors.EnabledButtonTransparentCyan);
-                if (ImGui.SliderInt($"##{key}.slider", ref ii, 0, 255))
+                if (UiColors.Colored(ii == 1, ImGuiCol.SliderGrab, () => ImGui.SliderInt($"##{key}.slider", ref ii, 0, 255)))
                 {
                     _routine.UpdateMessage(oscItem.Key, ii);
                 }
-                if (doit) ImGui.PopStyleColor();
 
                 ImGui.PopItemWidth();
                 ImGui.SameLine();
@@ -385,7 +379,7 @@ internal class UiOscQuery
             {
                 var isTruthy = IsTruthy(oscItem);
                 if (isTruthy) ImGui.PushStyleColor(ImGuiCol.Text, UiColors.EnabledButtonTransparentCyan);
-                ImGui.Text($"{string.Join(",", oscItem.Values.Select(o => o is float ? $"{o:0.###}" : o.ToString()))}");
+                UiColors.Colored(isTruthy, ImGuiCol.Text, () => ImGui.Text($"{string.Join(",", oscItem.Values.Select(o => o is float ? $"{o:0.###}" : o.ToString()))}"));
                 if (isTruthy) ImGui.PopStyleColor();
             }
         }

@@ -124,9 +124,7 @@ internal class UiExpressions
             {
                 var expected = (int)item.value;
                 var b = oscItem.WriteOnlyValueRef is int i && i == expected;
-                var doit = b;
-                if (doit) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.EnabledButtonTransparentCyan);
-                if (ImGuiVR.HapticButton($"= {expected}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f)))
+                if (UiColors.ColoredBackground(b, () => ImGuiVR.HapticButton($"= {expected}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f))))
                 {
                     if (b)
                     {
@@ -137,7 +135,6 @@ internal class UiExpressions
                         _routine.UpdateMessage(oscItem.Key, expected);
                     }
                 }
-                if (doit) ImGui.PopStyleColor();
                 // ImGui.SameLine();
                 // if (ImGuiVR.HapticButton($"{HoldLabel}##{key}.hold", new Vector2(50, 0f))) ;
                 // _routine.EmitOscFlipEventOnChange(oscItem.Key, ImGui.IsItemActive());
