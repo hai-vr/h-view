@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Hai.HView.Core;
+using Hai.HView.Data;
 using ImGuiNET;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -18,6 +19,7 @@ public class HVRendering
 
     private readonly bool _isWindowlessStyle;
     private readonly HVImageLoader _imageLoader;
+    private readonly SavedData _config;
 
     private Sdl2Window _window;
     private GraphicsDevice _gd;
@@ -37,10 +39,7 @@ public class HVRendering
     private readonly int _windowWidth;
     private readonly int _windowHeight;
     
-    // Debug
-    private bool _debugTransparency;
-    
-    public HVRendering(bool isWindowlessStyle, int windowWidth, int windowHeight, HVImageLoader imageLoader)
+    public HVRendering(bool isWindowlessStyle, int windowWidth, int windowHeight, HVImageLoader imageLoader, SavedData config)
     {
         _isWindowlessStyle = isWindowlessStyle;
 
@@ -48,6 +47,7 @@ public class HVRendering
         _windowHeight = windowHeight;
         
         _imageLoader = imageLoader;
+        _config = config;
     }
     
     private void SubmitUI()
@@ -315,7 +315,7 @@ public class HVRendering
         // This makes the background transparent for the eye tracking menus.
         _cl.ClearColorTarget(0, _transparentClearColor);
 
-        if (_debugTransparency)
+        if (_config.devTools__TestTransparency)
         {
             _cl.ClearColorTarget(0, new RgbaFloat(1f, 0f, 0f, 1f));
         }

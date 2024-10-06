@@ -137,6 +137,7 @@ internal class UiOptions
     {
         ImGui.SeparatorText("DevTools");
         ImGui.Checkbox("[DEV] Use Eye Tracking instead of controllers as input", ref _config.devTools__EyeTracking);
+        ImGui.Checkbox("[DEV] Test transparency", ref _config.devTools__TestTransparency);
     }
 
     private void DisplayEntries(HThirdPartyEntry[] entries, bool aerated)

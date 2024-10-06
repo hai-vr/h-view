@@ -28,7 +28,7 @@ public class HVDesktopStarter
     {
         var imageLoader = new HVImageLoader();
         var mainApp = new UiMainApplication(_routine, _simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, imageLoader);
-        var imGuiManagement = new HVRendering(_simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, imageLoader);
+        var imGuiManagement = new HVRendering(_simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, imageLoader, _config);
         imGuiManagement.OnSubmitUi += mainApp.SubmitUI;
         
         imGuiManagement.UiLoop(); // This call blocks until the user closes the window.
