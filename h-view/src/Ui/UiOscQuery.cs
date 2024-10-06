@@ -8,7 +8,7 @@ namespace Hai.HView.Gui;
 
 public class UiOscQuery
 {
-    private readonly ImGuiVR ImGuiVR;
+    private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly UiSharedData _sharedData;
     private const string AvatarParametersPath = "/avatar/parameters/";
@@ -32,7 +32,7 @@ public class UiOscQuery
     private bool _chatboxB;
     private bool _chatboxN;
 
-    public UiOscQuery(ImGuiVR imGuiVr, HVRoutine routine, UiSharedData sharedData)
+    public UiOscQuery(ImGuiVRCore imGuiVr, HVRoutine routine, UiSharedData sharedData)
     {
         ImGuiVR = imGuiVr;
         _routine = routine;

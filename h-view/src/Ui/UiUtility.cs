@@ -8,7 +8,7 @@ namespace Hai.HView.Gui;
 
 public class UiUtility
 {
-    private readonly ImGuiVR ImGuiVR;
+    private readonly ImGuiVRCore ImGuiVR;
     private readonly UiScrollManager _scrollManager;
     private readonly HVRoutine _routine;
 
@@ -16,7 +16,7 @@ public class UiUtility
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     private string[] _thirdPartyLateInit;
 
-    public UiUtility(ImGuiVR imGuiVr, UiScrollManager scrollManager, HVRoutine routine)
+    public UiUtility(ImGuiVRCore imGuiVr, UiScrollManager scrollManager, HVRoutine routine)
     {
         ImGuiVR = imGuiVr;
         _scrollManager = scrollManager;

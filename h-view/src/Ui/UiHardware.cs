@@ -8,7 +8,7 @@ namespace Hai.HView.Ui;
 
 public class UiHardware
 {
-    private readonly ImGuiVR ImGuiVR;
+    private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly SavedData _config;
 
@@ -19,7 +19,7 @@ public class UiHardware
 
     private bool _editNames;
 
-    public UiHardware(ImGuiVR imGuiVr, HVRoutine routine, SavedData config)
+    public UiHardware(ImGuiVRCore imGuiVr, HVRoutine routine, SavedData config)
     {
         ImGuiVR = imGuiVr;
         _routine = routine;

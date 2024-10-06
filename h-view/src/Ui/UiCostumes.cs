@@ -8,7 +8,7 @@ namespace Hai.HView.Gui.Tab;
 
 public class UiCostumes
 {
-    private readonly ImGuiVR ImGuiVR;
+    private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly UiScrollManager _scrollManager;
     private readonly bool _noLogin;
@@ -23,7 +23,7 @@ public class UiCostumes
     private string _twoferBuffer__sensitive = "";
     private string _avatarIdBuffer = "";
 
-    public UiCostumes(ImGuiVR imGuiVr, HVRoutine routine, UiScrollManager scrollManager, bool noLogin, HVImageLoader imageLoader)
+    public UiCostumes(ImGuiVRCore imGuiVr, HVRoutine routine, UiScrollManager scrollManager, bool noLogin, HVImageLoader imageLoader)
     {
         ImGuiVR = imGuiVr;
         _routine = routine;

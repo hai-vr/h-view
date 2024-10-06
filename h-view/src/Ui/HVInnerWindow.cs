@@ -46,7 +46,7 @@ public class HVInnerWindow : IDisposable
 
     // UI state
     private readonly RgbaFloat _transparentClearColor = new RgbaFloat(0f, 0f, 0f, 0f);
-    private readonly ImGuiVR ImGuiVR;
+    private readonly ImGuiVRCore ImGuiVR;
     private readonly UiSharedData _sharedData;
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
     
@@ -89,7 +89,7 @@ public class HVInnerWindow : IDisposable
         
         _imageLoader = new HVImageLoader();
         _sharedData = new UiSharedData();
-        ImGuiVR = new ImGuiVR();
+        ImGuiVR = new ImGuiVRCore();
 
         var oscQueryTab = new UiOscQuery(ImGuiVR, _routine, _sharedData);
         _expressionsTab = new UiExpressions(ImGuiVR, _routine, _imageLoader, oscQueryTab, _sharedData);
@@ -616,12 +616,12 @@ public class HVInnerWindow : IDisposable
         _panel = newPanel;
     }
 
-    public void RegisterHoverChanged(ImGuiVR.ButtonEvent buttonEvent)
+    public void RegisterHoverChanged(ImGuiVRCore.ButtonEvent buttonEvent)
     {
         ImGuiVR.OnHoverChanged += buttonEvent;
     }
 
-    public void RegisterButtonPressed(ImGuiVR.ButtonEvent buttonEvent)
+    public void RegisterButtonPressed(ImGuiVRCore.ButtonEvent buttonEvent)
     {
         ImGuiVR.OnButtonPressed += buttonEvent;
     }

@@ -16,7 +16,7 @@ public class UiEyeTrackingMenu
     private float _linearWidth;
     private float _linearHeight;
 
-    private readonly ImGuiVR ImGuiVR;
+    private readonly ImGuiVRCore ImGuiVR;
     private readonly bool _isWindowlessStyle;
     private readonly HVImageLoader _imageLoader;
     private readonly UiSharedData _sharedData;
@@ -28,7 +28,7 @@ public class UiEyeTrackingMenu
     private static float _iconSizeMul = 1f;
     private static float _iconSpacingMul = 1.228f;
 
-    public UiEyeTrackingMenu(ImGuiVR imGuiVr, bool isWindowlessStyle, HVImageLoader imageLoader, UiSharedData sharedData)
+    public UiEyeTrackingMenu(ImGuiVRCore imGuiVr, bool isWindowlessStyle, HVImageLoader imageLoader, UiSharedData sharedData)
     {
         ImGuiVR = imGuiVr;
         _isWindowlessStyle = isWindowlessStyle;

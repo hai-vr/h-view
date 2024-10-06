@@ -3,7 +3,7 @@ using ImGuiNET;
 
 namespace Hai.HView.Ui;
 
-public class ImGuiVR
+public class ImGuiVRCore
 {
     public event ButtonEvent OnHoverChanged;
     public event ButtonEvent OnButtonPressed;

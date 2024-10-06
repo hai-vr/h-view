@@ -11,7 +11,7 @@ namespace Hai.HView.Ui;
 public class UiOptions
 {
     private readonly Action<HVInnerWindow.HPanel> _switchPanelCallback;
-    private readonly ImGuiVR ImGuiVR;
+    private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly SavedData _config;
     private readonly bool _isWindowlessStyle;
@@ -20,7 +20,7 @@ public class UiOptions
     private HThirdPartyRegistry _thirdPartyRegistry;
     private int _selectedIndex = -1;
 
-    public UiOptions(ImGuiVR imGuiVr, Action<HVInnerWindow.HPanel> switchPanelCallback, HVRoutine routine, SavedData config, bool isWindowlessStyle, UiScrollManager scrollManager)
+    public UiOptions(ImGuiVRCore imGuiVr, Action<HVInnerWindow.HPanel> switchPanelCallback, HVRoutine routine, SavedData config, bool isWindowlessStyle, UiScrollManager scrollManager)
     {
         _switchPanelCallback = switchPanelCallback;
         ImGuiVR = imGuiVr;

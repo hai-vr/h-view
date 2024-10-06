@@ -9,7 +9,7 @@ namespace Hai.HView.Gui;
 
 public class UiExpressions
 {
-    private readonly ImGuiVR ImGuiVR;
+    private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly HVImageLoader _imageLoader;
     private readonly UiOscQuery _oscQueryTab;
@@ -22,7 +22,7 @@ public class UiExpressions
     private Vector2 _imagelessButtonSize;
     private int _buttonTableWidth;
 
-    public UiExpressions(ImGuiVR imGuiVr, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiSharedData sharedData)
+    public UiExpressions(ImGuiVRCore imGuiVr, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiSharedData sharedData)
     {
         ImGuiVR = imGuiVr;
         _routine = routine;

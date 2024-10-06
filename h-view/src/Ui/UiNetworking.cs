@@ -7,13 +7,13 @@ namespace Hai.HView.Ui;
 
 public class UiNetworking
 {
-    private readonly ImGuiVR ImGuiVR;
+    private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
 
     private readonly HNSteamworks _steamworks;
     private string _joinCode = "";
 
-    public UiNetworking(ImGuiVR imGuiVr, HVRoutine routine)
+    public UiNetworking(ImGuiVRCore imGuiVr, HVRoutine routine)
     {
         if (!ConditionalCompilation.IncludesSteamworks) throw new InvalidOperationException("Instances of UiNetworking should not be created when Steamworks is disabled in conditional compilation.");
 
