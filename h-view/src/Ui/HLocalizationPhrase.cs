@@ -98,11 +98,18 @@ public class HLocalizationPhrase
     public static string UtilityTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(UtilityTabLabel), "Utility");
     // Adding in 1.7
     public static string HardwareTabLabel => HLocalization.LocalizeOrElse__ImGuiTab(nameof(HardwareTabLabel), "Hardware");
+    // Adding in 1.8
+    public static string MsgOpenVrIsNotRunning => HLocalization.LocalizeOrElse(nameof(MsgOpenVrIsNotRunning), "OpenVR is not running.");
+    public static string ReplaceColorLabel => HLocalization.LocalizeOrElse(nameof(ReplaceColorLabel), "Replace color");
+    public static string TrackingLostColorLabel => HLocalization.LocalizeOrElse(nameof(TrackingLostColorLabel), "Tracking lost");
+    public static string TrackingRecoveredColorLabel => HLocalization.LocalizeOrElse(nameof(TrackingRecoveredColorLabel), "Tracking recovered");
+    public static string StaleParameterColorLabel => HLocalization.LocalizeOrElse(nameof(StaleParameterColorLabel), "Stale parameter");
+    public static string ActiveButtonColorLabel => HLocalization.LocalizeOrElse(nameof(ActiveButtonColorLabel), "Active button");
+    public static string OpenDeveloperToolsLabel => HLocalization.LocalizeOrElse(nameof(OpenDeveloperToolsLabel), "Open Developer tools");
     
     // -- Staging -- => HLocalization.LocalizeOrElse(nameof(Object), 
     public static string Separator => "-----------------------------";
     // - Labels
     // - Tabs
     // - Messages
-    public const string MsgOpenVrIsNotRunning = "OpenVR is not running.";
 }

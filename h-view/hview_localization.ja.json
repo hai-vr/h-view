@@ -89,5 +89,12 @@
     "label_SensorLabel": "センサー",
     "label_SerialLabel": "シリアル",
     "label_ShowLighthousesLabel": "Lighthousesを表示",
-    "label_ShowSerialLabel": "シリアルを表示"
+    "label_ShowSerialLabel": "シリアルを表示",
+    "label_MsgOpenVrIsNotRunning": "OpenVRが実行されていません。",
+    "label_ReplaceColorLabel": "色を置換",
+    "label_TrackingLostColorLabel": "トラッキングが失われました",
+    "label_TrackingRecoveredColorLabel": "トラッキングが回復しました",
+    "label_StaleParameterColorLabel": "パラメータが古い",
+    "label_ActiveButtonColorLabel": "アクティブなボタン",
+    "label_OpenDeveloperToolsLabel": "開発者ツールを開く"
 }

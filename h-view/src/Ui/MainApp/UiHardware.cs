@@ -113,7 +113,7 @@ internal class UiHardware
 
                 var color = hardware.Exists ? hardware.DeviceClass == ETrackedDeviceClass.TrackingReference ? UiColors.HardwareIsWorkingLighthouse : hardware.IsHealthy ? (
                     ComputeHealthColor(now, hardware)
-                ) : UiColors.TrackingLostYellow : UiColors.HardwareLostVeryDarkGray;
+                ) : UiColors.TrackingLost : UiColors.HardwareLostVeryDarkGray;
                 ImGui.PushStyleColor(ImGuiCol.Text, color);
                 ImGui.TableNextRow();
                 var tableIndex = 0;
@@ -190,9 +190,9 @@ internal class UiHardware
         
         float healthiness01 = (float)((now - hardware.LastIssueTime).TotalMilliseconds / mercyMs);
         if (healthiness01 > 1f) return UiColors.RegularWhite;
-        if (healthiness01 < 0f) return UiColors.TrackingLostYellow; // Defensive
+        if (healthiness01 < 0f) return UiColors.TrackingLost; // Defensive
 
-        return Vector4.Lerp(UiColors.TrackingRecoveredGreen, UiColors.RegularWhite, healthiness01);
+        return Vector4.Lerp(UiColors.TrackingRecovered, UiColors.RegularWhite, healthiness01);
     }
 
     private static void ItemHovered(HardwareTracker hardware, Vector4 color)

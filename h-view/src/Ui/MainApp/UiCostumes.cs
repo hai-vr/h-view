@@ -110,7 +110,7 @@ internal class UiCostumes
 
     private void DrawAviButton(string avatarId, string pngPath, HVExternalService uiExternalService, string currentAvi)
     {
-        if (avatarId == currentAvi) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.EnabledButtonTransparentCyan);
+        if (avatarId == currentAvi) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.ActiveButton);
         if (ImGuiVR.HapticImageButton($"###switch_{avatarId}", _imageLoader.GetOrLoadImage(pngPath), _portraitSize))
         {
             _routine.EjectUserFromCostumeMenu();

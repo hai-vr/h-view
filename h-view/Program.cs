@@ -44,6 +44,7 @@ internal class HViewProgram
             Directory.CreateDirectory(SaveUtil.GetUserDataFolder());
         }
         config = SavedData.OpenConfig();
+        UiColors.ProvideConfig(config);
         
         HLocalization.InitializeAndProvideFor(config.locale);
 

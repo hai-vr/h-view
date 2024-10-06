@@ -90,5 +90,12 @@
     "label_SensorLabel": "Sensor",
     "label_SerialLabel": "Serial",
     "label_ShowLighthousesLabel": "Show Lighthouses",
-    "label_ShowSerialLabel": "Show Serial"
+    "label_ShowSerialLabel": "Show Serial",
+    "label_MsgOpenVrIsNotRunning": "OpenVR is not running.",
+    "label_ReplaceColorLabel": "Replace color",
+    "label_TrackingLostColorLabel": "Tracking lost",
+    "label_TrackingRecoveredColorLabel": "Tracking recovered",
+    "label_StaleParameterColorLabel": "Stale parameter",
+    "label_ActiveButtonColorLabel": "Active button",
+    "label_OpenDeveloperToolsLabel": "Open Developer tools"
 }

@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
+using Hai.HView.Ui;
 using Newtonsoft.Json;
 
 namespace Hai.HView.Data;
@@ -22,6 +24,18 @@ public class SavedData
     public bool useSmallFontDesktop = true;
     public bool useSmallFontVR = false;
     public Dictionary<string, HOpenVrHardwarePreference> ovrSerialToPreference = new();
+
+    public ColorReplacement colorTrackingLost = new() { color = UiColors.V3(UiColors.DEFAULT_TrackingLost) };
+    public ColorReplacement colorTrackingRecovered = new() { color = UiColors.V3(UiColors.DEFAULT_TrackingRecovered) };
+    public ColorReplacement colorStaleParameter = new() { color = UiColors.V3(UiColors.DEFAULT_StaleParameter) };
+    public ColorReplacement colorActiveButton = new() { color = UiColors.V3(UiColors.DEFAULT_ActiveButton) };
+
+    [Serializable]
+    public struct ColorReplacement
+    {
+        public bool use;
+        public Vector3 color;
+    }
     
     public bool showLighthouses;
     public bool showSerial;

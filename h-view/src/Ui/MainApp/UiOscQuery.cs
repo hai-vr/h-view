@@ -210,7 +210,7 @@ internal class UiOscQuery
         var onlyChangedOnce = oscItem.IsReadable && oscItem.DifferentValueCount <= 1;
         if (onlyChangedOnce) // Color near-unchanged values to help finding out "unused" or "frozen value (updated once)" parameters.
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, UiColors.UnusedParameterColor);
+            ImGui.PushStyleColor(ImGuiCol.Text, UiColors.StaleParameter);
         }
         ImGui.Text($"{shortstring}");
         if (onlyChangedOnce)
@@ -352,7 +352,7 @@ internal class UiOscQuery
             {
                 // TODO: Handle type mismatches
                 var value = oscItem.WriteOnlyValueRef;
-                ImGui.PushStyleColor(ImGuiCol.Text, UiColors.UnusedParameterColor);
+                ImGui.PushStyleColor(ImGuiCol.Text, UiColors.StaleParameter);
                 ImGui.Text($"{value} ({oscItem.OscType} | {oscItem.WriteOnlyValueRef.GetType().Name})");
                 ImGui.PopStyleColor();
             }
@@ -378,7 +378,7 @@ internal class UiOscQuery
             else
             {
                 var isTruthy = IsTruthy(oscItem);
-                if (isTruthy) ImGui.PushStyleColor(ImGuiCol.Text, UiColors.EnabledButtonTransparentCyan);
+                if (isTruthy) ImGui.PushStyleColor(ImGuiCol.Text, UiColors.ActiveButton);
                 UiColors.Colored(isTruthy, ImGuiCol.Text, () => ImGui.Text($"{string.Join(",", oscItem.Values.Select(o => o is float ? $"{o:0.###}" : o.ToString()))}"));
                 if (isTruthy) ImGui.PopStyleColor();
             }

@@ -414,7 +414,7 @@ internal class UiExpressions
                     ImGui.BeginGroup();
 
                     var isMatch = hasOscItem && IsControlMatchingOscValue(item, oscItem);
-                    if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.EnabledButtonTransparentCyan);
+                    if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.ActiveButton);
 
                     var button = DrawButtonFor(id, icons, item);
                     if (hasOscItem && button && item.type == HVShortcutType.Toggle)

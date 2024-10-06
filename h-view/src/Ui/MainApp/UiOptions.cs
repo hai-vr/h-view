@@ -10,6 +10,8 @@ namespace Hai.HView.Ui.MainApp;
 
 internal class UiOptions
 {
+    internal const string LanguagesNonTranslated = "Languages";
+
     private readonly Action<UiMainApplication.HPanel> _switchPanelCallback;
     private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
@@ -47,6 +49,12 @@ internal class UiOptions
         var needsSave = false;
         if (!_isWindowlessStyle) needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontDesktopLabel, ref _config.useSmallFontDesktop);
         else needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontVRLabel, ref _config.useSmallFontVR);
+
+        needsSave |= ColorReplacementEdit(HLocalizationPhrase.TrackingLostColorLabel, ref _config.colorTrackingLost, UiColors.DEFAULT_TrackingLost);
+        needsSave |= ColorReplacementEdit(HLocalizationPhrase.TrackingRecoveredColorLabel, ref _config.colorTrackingRecovered, UiColors.DEFAULT_TrackingRecovered);
+        needsSave |= ColorReplacementEdit(HLocalizationPhrase.StaleParameterColorLabel, ref _config.colorStaleParameter, UiColors.DEFAULT_StaleParameter);
+        needsSave |= ColorReplacementEdit(HLocalizationPhrase.ActiveButtonColorLabel, ref _config.colorActiveButton, UiColors.DEFAULT_ActiveButton);
+
         if (needsSave)
         {
             _config.SaveConfig();
@@ -56,7 +64,7 @@ internal class UiOptions
             _selectedIndex = -1;
             _switchPanelCallback.Invoke(UiMainApplication.HPanel.Thirdparty);
         }
-        if (ImGuiVR.HapticButton("Open Developer tools"))
+        if (ImGuiVR.HapticButton(HLocalizationPhrase.OpenDeveloperToolsLabel))
         {
             _switchPanelCallback.Invoke(UiMainApplication.HPanel.DevTools);
         }
@@ -74,6 +82,25 @@ internal class UiOptions
                 HLocalization.SwitchLanguage(languageIndex);
             }
         }
+    }
+
+    private bool ColorReplacementEdit(string label, ref SavedData.ColorReplacement replacement, Vector4 defaultValue)
+    {
+        var anyChanged = false;
+        anyChanged |= ImGui.Checkbox($"{HLocalizationPhrase.ReplaceColorLabel}###replace_checkbox_{label}", ref replacement.use);
+        ImGui.SameLine();
+        if (replacement.use)
+        {
+            anyChanged |= ImGui.ColorEdit3($"###color_edit_{label}", ref replacement.color, ImGuiColorEditFlags.NoInputs);
+        }
+        else
+        {
+            ImGui.ColorButton($"###color_button{label}", defaultValue);
+        }
+        ImGui.SameLine();
+        UiColors.Colored(!replacement.use, ImGuiCol.Text, UiColors.IsDefaultGray, () => ImGui.Text(label));
+
+        return anyChanged;
     }
 
     public void ThirdPartyTab()
@@ -162,6 +189,4 @@ internal class UiOptions
     {
         return entry.SPDX != "" ? entry.SPDX : entry.licenseName;
     }
-
-    internal const string LanguagesNonTranslated = "Languages";
 }
