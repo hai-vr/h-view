@@ -12,7 +12,8 @@ public class UiCostumes
     private readonly HVRoutine _routine;
     private readonly UiScrollManager _scrollManager;
     private readonly bool _noLogin;
-    
+    private readonly HVImageLoader _imageLoader;
+
     private readonly Vector2 _portraitSize = new Vector2(256, 768);
 
     private const uint MaxLength = 10_000;
@@ -22,12 +23,13 @@ public class UiCostumes
     private string _twoferBuffer__sensitive = "";
     private string _avatarIdBuffer = "";
 
-    public UiCostumes(HVInnerWindow inner, HVRoutine routine, UiScrollManager scrollManager, bool noLogin)
+    public UiCostumes(HVInnerWindow inner, HVRoutine routine, UiScrollManager scrollManager, bool noLogin, HVImageLoader imageLoader)
     {
         _inner = inner;
         _routine = routine;
         _scrollManager = scrollManager;
         _noLogin = noLogin;
+        _imageLoader = imageLoader;
     }
 
     internal void CostumesTab(Dictionary<string, HOscItem> oscMessages)
@@ -108,7 +110,7 @@ public class UiCostumes
     private void DrawAviButton(string avatarId, string pngPath, HVExternalService uiExternalService, string currentAvi)
     {
         if (avatarId == currentAvi) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
-        if (_inner.HapticImageButton($"###switch_{avatarId}", _inner.GetOrLoadImage(pngPath), _portraitSize))
+        if (_inner.HapticImageButton($"###switch_{avatarId}", _imageLoader.GetOrLoadImage(pngPath), _portraitSize))
         {
             _routine.EjectUserFromCostumeMenu();
             uiExternalService.SelectAvatar(avatarId);

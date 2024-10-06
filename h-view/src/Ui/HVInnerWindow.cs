@@ -33,6 +33,7 @@ public partial class HVInnerWindow : IDisposable
 
     private readonly HVRoutine _routine;
     private readonly bool _isWindowlessStyle;
+    private readonly HVImageLoader _imageLoader;
 
     private Sdl2Window _window;
     private GraphicsDevice _gd;
@@ -91,11 +92,13 @@ public partial class HVInnerWindow : IDisposable
         _config = config;
         _trimWidth = (windowWidth - innerWidth) / 2;
         _trimHeight = (windowHeight - innerHeight) / 2;
+        
+        _imageLoader = new HVImageLoader();
 
-        _expressionsTab = new UiExpressions(this, _routine);
-        _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle);
+        _expressionsTab = new UiExpressions(this, _routine, _imageLoader);
+        _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
         _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
-        _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle);
+        _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle, _imageLoader);
         _hardwareTab = new UiHardware(this, _routine, _config);
         _optionsTab = new UiOptions(this, _routine, _config, _isWindowlessStyle, _scrollManager);
     }
@@ -109,7 +112,7 @@ public partial class HVInnerWindow : IDisposable
     private void OnManifestChanged(EMManifest newManifest) => _queuedForUi.Enqueue(() =>
     {
         ManifestNullable = newManifest;
-        FreeImagesFromMemory();
+        _imageLoader.FreeImagesFromMemory();
         RebuildManifestAsShortcuts(newManifest);
         BuildIsLocalTable(newManifest);
     });
@@ -455,6 +458,8 @@ public partial class HVInnerWindow : IDisposable
         };
         _cl = _gd.ResourceFactory.CreateCommandList();
         _controller = new CustomImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
+        
+        _imageLoader.Provide(_gd, _controller);
 
         var timer = Stopwatch.StartNew();
         timer.Start();
@@ -540,6 +545,8 @@ public partial class HVInnerWindow : IDisposable
 
         // I've wasted several hours of dev because I forgot to pass our own framebuffer OutputDescription to this thing.
         _controller = new CustomImGuiController(_gd, actuallyWindowless ? _overlayFramebuffer.OutputDescription : _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
+        
+        _imageLoader.Provide(_gd, _controller);
     }
 
     private void SetupFramebuffer()

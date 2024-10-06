@@ -18,6 +18,7 @@ public class UiEyeTrackingMenu
     
     private readonly HVInnerWindow _inner;
     private readonly bool _isWindowlessStyle;
+    private readonly HVImageLoader _imageLoader;
     private readonly Stack<MenuState> _menuState = new Stack<MenuState>();
     
     // TODO: SHARED between windowed and overlay, this needs to go in the config file
@@ -26,10 +27,11 @@ public class UiEyeTrackingMenu
     private static float _iconSizeMul = 1f;
     private static float _iconSpacingMul = 1.228f;
 
-    public UiEyeTrackingMenu(HVInnerWindow inner, bool isWindowlessStyle)
+    public UiEyeTrackingMenu(HVInnerWindow inner, bool isWindowlessStyle, HVImageLoader imageLoader)
     {
         _inner = inner;
         _isWindowlessStyle = isWindowlessStyle;
+        _imageLoader = imageLoader;
     }
 
     public void EyeTrackingMenuTab()
@@ -242,7 +244,7 @@ public class UiEyeTrackingMenu
         bool button;
         if (item.icon != -1)
         {
-            button = ImGui.ImageButton($"###{id}", _inner.GetOrLoadImage(icons, item.icon), new Vector2(_iconWidth, _iconHeight));
+            button = ImGui.ImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), new Vector2(_iconWidth, _iconHeight));
         }
         else
         {
