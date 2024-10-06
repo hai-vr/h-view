@@ -27,8 +27,9 @@ public class HVRendering
 
     private CustomImGuiController _controller;
 
-    // UI state
-    private readonly RgbaFloat _transparentClearColor = new RgbaFloat(0f, 0f, 0f, 0f);
+    // Clear color
+    private readonly RgbaFloat _transparentClearColor = new(0f, 0f, 0f, 0f);
+    private readonly RgbaFloat _debugRedClearColor = new(1f, 0f, 0f, 1f);
     
     // Overlay only
     private Texture _overlayTexture;
@@ -38,7 +39,7 @@ public class HVRendering
     // Tabs
     private readonly int _windowWidth;
     private readonly int _windowHeight;
-    
+
     public HVRendering(bool isWindowlessStyle, int windowWidth, int windowHeight, HVImageLoader imageLoader, SavedData config)
     {
         _isWindowlessStyle = isWindowlessStyle;
@@ -317,7 +318,7 @@ public class HVRendering
 
         if (_config.devTools__TestTransparency)
         {
-            _cl.ClearColorTarget(0, new RgbaFloat(1f, 0f, 0f, 1f));
+            _cl.ClearColorTarget(0, _debugRedClearColor);
         }
     }
 }

@@ -125,7 +125,7 @@ internal class UiExpressions
                 var expected = (int)item.value;
                 var b = oscItem.WriteOnlyValueRef is int i && i == expected;
                 var doit = b;
-                if (doit) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
+                if (doit) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.EnabledButtonTransparentCyan);
                 if (ImGuiVR.HapticButton($"= {expected}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f)))
                 {
                     if (b)
@@ -417,7 +417,7 @@ internal class UiExpressions
                     ImGui.BeginGroup();
 
                     var isMatch = hasOscItem && IsControlMatchingOscValue(item, oscItem);
-                    if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
+                    if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.EnabledButtonTransparentCyan);
 
                     var button = DrawButtonFor(id, icons, item);
                     if (hasOscItem && button && item.type == HVShortcutType.Toggle)

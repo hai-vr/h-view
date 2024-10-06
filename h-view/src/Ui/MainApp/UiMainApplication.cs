@@ -230,7 +230,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 
         ImGui.End();
         ImGui.PopFont();
-
+        
         // 3. Show the ImGui demo window. Most of the sample code is in ImGui.ShowDemoWindow(). Read its code to learn more about Dear ImGui!
         if (false)
         {
@@ -244,16 +244,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 
     private void ShowSidebarButton(Vector2 buttonSize, string label, HPanel target)
     {
-        if (ColoredBg(_panel == target, () => ImGuiVR.HapticButton(label, buttonSize))) _panel = target;
-    }
-
-    private bool ColoredBg(bool useColor, Func<bool> func)
-    {
-        if (useColor) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
-        var result = func.Invoke();
-        if (useColor) ImGui.PopStyleColor();
-        
-        return result;
+        if (UiColors.ColoredBackground(_panel == target, () => ImGuiVR.HapticButton(label, buttonSize))) _panel = target;
     }
 
     private void DisplayAsTabs(bool isEyeTrackingMenuBeingViewedThroughHandOverlay, Dictionary<string, HOscItem> oscMessages)

@@ -104,4 +104,5 @@ public class HLocalizationPhrase
     // - Labels
     // - Tabs
     // - Messages
+    public const string MsgOpenVrIsNotRunning = "OpenVR is not running.";
 }

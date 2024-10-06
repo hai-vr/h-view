@@ -34,10 +34,12 @@ internal class UiOptions
     {
         ImGui.SeparatorText(HLocalizationPhrase.SteamVRLabel);
         var autoLaunch = _routine.IsAutoLaunch();
+        ImGui.BeginDisabled(!_routine.IsOpenVrAvailable());
         if (ImGui.Checkbox(HLocalizationPhrase.StartWithSteamVRLabel, ref autoLaunch))
         {
             _routine.SetAutoLaunch(autoLaunch);
         }
+        ImGui.EndDisabled();
         
         ImGui.Text("");
         ImGui.SeparatorText(HLocalizationPhrase.OtherLabel);

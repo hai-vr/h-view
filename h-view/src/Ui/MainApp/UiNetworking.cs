@@ -111,7 +111,7 @@ internal class UiNetworking
         ImGui.BeginDisabled();
         ImGui.Dummy(new Vector2(2, 32));
         ImGui.SameLine();
-        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
+        ImGui.PushStyleColor(ImGuiCol.Button, UiColors.FakeButtonBlackInvisible);
         ImGuiVR.HapticButton("HV-", new Vector2(48, 32));
         ImGui.PopStyleColor();
         for (var i = 0; i < HNSteamworks.TotalDigitCount; i++)
@@ -122,7 +122,7 @@ internal class UiNetworking
             if (HNSteamworks.NeedsSeparator && i == HNSteamworks.SearchKeyDigitCount - 1)
             {
                 ImGui.SameLine();
-                ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
+                ImGui.PushStyleColor(ImGuiCol.Button, UiColors.FakeButtonBlackInvisible);
                 ImGuiVR.HapticButton("-", new Vector2(16, 32));
                 ImGui.PopStyleColor();
             }

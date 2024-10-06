@@ -76,6 +76,8 @@ public class HVOpenVRThread
 
         if (ovrStarted)
         {
+            _routine.SetOpenVrAvailable(true);
+            
             // We don't want the recorded app manifest file to change when trying debug builds.
             if (_registerAppManifest)
             {
@@ -204,6 +206,7 @@ public class HVOpenVRThread
         if (ovrStarted)
         {
             ovr.Teardown();
+            _routine.SetOpenVrAvailable(false);
         }
         
         desktopImGuiManagement.TeardownWindowlessUi(false);

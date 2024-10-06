@@ -26,8 +26,7 @@ internal class UiOscQuery
     private const string BoolOscTypeT = "T";
     private const string IntOscTypeI = "i";
     private const string ChatboxOscSpecialtyTypeSTT = "sTT";
-    private readonly Vector4 _redColor = new Vector4(1, 0, 0, 0.75f);
-    
+
     private string _chatboxBuffer = "";
     private bool _chatboxB;
     private bool _chatboxN;
@@ -189,7 +188,7 @@ internal class UiOscQuery
             }
             else
             {
-                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.75f, 0.5f, 0.5f, 1));
+                ImGui.PushStyleColor(ImGuiCol.Text, UiColors.UnhandledOscCompositeTypeDarkRed);
                 ImGui.Text($"{oscItem.OscType}");
                 ImGui.PopStyleColor();
             }
@@ -211,7 +210,7 @@ internal class UiOscQuery
         var onlyChangedOnce = oscItem.IsReadable && oscItem.DifferentValueCount <= 1;
         if (onlyChangedOnce) // Color near-unchanged values to help finding out "unused" or "frozen value (updated once)" parameters.
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, _redColor);
+            ImGui.PushStyleColor(ImGuiCol.Text, UiColors.UnusedParameterColor);
         }
         ImGui.Text($"{shortstring}");
         if (onlyChangedOnce)
@@ -276,7 +275,7 @@ internal class UiOscQuery
             {
                 var b = (bool)oscItem.WriteOnlyValueRef;
                 var doit = b;
-                if (doit) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
+                if (doit) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.EnabledButtonTransparentCyan);
                 if (ImGuiVR.HapticButton($"{b}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f)))
                 {
                     _routine.UpdateMessage(oscItem.Key, !b);
@@ -309,7 +308,7 @@ internal class UiOscQuery
                 ImGui.SameLine();
                 ImGui.PushItemWidth(80);
                 var doit = ii == 1;
-                if (doit) ImGui.PushStyleColor(ImGuiCol.SliderGrab, new Vector4(0, 1, 1, 0.75f));
+                if (doit) ImGui.PushStyleColor(ImGuiCol.SliderGrab, UiColors.EnabledButtonTransparentCyan);
                 if (ImGui.SliderInt($"##{key}.slider", ref ii, 0, 255))
                 {
                     _routine.UpdateMessage(oscItem.Key, ii);
@@ -359,7 +358,7 @@ internal class UiOscQuery
             {
                 // TODO: Handle type mismatches
                 var value = oscItem.WriteOnlyValueRef;
-                ImGui.PushStyleColor(ImGuiCol.Text, _redColor);
+                ImGui.PushStyleColor(ImGuiCol.Text, UiColors.UnusedParameterColor);
                 ImGui.Text($"{value} ({oscItem.OscType} | {oscItem.WriteOnlyValueRef.GetType().Name})");
                 ImGui.PopStyleColor();
             }
@@ -385,7 +384,7 @@ internal class UiOscQuery
             else
             {
                 var isTruthy = IsTruthy(oscItem);
-                if (isTruthy) ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0, 1, 1, 0.75f));
+                if (isTruthy) ImGui.PushStyleColor(ImGuiCol.Text, UiColors.EnabledButtonTransparentCyan);
                 ImGui.Text($"{string.Join(",", oscItem.Values.Select(o => o is float ? $"{o:0.###}" : o.ToString()))}");
                 if (isTruthy) ImGui.PopStyleColor();
             }

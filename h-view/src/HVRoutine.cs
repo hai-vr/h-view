@@ -49,6 +49,7 @@ public class HVRoutine
     
     private Stopwatch _lastHardwareRequired = new Stopwatch();
     private bool _hardwareRequiredAtLeastOnce;
+    private bool _isOpenVrAvailable;
 
     public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional, FakeVRCOSC fakeVrcOptional, SavedData config)
     {
@@ -447,6 +448,16 @@ public class HVRoutine
     public UiHardwareResponse UiHardware()
     {
         return _hardwareRouting.UiHardware();
+    }
+
+    public void SetOpenVrAvailable(bool isOpenVrAvailable)
+    {
+        _isOpenVrAvailable = isOpenVrAvailable;
+    }
+
+    public bool IsOpenVrAvailable()
+    {
+        return _isOpenVrAvailable;
     }
 }
 

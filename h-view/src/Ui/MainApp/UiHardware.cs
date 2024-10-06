@@ -1,4 +1,6 @@
-﻿using Hai.HView.Core;
+﻿using System.Diagnostics;
+using System.Numerics;
+using Hai.HView.Core;
 using Hai.HView.Data;
 using Hai.HView.Hardware;
 using ImGuiNET;
@@ -11,11 +13,7 @@ internal class UiHardware
     private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly SavedData _config;
-
-    private const uint DarkGray = 0xFFA0A0A0;
-    private const uint VeryDarkGray = 0xFF606060;
-    private const uint White = 0xFFFFFFFF;
-    private const uint Yellow = 0xFF00FFFF;
+    private readonly Stopwatch _time;
 
     private bool _editNames;
 
@@ -24,6 +22,9 @@ internal class UiHardware
         ImGuiVR = imGuiVr;
         _routine = routine;
         _config = config;
+        
+        _time = new Stopwatch();
+        _time.Start();
     }
 
     public void HardwareTab()
@@ -32,7 +33,18 @@ internal class UiHardware
         _routine.RequireHardware();
 
         OptionsWindow();
-        TrackersWindow();
+        if (_routine.IsOpenVrAvailable())
+        {
+            TrackersWindow();
+        }
+        else
+        {
+            var elapsedMilliseconds = _time.ElapsedMilliseconds;
+            var switchEveryHalfSecond = (2 * elapsedMilliseconds / 1000) % 2 == 0;
+            ImGui.PushStyleColor(ImGuiCol.Text, switchEveryHalfSecond ? UiColors.ErroringRed : UiColors.RegularWhite);
+            ImGui.TextWrapped(HLocalizationPhrase.MsgOpenVrIsNotRunning);
+            ImGui.PopStyleColor();
+        }
     }
         
     private void OptionsWindow()
@@ -99,9 +111,9 @@ internal class UiHardware
                     
                 var debugTrackingResult = hardware.DebugTrackingResult;
 
-                var color = hardware.Exists ? hardware.DeviceClass == ETrackedDeviceClass.TrackingReference ? DarkGray : hardware.IsHealthy ? (
+                var color = hardware.Exists ? hardware.DeviceClass == ETrackedDeviceClass.TrackingReference ? UiColors.HardwareIsWorkingLighthouse : hardware.IsHealthy ? (
                     ComputeHealthColor(now, hardware)
-                ) : Yellow : VeryDarkGray;
+                ) : UiColors.TrackingLostYellow : UiColors.HardwareLostVeryDarkGray;
                 ImGui.PushStyleColor(ImGuiCol.Text, color);
                 ImGui.TableNextRow();
                 var tableIndex = 0;
@@ -172,19 +184,18 @@ internal class UiHardware
         ImGui.EndTable();
     }
 
-    private uint ComputeHealthColor(DateTime now, HardwareTracker hardware)
+    private Vector4 ComputeHealthColor(DateTime now, HardwareTracker hardware)
     {
         float mercyMs = 1000f;
         
         float healthiness01 = (float)((now - hardware.LastIssueTime).TotalMilliseconds / mercyMs);
-        if (healthiness01 > 1f) return White;
-        if (healthiness01 < 0f) return Yellow; // Defensive
+        if (healthiness01 > 1f) return UiColors.RegularWhite;
+        if (healthiness01 < 0f) return UiColors.TrackingLostYellow; // Defensive
 
-        // FIXME: Really need a color lerping solution here
-        return (uint)(0xFF00FF00 | (int)(healthiness01 * 0xFF) | (int)(healthiness01 * 0xFF) << 16);
+        return Vector4.Lerp(UiColors.TrackingRecoveredGreen, UiColors.RegularWhite, healthiness01);
     }
 
-    private static void ItemHovered(HardwareTracker hardware, uint color)
+    private static void ItemHovered(HardwareTracker hardware, Vector4 color)
     {
         if (ImGui.IsItemHovered())
         {
