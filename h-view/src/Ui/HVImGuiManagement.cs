@@ -1,12 +1,5 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Numerics;
-using Hai.ExternalExpressionsMenu;
+﻿using System.Diagnostics;
 using Hai.HView.Core;
-using Hai.HView.Data;
-using Hai.HView.Gui.Tab;
-using Hai.HView.OSC;
-using Hai.HView.Ui;
 using ImGuiNET;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -15,20 +8,14 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace Hai.HView.Gui;
 
-public class HVImGuiManagement : IDisposable
+public class HVImGuiManagement
 {
-    private const int BorderWidth = 0;
-    private const int BorderHeight = BorderWidth;
-    private const ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoResize;
-    private const ImGuiWindowFlags WindowFlagsNoCollapse = WindowFlags | ImGuiWindowFlags.NoCollapse;
-
+    public event SubmitUi OnSubmitUi;
+    public delegate void SubmitUi(CustomImGuiController controller, Sdl2Window window);
+    
     private const int RefreshFramesPerSecondWhenUnfocused = 100;
     private const int RefreshEventPollPerSecondWhenMinimized = 15;
 
-    private const bool ShowFrameCounter = false;
-    private const int SidePanelWidth = 165;
-
-    private readonly HVRoutine _routine;
     private readonly bool _isWindowlessStyle;
     private readonly HVImageLoader _imageLoader;
 
@@ -38,17 +25,8 @@ public class HVImGuiManagement : IDisposable
 
     private CustomImGuiController _controller;
 
-    private readonly ConcurrentQueue<Action> _queuedForUi = new ConcurrentQueue<Action>();
-    private bool _eyeTrackingMenuActiveLastFrame;
-    
-    // Externally set
-    private bool _isBeingViewedThroughHandOverlay;
-
     // UI state
     private readonly RgbaFloat _transparentClearColor = new RgbaFloat(0f, 0f, 0f, 0f);
-    private readonly ImGuiVRCore ImGuiVR;
-    private readonly UiSharedData _sharedData;
-    private readonly UiScrollManager _scrollManager = new UiScrollManager();
     
     // Overlay only
     private Texture _overlayTexture;
@@ -56,270 +34,25 @@ public class HVImGuiManagement : IDisposable
     private Framebuffer _overlayFramebuffer;
     
     // Tabs
-    private readonly UiExpressions _expressionsTab;
-    private readonly UiCostumes _costumesTab;
-    private readonly UiOscQuery _oscQueryTab;
-    private readonly UiNetworking _networkingTabOptional;
-    private readonly UiEyeTrackingMenu _eyeTrackingMenu;
-    private readonly UiHardware _hardwareTab;
-    private readonly UiOptions _optionsTab;
-    private readonly UiUtility _utilityTab;
     private readonly int _windowWidth;
     private readonly int _windowHeight;
-    private readonly SavedData _config;
-    private readonly int _trimWidth;
-    private readonly int _trimHeight;
     
     // Debug
-    private long frameNumber;
-    private HVInnerWindow.HPanel _panel = HVInnerWindow.HPanel.Shortcuts;
     private bool _debugTransparency;
-
-    public HVImGuiManagement(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config)
+    
+    public HVImGuiManagement(bool isWindowlessStyle, int windowWidth, int windowHeight, HVImageLoader imageLoader)
     {
-        _routine = routine;
         _isWindowlessStyle = isWindowlessStyle;
-        routine.OnManifestChanged += OnManifestChanged;
 
         _windowWidth = windowWidth;
         _windowHeight = windowHeight;
-        _config = config;
-        _trimWidth = (windowWidth - innerWidth) / 2;
-        _trimHeight = (windowHeight - innerHeight) / 2;
         
-        _imageLoader = new HVImageLoader();
-        _sharedData = new UiSharedData();
-        ImGuiVR = new ImGuiVRCore();
-
-        var oscQueryTab = new UiOscQuery(ImGuiVR, _routine, _sharedData);
-        _expressionsTab = new UiExpressions(ImGuiVR, _routine, _imageLoader, oscQueryTab, _sharedData);
-        _costumesTab = new UiCostumes(ImGuiVR, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
-        _oscQueryTab = oscQueryTab;
-        _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(ImGuiVR, _routine) : null;
-        _eyeTrackingMenu = new UiEyeTrackingMenu(ImGuiVR, isWindowlessStyle, _imageLoader, _sharedData);
-        _hardwareTab = new UiHardware(ImGuiVR, _routine, _config);
-        _optionsTab = new UiOptions(ImGuiVR, SwitchPanel, _routine, _config, _isWindowlessStyle, _scrollManager);
-        _utilityTab = new UiUtility(ImGuiVR, _scrollManager, _routine);
-    }
-
-    public void Dispose()
-    {
-        // TODO: This class may need a setup/teardown.
-        _routine.OnManifestChanged -= OnManifestChanged;
-    }
-
-    private void OnManifestChanged(EMManifest newManifest) => _queuedForUi.Enqueue(() =>
-    {
-        _sharedData.ManifestNullable = newManifest;
-        _imageLoader.FreeImagesFromMemory();
-        _sharedData.ShortcutsNullable = ShortcutResolver.RebuildManifestAsShortcuts(newManifest);
-        BuildIsLocalTable(newManifest);
-    });
-
-    private void BuildIsLocalTable(EMManifest manifest)
-    {
-        foreach (var param in manifest.expressionParameters)
-        {
-            _sharedData.isLocal[param.parameter] = !param.synced;
-        }
+        _imageLoader = imageLoader;
     }
     
     private void SubmitUI()
     {
-        var sw = new Stopwatch();
-        sw.Start();
-        
-        var smallFont = _isWindowlessStyle ? _config.useSmallFontVR : _config.useSmallFontDesktop;
-
-        ImGui.PushFont(smallFont ? _controller.SmallFont : _controller.MainFont);
-        while (_queuedForUi.TryDequeue(out var action))
-        {
-            action.Invoke();
-        }
-
-        var windowHeight = _window.Height - BorderHeight * 2;
-
-        ImGuiVR.Begin();
-
-        ImGui.SetNextWindowPos(new Vector2(BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(new Vector2(SidePanelWidth - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
-
-        ImGui.Begin("###sidepanel", WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoScrollbar);
-        
-        var buttonSize = new Vector2(ImGui.GetWindowWidth() - 16, 35);
-        ShowSidebarButton(buttonSize, HLocalizationPhrase.ShortcutsTabLabel, HVInnerWindow.HPanel.Shortcuts);
-        ShowSidebarButton(buttonSize, HLocalizationPhrase.CostumesTabLabel, HVInnerWindow.HPanel.Costumes);
-        if (_networkingTabOptional != null) ShowSidebarButton(buttonSize, HLocalizationPhrase.NetworkingTabLabel, HVInnerWindow.HPanel.Networking);
-        ShowSidebarButton(buttonSize, HLocalizationPhrase.ParametersTabLabel, HVInnerWindow.HPanel.Parameters);
-        if (ConditionalCompilation.IncludesOpenVR) ShowSidebarButton(buttonSize, HLocalizationPhrase.HardwareTabLabel, HVInnerWindow.HPanel.Hardware);
-        ShowSidebarButton(buttonSize, HLocalizationPhrase.OptionsTabLabel, HVInnerWindow.HPanel.Options);
-        ShowSidebarButton(buttonSize, HLocalizationPhrase.TabsTabLabel, HVInnerWindow.HPanel.Tabs);
-        
-        var languages = HLocalization.GetLanguages();
-        var desiredY = ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 2f - (buttonSize.Y + 6) * languages.Count;
-        if (ImGui.GetCursorPosY() < desiredY) // Only show the language selector if we have room for it
-        {
-            ImGui.SetCursorPosY(desiredY);
-            for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
-            {
-                var language = languages[languageIndex].Replace(" (ChatGPT)" , " GPT");
-                if (ImGuiVR.HapticButton(language, buttonSize))
-                {
-                    _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
-                    HLocalization.SwitchLanguage(languageIndex);
-                }
-            }
-        }
-        else
-        {
-            ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 3);
-            if (ImGuiVR.HapticButton(UiOptions.LanguagesNonTranslated, buttonSize))
-            {
-                _panel = HVInnerWindow.HPanel.Options;
-            }
-        }
-
-        var overdata = $"{VERSION.miniVersion}";
-        ImGui.SetCursorPosX(16);
-        ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() - 8);
-        ImGui.Text(overdata);
-
-        ImGui.End();
-
-        var windowWidth = _window.Width - BorderWidth * 2 - SidePanelWidth;
-        ImGui.SetNextWindowPos(new Vector2(SidePanelWidth + BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
-        ImGui.SetNextWindowSize(new Vector2(windowWidth - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
-        var flags = WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar;
-
-        var isEyeTrackingMenuBeingViewedThroughHandOverlay = _isWindowlessStyle && _isBeingViewedThroughHandOverlay && _eyeTrackingMenuActiveLastFrame;
-        if (isEyeTrackingMenuBeingViewedThroughHandOverlay)
-        {
-            flags |= ImGuiWindowFlags.NoBackground;
-        }
-
-        frameNumber++;
-        ImGui.Begin($"{HVApp.AppTitleTab} {VERSION.version}", flags);
-        var oscMessages = _routine.UiOscMessages();
-        switch (_panel)
-        {
-            case HVInnerWindow.HPanel.Shortcuts:
-                _scrollManager.MakeScroll(() => _expressionsTab.ShortcutsTab(oscMessages));
-                break;
-            case HVInnerWindow.HPanel.Costumes:
-                _scrollManager.MakeScroll(() => _costumesTab.CostumesTab(oscMessages));
-                break;
-            case HVInnerWindow.HPanel.Networking:
-                _scrollManager.MakeScroll(() => _networkingTabOptional?.NetworkingTab());
-                break;
-            case HVInnerWindow.HPanel.Parameters:
-                _scrollManager.MakeScroll(() => ParametersTab(oscMessages));
-                break;
-            case HVInnerWindow.HPanel.Hardware:
-                _scrollManager.MakeScroll(() => _hardwareTab.HardwareTab());
-                break;
-            case HVInnerWindow.HPanel.Options:
-                _scrollManager.MakeScroll(() => _optionsTab.OptionsTab());
-                break;
-            case HVInnerWindow.HPanel.Tabs:
-                DisplayAsTabs(isEyeTrackingMenuBeingViewedThroughHandOverlay, oscMessages);
-                break;
-            case HVInnerWindow.HPanel.Thirdparty:
-                _optionsTab.ThirdPartyTab();
-                break;
-            case HVInnerWindow.HPanel.DevTools:
-                _optionsTab.DevToolsTab();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-
-        _scrollManager.StoreIfAnyItemHovered();
-
-        ImGuiVR.End();
-
-        ImGui.End();
-        ImGui.PopFont();
-
-        // 3. Show the ImGui demo window. Most of the sample code is in ImGui.ShowDemoWindow(). Read its code to learn more about Dear ImGui!
-        if (false)
-        {
-            // Normally user code doesn't need/want to call this because positions are saved in .ini file anyway.
-            // Here we just want to make the demo initial state a bit more friendly!
-            ImGui.SetNextWindowPos(new Vector2(650, 20), ImGuiCond.FirstUseEver);
-            var _showImGuiDemoWindow = false;
-            ImGui.ShowDemoWindow(ref _showImGuiDemoWindow);
-        }
-    }
-
-    private void ShowSidebarButton(Vector2 buttonSize, string label, HVInnerWindow.HPanel target)
-    {
-        if (ColoredBg(_panel == target, () => ImGuiVR.HapticButton(label, buttonSize))) _panel = target;
-    }
-
-    private bool ColoredBg(bool useColor, Func<bool> func)
-    {
-        if (useColor) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
-        var result = func.Invoke();
-        if (useColor) ImGui.PopStyleColor();
-        
-        return result;
-    }
-
-    private void DisplayAsTabs(bool isEyeTrackingMenuBeingViewedThroughHandOverlay, Dictionary<string, HOscItem> oscMessages)
-    {
-        if (ShowFrameCounter)
-        {
-            ImGui.Text($"[frame {frameNumber}, delta {(ImGui.GetIO().DeltaTime * 1000):0}ms]");
-        }
-
-        if (!isEyeTrackingMenuBeingViewedThroughHandOverlay)
-        {
-            ImGui.BeginTabBar("##tabs");
-            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.AvatarTabLabel, () =>
-            {
-                ImGui.BeginTabBar("##tabs_menulike");
-                _scrollManager.MakeTab(HLocalizationPhrase.ShortcutsTabLabel, () => _expressionsTab.ShortcutsTab(oscMessages));
-                _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
-                if (ImGui.BeginTabItem(HLocalizationPhrase.ParametersTabLabel))
-                {
-                    ParametersTab(oscMessages);
-                    ImGui.EndTabItem();
-                }
-
-                _eyeTrackingMenuActiveLastFrame = false;
-                _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.EyeTrackingTabLabel, () =>
-                {
-                    _eyeTrackingMenuActiveLastFrame = true;
-                    _eyeTrackingMenu.EyeTrackingMenuTab();
-                });
-                ImGui.EndTabBar();
-            });
-            if (_networkingTabOptional != null) _scrollManager.MakeTab(HLocalizationPhrase.NetworkingTabLabel, () => _networkingTabOptional.NetworkingTab());
-            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.UtilityTabLabel, () => _utilityTab.UtilityTab(oscMessages));
-            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.HardwareTabLabel, () => _hardwareTab.HardwareTab());
-            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.OptionsTabLabel, () => _optionsTab.OptionsTab());
-            ImGui.EndTabBar();
-        }
-        else
-        {
-            _eyeTrackingMenuActiveLastFrame = true;
-            _eyeTrackingMenu.EyeTrackingMenuTab();
-        }
-
-        _scrollManager.StoreIfAnyItemHovered();
-    }
-
-    private void ParametersTab(Dictionary<string, HOscItem> oscMessages)
-    {
-        ImGui.BeginTabBar("##tabs_parameters");
-        _scrollManager.MakeTab(HLocalizationPhrase.DefaultTabLabel, () => _oscQueryTab.AvatarTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.FaceTrackingTabLabel, () => _oscQueryTab.FaceTrackingTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.InputTabLabel, () => _oscQueryTab.InputTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.TrackingTabLabel, () => _oscQueryTab.TrackingTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.ContactsTabLabel, () => _expressionsTab.ContactsTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.PhysBonesLabel, () => _expressionsTab.PhysBonesTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.MenuTabLabel, () => _expressionsTab.ExpressionsTab(oscMessages));
-        ImGui.EndTabBar();
+        OnSubmitUi?.Invoke(_controller, _window);
     }
 
     public bool UpdateIteration(Stopwatch stopwatch)
@@ -577,16 +310,6 @@ public class HVImGuiManagement : IDisposable
         return true;
     }
 
-    public void SetEyeTracking(bool usingEyeTracking)
-    {
-        _sharedData.usingEyeTracking = usingEyeTracking;
-    }
-
-    public void SetIsHandOverlay(bool isHandOverlay)
-    {
-        _isBeingViewedThroughHandOverlay = isHandOverlay;
-    }
-
     private void DoClearColor()
     {
         // This makes the background transparent for the eye tracking menus.
@@ -596,20 +319,5 @@ public class HVImGuiManagement : IDisposable
         {
             _cl.ClearColorTarget(0, new RgbaFloat(1f, 0f, 0f, 1f));
         }
-    }
-
-    private void SwitchPanel(HVInnerWindow.HPanel newPanel)
-    {
-        _panel = newPanel;
-    }
-
-    public void RegisterHoverChanged(ImGuiVRCore.ButtonEvent buttonEvent)
-    {
-        ImGuiVR.OnHoverChanged += buttonEvent;
-    }
-
-    public void RegisterButtonPressed(ImGuiVRCore.ButtonEvent buttonEvent)
-    {
-        ImGuiVR.OnButtonPressed += buttonEvent;
     }
 }

@@ -14,11 +14,11 @@ public class HHandOverlay : IOverlayable
     private readonly Stopwatch _stopwatch;
     private readonly bool _useLeftHand;
 
-    public HHandOverlay(HVInnerWindow innerWindow, float windowRatio, HVRoutine routine, bool useLeftHand)
+    public HHandOverlay(HVImGuiManagement imGuiManagement, HVInnerWindow innerWindow, float windowRatio, HVRoutine routine, bool useLeftHand)
     {
         _routine = routine;
         _useLeftHand = useLeftHand;
-        _overlay = new HVImGuiOverlay(innerWindow, "costumes", false, windowRatio);
+        _overlay = new HVImGuiOverlay(imGuiManagement, innerWindow, "costumes", false, windowRatio);
         _stopwatch = new Stopwatch();
     }
 

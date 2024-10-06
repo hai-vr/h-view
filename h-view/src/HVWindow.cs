@@ -24,7 +24,12 @@ public class HVWindow
 
     public void Run()
     {
-        new HVInnerWindow(_routine, _simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config).UiLoop(); // This call blocks until the user closes the window.
+        var imageLoader = new HVImageLoader();
+        var inner = new HVInnerWindow(_routine, _simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, imageLoader);
+        var imGuiManagement = new HVImGuiManagement(_simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, imageLoader);
+        imGuiManagement.OnSubmitUi += inner.SubmitUI;
+        
+        imGuiManagement.UiLoop(); // This call blocks until the user closes the window.
         _whenWindowClosed();
     }
 }

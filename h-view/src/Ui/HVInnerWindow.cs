@@ -75,7 +75,7 @@ public class HVInnerWindow : IDisposable
     private HPanel _panel = HPanel.Shortcuts;
     private bool _debugTransparency;
 
-    public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config)
+    public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config, HVImageLoader imageLoader)
     {
         _routine = routine;
         _isWindowlessStyle = isWindowlessStyle;
@@ -84,10 +84,10 @@ public class HVInnerWindow : IDisposable
         _windowWidth = windowWidth;
         _windowHeight = windowHeight;
         _config = config;
+        _imageLoader = imageLoader;
         _trimWidth = (windowWidth - innerWidth) / 2;
         _trimHeight = (windowHeight - innerHeight) / 2;
         
-        _imageLoader = new HVImageLoader();
         _sharedData = new UiSharedData();
         ImGuiVR = new ImGuiVRCore();
 
@@ -137,8 +137,11 @@ public class HVInnerWindow : IDisposable
         DevTools
     }
 
-    private void SubmitUI()
+    public void SubmitUI(CustomImGuiController controller, Sdl2Window window)
     {
+        _controller = controller;
+        _window = window;
+        
         var sw = new Stopwatch();
         sw.Start();
         
@@ -335,7 +338,7 @@ public class HVInnerWindow : IDisposable
         ImGui.EndTabBar();
     }
 
-    public bool UpdateIteration(Stopwatch stopwatch)
+    private bool UpdateIteration(Stopwatch stopwatch)
     {
         if (_window.WindowState == WindowState.Minimized)
         {
@@ -350,7 +353,7 @@ public class HVInnerWindow : IDisposable
 
         _controller.Update(deltaTime, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
-        SubmitUI();
+        SubmitUI(_controller, _window);
 
         _cl.Begin();
         _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);
@@ -363,7 +366,7 @@ public class HVInnerWindow : IDisposable
         return true;
     }
 
-    public void UiLoop()
+    private void UiLoop()
     {
         // Create window, GraphicsDevice, and all resources necessary for the demo.
         var width = _windowWidth;
@@ -416,7 +419,7 @@ public class HVInnerWindow : IDisposable
             _controller.Update(deltaTime,
                 snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
-            SubmitUI();
+            SubmitUI(_controller, _window);
 
             _cl.Begin();
             _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);
@@ -436,7 +439,7 @@ public class HVInnerWindow : IDisposable
 
     #region Support for SteamVR Overlay
     
-    public void SetupUi(bool actuallyWindowless)
+    private void SetupUi(bool actuallyWindowless)
     {
         VeldridStartup.CreateWindowAndGraphicsDevice(
             new WindowCreateInfo(50, 50, _windowWidth, _windowHeight, actuallyWindowless ? WindowState.Hidden : WindowState.Normal, actuallyWindowless ? $"{HVApp.AppTitle}-Windowless" : HVApp.AppTitle),
@@ -531,7 +534,7 @@ public class HVInnerWindow : IDisposable
         
         _controller.Update(deltaTime, snapshot);
         
-        SubmitUI();
+        SubmitUI(_controller, _window);
         
         _cl.Begin();
         _cl.SetFramebuffer(_overlayFramebuffer);
@@ -542,7 +545,7 @@ public class HVInnerWindow : IDisposable
         _gd.SwapBuffers(_gd.MainSwapchain);
     }
 
-    public void TeardownWindowlessUi(bool actuallyWindowless)
+    private void TeardownWindowlessUi(bool actuallyWindowless)
     {
         if (actuallyWindowless)
         {
@@ -568,7 +571,7 @@ public class HVInnerWindow : IDisposable
         _controller.SetAsActiveContext();
     }
 
-    public bool HandleSleep()
+    private bool HandleSleep()
     {
         if (_window.WindowState == WindowState.Minimized)
         {

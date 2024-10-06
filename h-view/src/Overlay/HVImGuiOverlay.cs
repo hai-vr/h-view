@@ -15,6 +15,7 @@ public class HVImGuiOverlay : IOverlayable
     public const string OverlayKey = "hview-overlay";
 
     // Specific to this overlay window
+    private readonly HVImGuiManagement _imGuiManagement;
     private readonly HVInnerWindow _innerWindow;
     private readonly string _name;
     private readonly bool _isDashboard;
@@ -37,8 +38,9 @@ public class HVImGuiOverlay : IOverlayable
 
     public uint LastMouseMoveDeviceIndex { get; private set; }
 
-    public HVImGuiOverlay(HVInnerWindow innerWindow, string name, bool isDashboard, float ratio)
+    public HVImGuiOverlay(HVImGuiManagement imGuiManagement, HVInnerWindow innerWindow, string name, bool isDashboard, float ratio)
     {
+        _imGuiManagement = imGuiManagement;
         _innerWindow = innerWindow;
         _name = name;
         _isDashboard = isDashboard;
@@ -60,7 +62,7 @@ public class HVImGuiOverlay : IOverlayable
 
         _vrTexture = new Texture_t
         {
-            handle = _innerWindow.GetOverlayTexturePointer(),
+            handle = _imGuiManagement.GetOverlayTexturePointer(),
             eType = ETextureType.DirectX,
             eColorSpace = EColorSpace.Auto
         };
@@ -73,14 +75,14 @@ public class HVImGuiOverlay : IOverlayable
             _movement.Evaluate(_handle, _mgtPoseData);
         }
         
-        _innerWindow.SetAsActiveContext();
+        _imGuiManagement.SetAsActiveContext();
         // FIXME: For now, this prevents the window (that we're not even using) from freezing.
         // Now that the window is hidden, maybe this is no longer necessary? Not sure, if the task manager or other
         // system relies on us pulling those events.
-        var snapshot = _innerWindow.DoPumpEvents();
+        var snapshot = _imGuiManagement.DoPumpEvents();
 
         _inputSnapshot.Deaccumulate();
-        _inputSnapshot.SetWindowSize(_innerWindow.WindowSize());
+        _inputSnapshot.SetWindowSize(_imGuiManagement.WindowSize());
         PollOverlayEvents();
         ProcessEyeTracking();
         if (_usingEyeTracking && !_eyeTrackingIsInteract && _mgtPoseData.Interact.bChanged && _mgtPoseData.Interact.bState)
@@ -106,7 +108,7 @@ public class HVImGuiOverlay : IOverlayable
             // TODO: Open the VR keyboard whenever a text field in ImGui asks for input capture.
             // TODO: Figure out how to make third-party keyboard apps like XSOverlay still able to write text into our windowless instance.
             
-            _innerWindow.UpdateAndRender(stopwatch, _inputSnapshot);
+            _imGuiManagement.UpdateAndRender(stopwatch, _inputSnapshot);
         }
         
         OpenVR.Overlay.SetOverlayTexture(_handle, ref _vrTexture);

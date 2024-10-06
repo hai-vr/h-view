@@ -36,8 +36,11 @@ public class HVOpenVRThread
 
     public void Run()
     {
-        var desktopWindow = new HVInnerWindow(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config);
-        desktopWindow.SetupUi(false);
+        var desktopImageLoader = new HVImageLoader();
+        var desktopWindow = new HVInnerWindow(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, desktopImageLoader);
+        var desktopImGuiManagement = new HVImGuiManagement(false, TotalWindowWidth, TotalWindowHeight, desktopImageLoader);
+        desktopImGuiManagement.OnSubmitUi += desktopWindow.SubmitUI;
+        desktopImGuiManagement.SetupUi(false);
         
         var ovr = _ovr;
         var ovrStarted = ovr.TryStart();
@@ -51,10 +54,10 @@ public class HVOpenVRThread
             sw.Start();
             while (!ovrStarted)
             {
-                var shouldRerender = desktopWindow.HandleSleep();
+                var shouldRerender = desktopImGuiManagement.HandleSleep();
                 if (shouldRerender)
                 {
-                    shouldContinue = desktopWindow.UpdateIteration(sw);
+                    shouldContinue = desktopImGuiManagement.UpdateIteration(sw);
                 }
                 if (!shouldContinue) break;
             
@@ -84,11 +87,14 @@ public class HVOpenVRThread
 
         if (shouldContinue)
         {
-            var innerWindow = new HVInnerWindow(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight, _config);
-            innerWindow.SetupUi(true);
+            var imageLoader = new HVImageLoader();
+            var innerWindow = new HVInnerWindow(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight, _config, imageLoader);
+            var imGuiManagement = new HVImGuiManagement(true, VRWindowWidth, VRWindowWidth, imageLoader);
+            imGuiManagement.OnSubmitUi += innerWindow.SubmitUI;
+            imGuiManagement.SetupUi(true);
 
             var windowRatio = VRWindowWidth / (VRWindowHeight * 1f);
-            var dashboard = new HVImGuiOverlay(innerWindow, "main", true, windowRatio);
+            var dashboard = new HVImGuiOverlay(imGuiManagement, innerWindow, "main", true, windowRatio);
             dashboard.Start();
             
             innerWindow.RegisterHoverChanged(() =>
@@ -114,7 +120,7 @@ public class HVOpenVRThread
             HHandOverlay handOverlay = null;
             var onShowCostumes = () => _queuedForOvr.Enqueue(() =>
             {
-                handOverlay = new HHandOverlay(innerWindow, windowRatio, _routine, false);
+                handOverlay = new HHandOverlay(imGuiManagement, innerWindow, windowRatio, _routine, false);
                 handOverlay.Start();
                 handOverlay.MoveToInitialPosition(ovr.PoseData());
                 eyeTrackingOptional?.SetHandOverlay(handOverlay);
@@ -175,7 +181,7 @@ public class HVOpenVRThread
                 foreach (var overlayable in overlayables) overlayable.ProcessThatOverlay(stopwatch);
             
                 // TODO: Update the desktop window at a different rate than the HMD
-                var shouldContinue = desktopWindow.UpdateIteration(stopwatch);
+                var shouldContinue = desktopImGuiManagement.UpdateIteration(stopwatch);
                 if (!shouldContinue)
                 {
                     ovr.RequestExit();
@@ -188,7 +194,7 @@ public class HVOpenVRThread
 
             foreach (var overlayable in overlayables) overlayable.Teardown();
         
-            innerWindow.TeardownWindowlessUi(true);
+            imGuiManagement.TeardownWindowlessUi(true);
         }
 
         if (ovrStarted)
@@ -196,7 +202,7 @@ public class HVOpenVRThread
             ovr.Teardown();
         }
         
-        desktopWindow.TeardownWindowlessUi(false);
+        desktopImGuiManagement.TeardownWindowlessUi(false);
     }
 
     public void Finish()
