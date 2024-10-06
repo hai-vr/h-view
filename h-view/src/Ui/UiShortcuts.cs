@@ -1,5 +1,6 @@
 ﻿using Hai.ExternalExpressionsMenu;
-using static Hai.HView.Gui.HVInnerWindow.HVShortcutType;
+using Hai.HView.Core;
+using static Hai.HView.Gui.UiShortcuts.HVShortcutType;
 
 namespace Hai.HView.Gui;
 
@@ -30,11 +31,20 @@ TODO:
     - (DONE) Add a way to track press/releasing a non-boolean control (i.e. Toggle sets parameter to value 126).
 
     */
-public partial class HVInnerWindow
+public class UiShortcuts
 {
+    private readonly HVInnerWindow _inner;
+    private readonly HVRoutine _routine;
+
+    public UiShortcuts(HVInnerWindow inner, HVRoutine routine)
+    {
+        _inner = inner;
+        _routine = routine;
+    }
+
     public HVShortcutHost ShortcutsNullable { get; private set; }
 
-    private void RebuildManifestAsShortcuts(EMManifest manifest)
+    public void RebuildManifestAsShortcuts(EMManifest manifest)
     {
         ShortcutsNullable = AsHost(manifest.menu, manifest);
     }

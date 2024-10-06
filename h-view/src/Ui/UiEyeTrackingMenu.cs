@@ -19,6 +19,7 @@ public class UiEyeTrackingMenu
     private readonly HVInnerWindow _inner;
     private readonly bool _isWindowlessStyle;
     private readonly HVImageLoader _imageLoader;
+    private readonly UiShortcuts _shortcutsTab;
     private readonly Stack<MenuState> _menuState = new Stack<MenuState>();
     
     // TODO: SHARED between windowed and overlay, this needs to go in the config file
@@ -27,16 +28,17 @@ public class UiEyeTrackingMenu
     private static float _iconSizeMul = 1f;
     private static float _iconSpacingMul = 1.228f;
 
-    public UiEyeTrackingMenu(HVInnerWindow inner, bool isWindowlessStyle, HVImageLoader imageLoader)
+    public UiEyeTrackingMenu(HVInnerWindow inner, bool isWindowlessStyle, HVImageLoader imageLoader, UiShortcuts shortcutsTab)
     {
         _inner = inner;
         _isWindowlessStyle = isWindowlessStyle;
         _imageLoader = imageLoader;
+        _shortcutsTab = shortcutsTab;
     }
 
     public void EyeTrackingMenuTab()
     {
-        if (_inner.ShortcutsNullable == null) return;
+        if (_shortcutsTab.ShortcutsNullable == null) return;
         if (_inner.ManifestNullable == null) return;
         
         _iconWidth = NearestMultipleOfTwo(DefaultIconWidth * _iconSizeMul);
@@ -75,7 +77,7 @@ public class UiEyeTrackingMenu
 
         if (_menuState.Count == 0)
         {
-            ShowMenu(_inner.ShortcutsNullable, 0, 0, icons);
+            ShowMenu(_shortcutsTab.ShortcutsNullable, 0, 0, icons);
         }
         else
         {
@@ -91,7 +93,7 @@ public class UiEyeTrackingMenu
         return resultSize;
     }
 
-    private void ShowMenu(HVInnerWindow.HVShortcutHost host, float x, float y, string[] icons)
+    private void ShowMenu(UiShortcuts.HVShortcutHost host, float x, float y, string[] icons)
     {
         var xCenter = ImGui.GetWindowWidth() / 2;
         var yCenter = ImGui.GetWindowHeight() / 2;
@@ -109,10 +111,10 @@ public class UiEyeTrackingMenu
                 
             }
 
-            if (DrawEyeTrackingButtonFor(-1, icons, new HVInnerWindow.HVShortcut
+            if (DrawEyeTrackingButtonFor(-1, icons, new UiShortcuts.HVShortcut
                 {
                     label = "Back",
-                    type = HVInnerWindow.HVShortcutType.Button,
+                    type = UiShortcuts.HVShortcutType.Button,
                     icon = -1
                 }))
             {
@@ -152,7 +154,7 @@ public class UiEyeTrackingMenu
             var pos = ImGui.GetCursorPos();
             if (shortcutNullWhenUnclocked != null && DrawEyeTrackingButtonFor(clocked, icons, shortcutNullWhenUnclocked))
             {
-                if (shortcutNullWhenUnclocked.type == HVInnerWindow.HVShortcutType.SubMenu)
+                if (shortcutNullWhenUnclocked.type == UiShortcuts.HVShortcutType.SubMenu)
                 {
                     _menuState.Push(new MenuState
                     {
@@ -164,10 +166,10 @@ public class UiEyeTrackingMenu
             }
             else if (shortcutNullWhenUnclocked == null)
             {
-                if (DrawEyeTrackingButtonFor(-2, icons, new HVInnerWindow.HVShortcut
+                if (DrawEyeTrackingButtonFor(-2, icons, new UiShortcuts.HVShortcut
                     {
                         label = "Back",
-                        type = HVInnerWindow.HVShortcutType.Button,
+                        type = UiShortcuts.HVShortcutType.Button,
                         icon = -1
                     }))
                 {
@@ -237,7 +239,7 @@ public class UiEyeTrackingMenu
         return index - itemsInRow / 2f + 0.5f;
     }
 
-    private bool DrawEyeTrackingButtonFor(int id, string[] icons, HVInnerWindow.HVShortcut item)
+    private bool DrawEyeTrackingButtonFor(int id, string[] icons, UiShortcuts.HVShortcut item)
     {
         // No haptics here, the eyes are the controllers.
         
@@ -258,7 +260,7 @@ public class UiEyeTrackingMenu
     {
         public int Id;
         public string Name;
-        public HVInnerWindow.HVShortcutHost Host;
+        public UiShortcuts.HVShortcutHost Host;
         public float X;
         public float Y;
     }

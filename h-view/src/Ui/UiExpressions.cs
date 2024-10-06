@@ -13,6 +13,7 @@ public class UiExpressions
     private readonly HVRoutine _routine;
     private readonly HVImageLoader _imageLoader;
     private readonly UiOscQuery _oscQueryTab;
+    private readonly UiShortcuts _shortcutsTab;
     private readonly Dictionary<int, bool> _buttonPressState = new Dictionary<int, bool>();
     
     private const int NominalImageWidth = 96;
@@ -21,12 +22,13 @@ public class UiExpressions
     private Vector2 _imagelessButtonSize;
     private int _buttonTableWidth;
 
-    public UiExpressions(HVInnerWindow inner, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab)
+    public UiExpressions(HVInnerWindow inner, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiShortcuts shortcutsTab)
     {
         _inner = inner;
         _routine = routine;
         _imageLoader = imageLoader;
         _oscQueryTab = oscQueryTab;
+        _shortcutsTab = shortcutsTab;
     }
 
     private void UpdateIconSize()
@@ -338,15 +340,15 @@ public class UiExpressions
         }
         
         var id = 0;
-        if (_inner.ShortcutsNullable != null)
+        if (_shortcutsTab.ShortcutsNullable != null)
         {
-            PrintShortcuts(_inner.ShortcutsNullable, oscMessages, ref id, _inner.ManifestNullable.icons, null);
+            PrintShortcuts(_shortcutsTab.ShortcutsNullable, oscMessages, ref id, _inner.ManifestNullable.icons, null);
         }
         ImGui.Text("");
         ImGui.Text("");
     }
 
-    private void PrintShortcuts(HVInnerWindow.HVShortcutHost host, Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVInnerWindow.HVShortcut parentMenuOrNullIfRoot)
+    private void PrintShortcuts(UiShortcuts.HVShortcutHost host, Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, UiShortcuts.HVShortcut parentMenuOrNullIfRoot)
     {
         if (parentMenuOrNullIfRoot != null)
         {
@@ -378,7 +380,7 @@ public class UiExpressions
         IterateThrough(oscMessages, ref id, icons, host.subs, false);
     }
 
-    private void IterateThrough(Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVInnerWindow.HVShortcut[] orderedMenuItems, bool isPressables)
+    private void IterateThrough(Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, UiShortcuts.HVShortcut[] orderedMenuItems, bool isPressables)
     {
         if (orderedMenuItems.Length == 0) return;
 
@@ -401,16 +403,16 @@ public class UiExpressions
             var item = orderedMenuItems[inx];
             var isLastItemOfThatList = inx == orderedMenuItems.Length - 1;
             
-            var interestingParameter = item.type == HVInnerWindow.HVShortcutType.RadialPuppet ? item.axis0.parameter : item.parameter;
+            var interestingParameter = item.type == UiShortcuts.HVShortcutType.RadialPuppet ? item.axis0.parameter : item.parameter;
 
             var oscParam = OscParameterize(interestingParameter);
             var hasOscItem = oscMessages.TryGetValue(oscParam, out var oscItem);
-            var isSubMenu = item.type == HVInnerWindow.HVShortcutType.SubMenu;
+            var isSubMenu = item.type == UiShortcuts.HVShortcutType.SubMenu;
             var hasParameter = interestingParameter != "";
 
             if (!isSubMenu)
             {
-                if (item.type is not HVInnerWindow.HVShortcutType.RadialPuppet and not HVInnerWindow.HVShortcutType.TwoAxisPuppet and not HVInnerWindow.HVShortcutType.FourAxisPuppet)
+                if (item.type is not UiShortcuts.HVShortcutType.RadialPuppet and not UiShortcuts.HVShortcutType.TwoAxisPuppet and not UiShortcuts.HVShortcutType.FourAxisPuppet)
                 {
                     ImGui.BeginGroup();
 
@@ -418,11 +420,11 @@ public class UiExpressions
                     if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
 
                     var button = DrawButtonFor(id, icons, item);
-                    if (hasOscItem && button && item.type == HVInnerWindow.HVShortcutType.Toggle)
+                    if (hasOscItem && button && item.type == UiShortcuts.HVShortcutType.Toggle)
                     {
                         _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, !isMatch ? item.value : 0f));
                     }
-                    if (item.type == HVInnerWindow.HVShortcutType.Button)
+                    if (item.type == UiShortcuts.HVShortcutType.Button)
                     {
                         _buttonPressState.TryGetValue(id, out var wasPressed); // The return value does not matter in this scenario
                         var isPressed = ImGui.IsItemActive();
@@ -455,7 +457,7 @@ public class UiExpressions
                     ImGui.EndGroup();
 
                     ImGui.TableSetColumnIndex(1);
-                    if (item.type == HVInnerWindow.HVShortcutType.RadialPuppet)
+                    if (item.type == UiShortcuts.HVShortcutType.RadialPuppet)
                     {
                         // FIXME: The control won't show up if the OSC Query module isn't working.
                         // It should always be shown, regardless of the OSC Query availability, because we have all the information needed to display it.
@@ -512,7 +514,7 @@ public class UiExpressions
         }
     }
 
-    private bool DrawButtonFor(int id, string[] icons, HVInnerWindow.HVShortcut item)
+    private bool DrawButtonFor(int id, string[] icons, UiShortcuts.HVShortcut item)
     {
         bool button;
         if (item.icon != -1)
@@ -527,34 +529,34 @@ public class UiExpressions
         return button;
     }
 
-    private object TransformFloatToType(HVInnerWindow.HVReferencedParameterType referencedType, float itemValue)
+    private object TransformFloatToType(UiShortcuts.HVReferencedParameterType referencedType, float itemValue)
     {
         switch (referencedType)
         {
-            case HVInnerWindow.HVReferencedParameterType.Unresolved:
+            case UiShortcuts.HVReferencedParameterType.Unresolved:
                 return itemValue;
-            case HVInnerWindow.HVReferencedParameterType.Float:
+            case UiShortcuts.HVReferencedParameterType.Float:
                 return itemValue;
-            case HVInnerWindow.HVReferencedParameterType.Int:
+            case UiShortcuts.HVReferencedParameterType.Int:
                 return (int)itemValue;
-            case HVInnerWindow.HVReferencedParameterType.Bool:
+            case UiShortcuts.HVReferencedParameterType.Bool:
                 return itemValue > 0.5f;
             default:
                 throw new ArgumentOutOfRangeException(nameof(referencedType), referencedType, null);
         }
     }
 
-    private static bool IsControlMatchingOscValue(HVInnerWindow.HVShortcut item, HOscItem oscItem)
+    private static bool IsControlMatchingOscValue(UiShortcuts.HVShortcut item, HOscItem oscItem)
     {
         switch (item.referencedParameterType)
         {
-            case HVInnerWindow.HVReferencedParameterType.Unresolved:
+            case UiShortcuts.HVReferencedParameterType.Unresolved:
                 return false;
-            case HVInnerWindow.HVReferencedParameterType.Float:
+            case UiShortcuts.HVReferencedParameterType.Float:
                 return oscItem.WriteOnlyValueRef is float f && f == item.value;
-            case HVInnerWindow.HVReferencedParameterType.Int:
+            case UiShortcuts.HVReferencedParameterType.Int:
                 return oscItem.WriteOnlyValueRef is int i && i == (int)item.value;
-            case HVInnerWindow.HVReferencedParameterType.Bool:
+            case UiShortcuts.HVReferencedParameterType.Bool:
                 return oscItem.WriteOnlyValueRef is bool b && b == (item.value > 0.5f);
             default:
                 throw new ArgumentOutOfRangeException();

@@ -15,7 +15,7 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace Hai.HView.Gui;
 
-public partial class HVInnerWindow : IDisposable
+public class HVInnerWindow : IDisposable
 {
     public event ButtonEvent OnHoverChanged;
     public event ButtonEvent OnButtonPressed;
@@ -60,8 +60,10 @@ public partial class HVInnerWindow : IDisposable
     
     // Tabs
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
+    private readonly UiShortcuts _shortcutsTab;
     private readonly UiExpressions _expressionsTab;
     private readonly UiCostumes _costumesTab;
+    private readonly UiOscQuery _oscQueryTab;
     private readonly UiNetworking _networkingTabOptional;
     private readonly UiEyeTrackingMenu _eyeTrackingMenu;
     private readonly UiHardware _hardwareTab;
@@ -78,7 +80,6 @@ public partial class HVInnerWindow : IDisposable
     private HPanel _panel = HPanel.Shortcuts;
     private bool _debugTransparency;
     private string _hovered;
-    private readonly UiOscQuery _oscQueryTab;
 
     public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config)
     {
@@ -95,11 +96,13 @@ public partial class HVInnerWindow : IDisposable
         _imageLoader = new HVImageLoader();
 
         var oscQueryTab = new UiOscQuery(this, _routine, _scrollManager);
-        _expressionsTab = new UiExpressions(this, _routine, _imageLoader, oscQueryTab);
+        var shortcutsTab = new UiShortcuts(this, _routine);
+        _shortcutsTab = shortcutsTab;
+        _expressionsTab = new UiExpressions(this, _routine, _imageLoader, oscQueryTab, shortcutsTab);
         _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
         _oscQueryTab = oscQueryTab;
         _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
-        _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle, _imageLoader);
+        _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle, _imageLoader, shortcutsTab);
         _hardwareTab = new UiHardware(this, _routine, _config);
         _optionsTab = new UiOptions(this, _routine, _config, _isWindowlessStyle, _scrollManager);
         _utilityTab = new UiUtility(_scrollManager, _routine);
@@ -115,7 +118,7 @@ public partial class HVInnerWindow : IDisposable
     {
         ManifestNullable = newManifest;
         _imageLoader.FreeImagesFromMemory();
-        RebuildManifestAsShortcuts(newManifest);
+        _shortcutsTab.RebuildManifestAsShortcuts(newManifest);
         BuildIsLocalTable(newManifest);
     });
 
