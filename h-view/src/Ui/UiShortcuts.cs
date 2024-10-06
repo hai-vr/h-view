@@ -1,5 +1,4 @@
 ﻿using Hai.ExternalExpressionsMenu;
-using Hai.HView.Core;
 using static Hai.HView.Gui.UiShortcuts.HVShortcutType;
 
 namespace Hai.HView.Gui;
@@ -33,20 +32,16 @@ TODO:
     */
 public class UiShortcuts
 {
-    private readonly HVInnerWindow _inner;
-    private readonly HVRoutine _routine;
+    private readonly UiSharedData _sharedData;
 
-    public UiShortcuts(HVInnerWindow inner, HVRoutine routine)
+    public UiShortcuts(UiSharedData sharedData)
     {
-        _inner = inner;
-        _routine = routine;
+        _sharedData = sharedData;
     }
-
-    public HVShortcutHost ShortcutsNullable { get; private set; }
 
     public void RebuildManifestAsShortcuts(EMManifest manifest)
     {
-        ShortcutsNullable = AsHost(manifest.menu, manifest);
+        _sharedData.ShortcutsNullable = AsHost(manifest.menu, manifest);
     }
 
     private HVShortcutHost AsHost(EMMenu[] controls, EMManifest manifest)

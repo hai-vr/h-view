@@ -13,7 +13,7 @@ public class UiExpressions
     private readonly HVRoutine _routine;
     private readonly HVImageLoader _imageLoader;
     private readonly UiOscQuery _oscQueryTab;
-    private readonly UiShortcuts _shortcutsTab;
+    private readonly UiSharedData _sharedData;
     private readonly Dictionary<int, bool> _buttonPressState = new Dictionary<int, bool>();
     
     private const int NominalImageWidth = 96;
@@ -22,13 +22,13 @@ public class UiExpressions
     private Vector2 _imagelessButtonSize;
     private int _buttonTableWidth;
 
-    public UiExpressions(HVInnerWindow inner, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiShortcuts shortcutsTab)
+    public UiExpressions(HVInnerWindow inner, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiSharedData sharedData)
     {
         _inner = inner;
         _routine = routine;
         _imageLoader = imageLoader;
         _oscQueryTab = oscQueryTab;
-        _shortcutsTab = shortcutsTab;
+        _sharedData = sharedData;
     }
 
     private void UpdateIconSize()
@@ -53,9 +53,9 @@ public class UiExpressions
         ImGui.TableHeadersRow();
 
         var id = 0;
-        if (_inner.ManifestNullable != null)
+        if (_sharedData.ManifestNullable != null)
         {
-            PrintThatMenu(_inner.ManifestNullable, _inner.ManifestNullable.menu, oscMessages, ref id);
+            PrintThatMenu(_sharedData.ManifestNullable, _sharedData.ManifestNullable.menu, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -176,9 +176,9 @@ public class UiExpressions
         ImGui.TableHeadersRow();
         
         var id = 0;
-        if (_inner.ManifestNullable != null)
+        if (_sharedData.ManifestNullable != null)
         {
-            PrintContacts(_inner.ManifestNullable, oscMessages, ref id);
+            PrintContacts(_sharedData.ManifestNullable, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -236,9 +236,9 @@ public class UiExpressions
         ImGui.TableHeadersRow();
         
         var id = 0;
-        if (_inner.ManifestNullable != null)
+        if (_sharedData.ManifestNullable != null)
         {
-            PrintPhysBones(_inner.ManifestNullable, oscMessages, ref id);
+            PrintPhysBones(_sharedData.ManifestNullable, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -340,9 +340,9 @@ public class UiExpressions
         }
         
         var id = 0;
-        if (_shortcutsTab.ShortcutsNullable != null)
+        if (_sharedData.ShortcutsNullable != null)
         {
-            PrintShortcuts(_shortcutsTab.ShortcutsNullable, oscMessages, ref id, _inner.ManifestNullable.icons, null);
+            PrintShortcuts(_sharedData.ShortcutsNullable, oscMessages, ref id, _sharedData.ManifestNullable.icons, null);
         }
         ImGui.Text("");
         ImGui.Text("");

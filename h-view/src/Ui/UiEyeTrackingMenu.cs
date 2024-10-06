@@ -16,10 +16,9 @@ public class UiEyeTrackingMenu
     private float _linearWidth;
     private float _linearHeight;
     
-    private readonly HVInnerWindow _inner;
     private readonly bool _isWindowlessStyle;
     private readonly HVImageLoader _imageLoader;
-    private readonly UiShortcuts _shortcutsTab;
+    private readonly UiSharedData _sharedData;
     private readonly Stack<MenuState> _menuState = new Stack<MenuState>();
     
     // TODO: SHARED between windowed and overlay, this needs to go in the config file
@@ -28,18 +27,17 @@ public class UiEyeTrackingMenu
     private static float _iconSizeMul = 1f;
     private static float _iconSpacingMul = 1.228f;
 
-    public UiEyeTrackingMenu(HVInnerWindow inner, bool isWindowlessStyle, HVImageLoader imageLoader, UiShortcuts shortcutsTab)
+    public UiEyeTrackingMenu(bool isWindowlessStyle, HVImageLoader imageLoader, UiSharedData sharedData)
     {
-        _inner = inner;
         _isWindowlessStyle = isWindowlessStyle;
         _imageLoader = imageLoader;
-        _shortcutsTab = shortcutsTab;
+        _sharedData = sharedData;
     }
 
     public void EyeTrackingMenuTab()
     {
-        if (_shortcutsTab.ShortcutsNullable == null) return;
-        if (_inner.ManifestNullable == null) return;
+        if (_sharedData.ShortcutsNullable == null) return;
+        if (_sharedData.ManifestNullable == null) return;
         
         _iconWidth = NearestMultipleOfTwo(DefaultIconWidth * _iconSizeMul);
         _iconHeight = NearestMultipleOfTwo(_iconWidth);
@@ -63,7 +61,7 @@ public class UiEyeTrackingMenu
             ImGui.SliderFloat("Spacing mul", ref _iconSpacingMul, 1f, 2f);
         }
 
-        var icons = _inner.ManifestNullable.icons;
+        var icons = _sharedData.ManifestNullable.icons;
         
         if (ImGui.Button("Home") && _menuState.Count > 0)
         {
@@ -77,7 +75,7 @@ public class UiEyeTrackingMenu
 
         if (_menuState.Count == 0)
         {
-            ShowMenu(_shortcutsTab.ShortcutsNullable, 0, 0, icons);
+            ShowMenu(_sharedData.ShortcutsNullable, 0, 0, icons);
         }
         else
         {

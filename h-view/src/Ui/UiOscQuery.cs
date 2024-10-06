@@ -8,9 +8,8 @@ namespace Hai.HView.Gui;
 
 public class UiOscQuery
 {
-    private readonly HVInnerWindow _inner;
     private readonly HVRoutine _routine;
-    private readonly UiScrollManager _scrollManager;
+    private readonly UiSharedData _sharedData;
     private const string AvatarParametersPath = "/avatar/parameters/";
     private const string InputPathRoot = "/input/";
     private const string ChatboxPathRoot = "/chatbox/";
@@ -32,11 +31,10 @@ public class UiOscQuery
     private bool _chatboxB;
     private bool _chatboxN;
 
-    public UiOscQuery(HVInnerWindow inner, HVRoutine routine, UiScrollManager scrollManager)
+    public UiOscQuery(HVRoutine routine, UiSharedData sharedData)
     {
-        _inner = inner;
         _routine = routine;
-        _scrollManager = scrollManager;
+        _sharedData = sharedData;
     }
 
     private const string ThirdParty_FaceTrackingPath = "/avatar/parameters/FT/v2/";
@@ -49,14 +47,14 @@ public class UiOscQuery
             SendRandomAvatarParameters(filtered);
         }
         MakeOscTable(AvatarParametersPath, filtered.Where(item => item.Key.StartsWith(AvatarParametersPath)
-                                                                  && !item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _inner.ManifestNullable != null);
+                                                                  && !item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _sharedData.ManifestNullable != null);
         MakeOscTable(RootPath, filtered.Where(item => !PathRoots.Any(path => item.Key.StartsWith(path))));
     }
 
     public void FaceTrackingTab(Dictionary<string, HOscItem> messages)
     {
         var filtered = messages.Values.Where(item => !item.IsDisabled).ToArray();
-        MakeOscTable(ThirdParty_FaceTrackingPath, filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _inner.ManifestNullable != null, AvatarParametersPath);
+        MakeOscTable(ThirdParty_FaceTrackingPath, filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _sharedData.ManifestNullable != null, AvatarParametersPath);
         
         var randFiltered = filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)).ToArray();
         if (ImGui.Button(HLocalizationPhrase.RandomizeParametersLabel))
@@ -169,7 +167,7 @@ public class UiOscQuery
 
             if (showIsLocal)
             {
-                _inner._isLocal.TryGetValue(oscItem.Key.Substring(AvatarParametersPath.Length), out var isLocal);
+                _sharedData.isLocal.TryGetValue(oscItem.Key.Substring(AvatarParametersPath.Length), out var isLocal);
                 ImGui.TableSetColumnIndex(id++);
                 ImGui.Text(isLocal ? "local" : "");
             }

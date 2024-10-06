@@ -41,9 +41,7 @@ public class HVInnerWindow : IDisposable
 
     private CustomImGuiController _controller;
 
-    public EMManifest ManifestNullable { get; private set; }
     private readonly ConcurrentQueue<Action> _queuedForUi = new ConcurrentQueue<Action>();
-    internal Dictionary<string, bool> _isLocal = new Dictionary<string, bool>();
     private bool _eyeTrackingMenuActiveLastFrame;
     
     // Externally set
@@ -59,6 +57,7 @@ public class HVInnerWindow : IDisposable
     private Framebuffer _overlayFramebuffer;
     
     // Tabs
+    private readonly UiSharedData _sharedData;
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
     private readonly UiShortcuts _shortcutsTab;
     private readonly UiExpressions _expressionsTab;
@@ -95,14 +94,14 @@ public class HVInnerWindow : IDisposable
         
         _imageLoader = new HVImageLoader();
 
-        var oscQueryTab = new UiOscQuery(this, _routine, _scrollManager);
-        var shortcutsTab = new UiShortcuts(this, _routine);
-        _shortcutsTab = shortcutsTab;
-        _expressionsTab = new UiExpressions(this, _routine, _imageLoader, oscQueryTab, shortcutsTab);
+        _sharedData = new UiSharedData();
+        var oscQueryTab = new UiOscQuery(_routine, _sharedData);
+        _shortcutsTab = new UiShortcuts(_sharedData);
+        _expressionsTab = new UiExpressions(this, _routine, _imageLoader, oscQueryTab, _sharedData);
         _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
         _oscQueryTab = oscQueryTab;
         _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
-        _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle, _imageLoader, shortcutsTab);
+        _eyeTrackingMenu = new UiEyeTrackingMenu(isWindowlessStyle, _imageLoader, _sharedData);
         _hardwareTab = new UiHardware(this, _routine, _config);
         _optionsTab = new UiOptions(this, _routine, _config, _isWindowlessStyle, _scrollManager);
         _utilityTab = new UiUtility(_scrollManager, _routine);
@@ -116,7 +115,7 @@ public class HVInnerWindow : IDisposable
 
     private void OnManifestChanged(EMManifest newManifest) => _queuedForUi.Enqueue(() =>
     {
-        ManifestNullable = newManifest;
+        _sharedData.ManifestNullable = newManifest;
         _imageLoader.FreeImagesFromMemory();
         _shortcutsTab.RebuildManifestAsShortcuts(newManifest);
         BuildIsLocalTable(newManifest);
@@ -126,7 +125,7 @@ public class HVInnerWindow : IDisposable
     {
         foreach (var param in manifest.expressionParameters)
         {
-            _isLocal[param.parameter] = !param.synced;
+            _sharedData.isLocal[param.parameter] = !param.synced;
         }
     }
 
