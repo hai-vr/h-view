@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Hai.ExternalExpressionsMenu;
+using Hai.HView.Core;
 using Hai.HView.OSC;
 using Hai.HView.Ui;
 using ImGuiNET;
@@ -12,45 +13,10 @@ public partial class HVInnerWindow
 {
     private readonly Dictionary<int, IntPtr> _indexToPointers = new Dictionary<int, IntPtr>();
     private readonly List<Texture> _loadedTextures = new List<Texture>();
-    private readonly Dictionary<int, bool> _buttonPressState = new Dictionary<int, bool>();
     private readonly Dictionary<int, ImageSharpTexture> _indexToTexture = new Dictionary<int, ImageSharpTexture>();
-    
     private readonly Dictionary<string, IntPtr> _pathToPointers = new Dictionary<string, IntPtr>();
     private readonly Dictionary<string, ImageSharpTexture> _pathToTexture = new Dictionary<string, ImageSharpTexture>();
     
-    private const int NominalImageWidth = 96;
-    private const int NominalImageHeight = 96;
-    private Vector2 _imageSize;
-    private Vector2 _imagelessButtonSize;
-    private int _buttonTableWidth;
-
-    private void UpdateIconSize()
-    {
-        var eyeTrackingSizeMultiplier = 1.5f;
-        var width = (int)(NominalImageWidth * (_usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
-        var height = (int)(NominalImageHeight * (_usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
-        _imageSize = new Vector2(width, height);
-        _imagelessButtonSize = new Vector2(width + 6, height + 6);
-        _buttonTableWidth = width + 6;
-    }
-
-    /// Free allocated images. This needs to be called from the UI thread.
-    private void FreeImagesFromMemory()
-    {
-        // TODO: This may still leak within the custom ImGui controller.
-        Console.WriteLine("Freeing images from memory");
-        foreach (var loadedTexture in _loadedTextures)
-        {
-            loadedTexture.Dispose();
-        }
-        _loadedTextures.Clear();
-        _indexToPointers.Clear();
-        _indexToTexture.Clear();
-        // TODO: Don't free avatar pictures that were loaded from disk.
-        _pathToPointers.Clear();
-        _pathToTexture.Clear();
-    }
-
     internal IntPtr GetOrLoadImage(string[] icons, int index)
     {
         // TODO: Should we pre-load all the icons immediately, instead of doing it on request?
@@ -94,7 +60,53 @@ public partial class HVInnerWindow
         return pointer;
     }
 
-    private void ExpressionsTab(Dictionary<string, HOscItem> oscMessages)
+    /// Free allocated images. This needs to be called from the UI thread.
+    private void FreeImagesFromMemory()
+    {
+        // TODO: This may still leak within the custom ImGui controller.
+        Console.WriteLine("Freeing images from memory");
+        foreach (var loadedTexture in _loadedTextures)
+        {
+            loadedTexture.Dispose();
+        }
+        _loadedTextures.Clear();
+        _indexToPointers.Clear();
+        _indexToTexture.Clear();
+        // TODO: Don't free avatar pictures that were loaded from disk.
+        _pathToPointers.Clear();
+        _pathToTexture.Clear();
+    }
+}
+
+public class UiExpressions
+{
+    private readonly HVInnerWindow _inner;
+    private readonly HVRoutine _routine;
+    private readonly Dictionary<int, bool> _buttonPressState = new Dictionary<int, bool>();
+    
+    private const int NominalImageWidth = 96;
+    private const int NominalImageHeight = 96;
+    private Vector2 _imageSize;
+    private Vector2 _imagelessButtonSize;
+    private int _buttonTableWidth;
+
+    public UiExpressions(HVInnerWindow inner, HVRoutine routine)
+    {
+        _inner = inner;
+        _routine = routine;
+    }
+
+    private void UpdateIconSize()
+    {
+        var eyeTrackingSizeMultiplier = 1.5f;
+        var width = (int)(NominalImageWidth * (_inner.usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
+        var height = (int)(NominalImageHeight * (_inner.usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
+        _imageSize = new Vector2(width, height);
+        _imagelessButtonSize = new Vector2(width + 6, height + 6);
+        _buttonTableWidth = width + 6;
+    }
+
+    public void ExpressionsTab(Dictionary<string, HOscItem> oscMessages)
     {
         UpdateIconSize();
         
@@ -106,9 +118,9 @@ public partial class HVInnerWindow
         ImGui.TableHeadersRow();
 
         var id = 0;
-        if (ManifestNullable != null)
+        if (_inner.ManifestNullable != null)
         {
-            PrintThatMenu(ManifestNullable, ManifestNullable.menu, oscMessages, ref id);
+            PrintThatMenu(_inner.ManifestNullable, _inner.ManifestNullable.menu, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -129,7 +141,7 @@ public partial class HVInnerWindow
             ImGui.TableSetColumnIndex(0);
             if (item.icon != -1)
             {
-                ImGui.Image(GetOrLoadImage(manifest.icons, item.icon), _imageSize);
+                ImGui.Image(_inner.GetOrLoadImage(manifest.icons, item.icon), _imageSize);
                 ImGui.SameLine();
             }
             ImGui.Text(item.label);
@@ -199,7 +211,7 @@ public partial class HVInnerWindow
             }
             else if (hasOscItem)
             {
-                BuildControls(oscItem, 0, oscItem.Key);
+                _inner.BuildControls(oscItem, 0, oscItem.Key);
             }
 
             id++;
@@ -219,7 +231,7 @@ public partial class HVInnerWindow
         return $"/avatar/parameters/{sanitizedOscParam}";
     }
 
-    private void ContactsTab(Dictionary<string, HOscItem> oscMessages)
+    public void ContactsTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTable(HLocalizationPhrase.ContactsLabel, 4);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
@@ -229,9 +241,9 @@ public partial class HVInnerWindow
         ImGui.TableHeadersRow();
         
         var id = 0;
-        if (ManifestNullable != null)
+        if (_inner.ManifestNullable != null)
         {
-            PrintContacts(ManifestNullable, oscMessages, ref id);
+            PrintContacts(_inner.ManifestNullable, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -255,7 +267,7 @@ public partial class HVInnerWindow
             ImGui.TableSetColumnIndex(i++);
             if (hasOscItem)
             {
-                BuildControls(oscItem, 0, oscItem.Key);
+                _inner.BuildControls(oscItem, 0, oscItem.Key);
             }
             
             ImGui.TableSetColumnIndex(i++);
@@ -279,7 +291,7 @@ public partial class HVInnerWindow
         }
     }
 
-    private void PhysBonesTab(Dictionary<string, HOscItem> oscMessages)
+    public void PhysBonesTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTable(HLocalizationPhrase.PhysBonesLabel, 4);
         ImGui.TableSetupColumn("+", ImGuiTableColumnFlags.WidthFixed, 50);
@@ -289,9 +301,9 @@ public partial class HVInnerWindow
         ImGui.TableHeadersRow();
         
         var id = 0;
-        if (ManifestNullable != null)
+        if (_inner.ManifestNullable != null)
         {
-            PrintPhysBones(ManifestNullable, oscMessages, ref id);
+            PrintPhysBones(_inner.ManifestNullable, oscMessages, ref id);
         }
         ImGui.EndTable();
     }
@@ -353,7 +365,7 @@ public partial class HVInnerWindow
                 ImGui.TableSetColumnIndex(i++);
                 if (hasOscItem)
                 {
-                    BuildControls(oscItem, 0, oscItem.Key);
+                    _inner.BuildControls(oscItem, 0, oscItem.Key);
                 }
                 
                 ImGui.TableSetColumnIndex(i++);
@@ -378,7 +390,7 @@ public partial class HVInnerWindow
         }
     }
 
-    private void ShortcutsTab(Dictionary<string, HOscItem> oscMessages)
+    public void ShortcutsTab(Dictionary<string, HOscItem> oscMessages)
     {
         UpdateIconSize();
         
@@ -393,22 +405,22 @@ public partial class HVInnerWindow
         }
         
         var id = 0;
-        if (ShortcutsNullable != null)
+        if (_inner.ShortcutsNullable != null)
         {
-            PrintShortcuts(ShortcutsNullable, oscMessages, ref id, ManifestNullable.icons, null);
+            PrintShortcuts(_inner.ShortcutsNullable, oscMessages, ref id, _inner.ManifestNullable.icons, null);
         }
         ImGui.Text("");
         ImGui.Text("");
     }
 
-    private void PrintShortcuts(HVShortcutHost host, Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVShortcut parentMenuOrNullIfRoot)
+    private void PrintShortcuts(HVInnerWindow.HVShortcutHost host, Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVInnerWindow.HVShortcut parentMenuOrNullIfRoot)
     {
         if (parentMenuOrNullIfRoot != null)
         {
             ImGui.SeparatorText(parentMenuOrNullIfRoot.label);
             if (parentMenuOrNullIfRoot.icon != -1)
             {
-                ImGui.Image(GetOrLoadImage(icons, parentMenuOrNullIfRoot.icon), _imageSize);
+                ImGui.Image(_inner.GetOrLoadImage(icons, parentMenuOrNullIfRoot.icon), _imageSize);
                 ImGui.SameLine();
             }
             else
@@ -433,7 +445,7 @@ public partial class HVInnerWindow
         IterateThrough(oscMessages, ref id, icons, host.subs, false);
     }
 
-    private void IterateThrough(Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVShortcut[] orderedMenuItems, bool isPressables)
+    private void IterateThrough(Dictionary<string, HOscItem> oscMessages, ref int id, string[] icons, HVInnerWindow.HVShortcut[] orderedMenuItems, bool isPressables)
     {
         if (orderedMenuItems.Length == 0) return;
 
@@ -456,16 +468,16 @@ public partial class HVInnerWindow
             var item = orderedMenuItems[inx];
             var isLastItemOfThatList = inx == orderedMenuItems.Length - 1;
             
-            var interestingParameter = item.type == HVShortcutType.RadialPuppet ? item.axis0.parameter : item.parameter;
+            var interestingParameter = item.type == HVInnerWindow.HVShortcutType.RadialPuppet ? item.axis0.parameter : item.parameter;
 
             var oscParam = OscParameterize(interestingParameter);
             var hasOscItem = oscMessages.TryGetValue(oscParam, out var oscItem);
-            var isSubMenu = item.type == HVShortcutType.SubMenu;
+            var isSubMenu = item.type == HVInnerWindow.HVShortcutType.SubMenu;
             var hasParameter = interestingParameter != "";
 
             if (!isSubMenu)
             {
-                if (item.type is not HVShortcutType.RadialPuppet and not HVShortcutType.TwoAxisPuppet and not HVShortcutType.FourAxisPuppet)
+                if (item.type is not HVInnerWindow.HVShortcutType.RadialPuppet and not HVInnerWindow.HVShortcutType.TwoAxisPuppet and not HVInnerWindow.HVShortcutType.FourAxisPuppet)
                 {
                     ImGui.BeginGroup();
 
@@ -473,11 +485,11 @@ public partial class HVInnerWindow
                     if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
 
                     var button = DrawButtonFor(id, icons, item);
-                    if (hasOscItem && button && item.type == HVShortcutType.Toggle)
+                    if (hasOscItem && button && item.type == HVInnerWindow.HVShortcutType.Toggle)
                     {
                         _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, !isMatch ? item.value : 0f));
                     }
-                    if (item.type == HVShortcutType.Button)
+                    if (item.type == HVInnerWindow.HVShortcutType.Button)
                     {
                         _buttonPressState.TryGetValue(id, out var wasPressed); // The return value does not matter in this scenario
                         var isPressed = ImGui.IsItemActive();
@@ -510,11 +522,11 @@ public partial class HVInnerWindow
                     ImGui.EndGroup();
 
                     ImGui.TableSetColumnIndex(1);
-                    if (item.type == HVShortcutType.RadialPuppet)
+                    if (item.type == HVInnerWindow.HVShortcutType.RadialPuppet)
                     {
                         // FIXME: The control won't show up if the OSC Query module isn't working.
                         // It should always be shown, regardless of the OSC Query availability, because we have all the information needed to display it.
-                        BuildControls(oscItem, 0f, $"kk{id}");
+                        _inner.BuildControls(oscItem, 0f, $"kk{id}");
                     }
                     else
                     {
@@ -567,49 +579,49 @@ public partial class HVInnerWindow
         }
     }
 
-    private bool DrawButtonFor(int id, string[] icons, HVShortcut item)
+    private bool DrawButtonFor(int id, string[] icons, HVInnerWindow.HVShortcut item)
     {
         bool button;
         if (item.icon != -1)
         {
-            button = HapticImageButton($"###{id}", GetOrLoadImage(icons, item.icon), _imageSize);
+            button = _inner.HapticImageButton($"###{id}", _inner.GetOrLoadImage(icons, item.icon), _imageSize);
         }
         else
         {
-            button = HapticButton($"?###{id}", _imagelessButtonSize);
+            button = _inner.HapticButton($"?###{id}", _imagelessButtonSize);
         }
 
         return button;
     }
 
-    private object TransformFloatToType(HVReferencedParameterType referencedType, float itemValue)
+    private object TransformFloatToType(HVInnerWindow.HVReferencedParameterType referencedType, float itemValue)
     {
         switch (referencedType)
         {
-            case HVReferencedParameterType.Unresolved:
+            case HVInnerWindow.HVReferencedParameterType.Unresolved:
                 return itemValue;
-            case HVReferencedParameterType.Float:
+            case HVInnerWindow.HVReferencedParameterType.Float:
                 return itemValue;
-            case HVReferencedParameterType.Int:
+            case HVInnerWindow.HVReferencedParameterType.Int:
                 return (int)itemValue;
-            case HVReferencedParameterType.Bool:
+            case HVInnerWindow.HVReferencedParameterType.Bool:
                 return itemValue > 0.5f;
             default:
                 throw new ArgumentOutOfRangeException(nameof(referencedType), referencedType, null);
         }
     }
 
-    private static bool IsControlMatchingOscValue(HVShortcut item, HOscItem oscItem)
+    private static bool IsControlMatchingOscValue(HVInnerWindow.HVShortcut item, HOscItem oscItem)
     {
         switch (item.referencedParameterType)
         {
-            case HVReferencedParameterType.Unresolved:
+            case HVInnerWindow.HVReferencedParameterType.Unresolved:
                 return false;
-            case HVReferencedParameterType.Float:
+            case HVInnerWindow.HVReferencedParameterType.Float:
                 return oscItem.WriteOnlyValueRef is float f && f == item.value;
-            case HVReferencedParameterType.Int:
+            case HVInnerWindow.HVReferencedParameterType.Int:
                 return oscItem.WriteOnlyValueRef is int i && i == (int)item.value;
-            case HVReferencedParameterType.Bool:
+            case HVInnerWindow.HVReferencedParameterType.Bool:
                 return oscItem.WriteOnlyValueRef is bool b && b == (item.value > 0.5f);
             default:
                 throw new ArgumentOutOfRangeException();

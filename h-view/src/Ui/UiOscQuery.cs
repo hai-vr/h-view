@@ -230,7 +230,7 @@ public partial class HVInnerWindow
         }
     }
 
-    private void BuildControls(HOscItem oscItem, float sliderMin, string key)
+    internal void BuildControls(HOscItem oscItem, float sliderMin, string key)
     {
         if (oscItem.IsWritable)
         {

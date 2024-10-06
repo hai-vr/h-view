@@ -46,7 +46,7 @@ public partial class HVInnerWindow : IDisposable
     private bool _eyeTrackingMenuActiveLastFrame;
     
     // Externally set
-    private bool _usingEyeTracking;
+    internal bool usingEyeTracking;
     private bool _isBeingViewedThroughHandOverlay;
 
     // UI state
@@ -62,6 +62,7 @@ public partial class HVInnerWindow : IDisposable
     
     // Tabs
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
+    private readonly UiExpressions _expressionsTab;
     private readonly UiCostumes _costumesTab;
     private readonly UiNetworking _networkingTabOptional;
     private readonly UiEyeTrackingMenu _eyeTrackingMenu;
@@ -91,6 +92,7 @@ public partial class HVInnerWindow : IDisposable
         _trimWidth = (windowWidth - innerWidth) / 2;
         _trimHeight = (windowHeight - innerHeight) / 2;
 
+        _expressionsTab = new UiExpressions(this, _routine);
         _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle);
         _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
         _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle);
@@ -264,7 +266,7 @@ public partial class HVInnerWindow : IDisposable
             {
                 case HPanel.Shortcuts:
                 {
-                    _scrollManager.MakeScroll(() => ShortcutsTab(oscMessages));
+                    _scrollManager.MakeScroll(() => _expressionsTab.ShortcutsTab(oscMessages));
                     break;
                 }
                 case HPanel.Costumes:
@@ -360,7 +362,7 @@ public partial class HVInnerWindow : IDisposable
             _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.AvatarTabLabel, () =>
             {
                 ImGui.BeginTabBar("##tabs_menulike");
-                _scrollManager.MakeTab(HLocalizationPhrase.ShortcutsTabLabel, () => ShortcutsTab(oscMessages));
+                _scrollManager.MakeTab(HLocalizationPhrase.ShortcutsTabLabel, () => _expressionsTab.ShortcutsTab(oscMessages));
                 _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.CostumesTabLabel, () => _costumesTab.CostumesTab(oscMessages));
                 if (ImGui.BeginTabItem(HLocalizationPhrase.ParametersTabLabel))
                 {
@@ -398,9 +400,9 @@ public partial class HVInnerWindow : IDisposable
         _scrollManager.MakeTab(HLocalizationPhrase.FaceTrackingTabLabel, () => FaceTrackingTab(oscMessages));
         _scrollManager.MakeTab(HLocalizationPhrase.InputTabLabel, () => InputTab(oscMessages));
         _scrollManager.MakeTab(HLocalizationPhrase.TrackingTabLabel, () => TrackingTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.ContactsTabLabel, () => ContactsTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.PhysBonesLabel, () => PhysBonesTab(oscMessages));
-        _scrollManager.MakeTab(HLocalizationPhrase.MenuTabLabel, () => ExpressionsTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.ContactsTabLabel, () => _expressionsTab.ContactsTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.PhysBonesLabel, () => _expressionsTab.PhysBonesTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.MenuTabLabel, () => _expressionsTab.ExpressionsTab(oscMessages));
         ImGui.EndTabBar();
     }
 
@@ -657,7 +659,7 @@ public partial class HVInnerWindow : IDisposable
 
     public void SetEyeTracking(bool usingEyeTracking)
     {
-        _usingEyeTracking = usingEyeTracking;
+        this.usingEyeTracking = usingEyeTracking;
     }
 
     public void SetIsHandOverlay(bool isHandOverlay)
