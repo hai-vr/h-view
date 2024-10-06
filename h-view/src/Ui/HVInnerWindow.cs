@@ -26,6 +26,7 @@ public class HVInnerWindow : IDisposable
     private const int RefreshEventPollPerSecondWhenMinimized = 15;
 
     private const bool ShowFrameCounter = false;
+    private const int SidePanelWidth = 165;
 
     private readonly HVRoutine _routine;
     private readonly bool _isWindowlessStyle;
@@ -151,66 +152,55 @@ public class HVInnerWindow : IDisposable
 
         var windowHeight = _window.Height - BorderHeight * 2;
 
-        var useTabs = false;
         ImGuiVR.Begin();
 
-        int sidePanel;
-        if (useTabs)
+        ImGui.SetNextWindowPos(new Vector2(BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new Vector2(SidePanelWidth - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
+
+        ImGui.Begin("###sidepanel", WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoScrollbar);
+        
+        var buttonSize = new Vector2(ImGui.GetWindowWidth() - 16, 35);
+        ShowSidebarButton(buttonSize, HLocalizationPhrase.ShortcutsTabLabel, HPanel.Shortcuts);
+        ShowSidebarButton(buttonSize, HLocalizationPhrase.CostumesTabLabel, HPanel.Costumes);
+        if (_networkingTabOptional != null) ShowSidebarButton(buttonSize, HLocalizationPhrase.NetworkingTabLabel, HPanel.Networking);
+        ShowSidebarButton(buttonSize, HLocalizationPhrase.ParametersTabLabel, HPanel.Parameters);
+        if (ConditionalCompilation.IncludesOpenVR) ShowSidebarButton(buttonSize, HLocalizationPhrase.HardwareTabLabel, HPanel.Hardware);
+        ShowSidebarButton(buttonSize, HLocalizationPhrase.OptionsTabLabel, HPanel.Options);
+        ShowSidebarButton(buttonSize, HLocalizationPhrase.TabsTabLabel, HPanel.Tabs);
+        
+        var languages = HLocalization.GetLanguages();
+        var desiredY = ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 2f - (buttonSize.Y + 6) * languages.Count;
+        if (ImGui.GetCursorPosY() < desiredY) // Only show the language selector if we have room for it
         {
-            sidePanel = 0;
+            ImGui.SetCursorPosY(desiredY);
+            for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
+            {
+                var language = languages[languageIndex].Replace(" (ChatGPT)" , " GPT");
+                if (ImGui.Button(language, buttonSize))
+                {
+                    _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
+                    HLocalization.SwitchLanguage(languageIndex);
+                }
+            }
         }
         else
         {
-            sidePanel = 165;
-
-            ImGui.SetNextWindowPos(new Vector2(BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
-            ImGui.SetNextWindowSize(new Vector2(sidePanel - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
-
-            ImGui.Begin("###sidepanel", WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoScrollbar);
-            
-            var buttonSize = new Vector2(ImGui.GetWindowWidth() - 16, 35);
-            ShowSidebarButton(buttonSize, HLocalizationPhrase.ShortcutsTabLabel, HPanel.Shortcuts);
-            ShowSidebarButton(buttonSize, HLocalizationPhrase.CostumesTabLabel, HPanel.Costumes);
-            if (_networkingTabOptional != null) ShowSidebarButton(buttonSize, HLocalizationPhrase.NetworkingTabLabel, HPanel.Networking);
-            ShowSidebarButton(buttonSize, HLocalizationPhrase.ParametersTabLabel, HPanel.Parameters);
-            if (ConditionalCompilation.IncludesOpenVR) ShowSidebarButton(buttonSize, HLocalizationPhrase.HardwareTabLabel, HPanel.Hardware);
-            ShowSidebarButton(buttonSize, HLocalizationPhrase.OptionsTabLabel, HPanel.Options);
-            ShowSidebarButton(buttonSize, HLocalizationPhrase.TabsTabLabel, HPanel.Tabs);
-            
-            var languages = HLocalization.GetLanguages();
-            var desiredY = ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 2f - (buttonSize.Y + 6) * languages.Count;
-            if (ImGui.GetCursorPosY() < desiredY) // Only show the language selector if we have room for it
+            ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 3);
+            if (ImGui.Button(UiOptions.LanguagesNonTranslated, buttonSize))
             {
-                ImGui.SetCursorPosY(desiredY);
-                for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
-                {
-                    var language = languages[languageIndex].Replace(" (ChatGPT)" , " GPT");
-                    if (ImGui.Button(language, buttonSize))
-                    {
-                        _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
-                        HLocalization.SwitchLanguage(languageIndex);
-                    }
-                }
+                _panel = HPanel.Options;
             }
-            else
-            {
-                ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 3);
-                if (ImGui.Button(UiOptions.LanguagesNonTranslated, buttonSize))
-                {
-                    _panel = HPanel.Options;
-                }
-            }
-
-            var overdata = $"{VERSION.miniVersion}";
-            ImGui.SetCursorPosX(16);
-            ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() - 8);
-            ImGui.Text(overdata);
-
-            ImGui.End();
         }
 
-        var windowWidth = _window.Width - BorderWidth * 2 - sidePanel;
-        ImGui.SetNextWindowPos(new Vector2(sidePanel + BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
+        var overdata = $"{VERSION.miniVersion}";
+        ImGui.SetCursorPosX(16);
+        ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() - 8);
+        ImGui.Text(overdata);
+
+        ImGui.End();
+
+        var windowWidth = _window.Width - BorderWidth * 2 - SidePanelWidth;
+        ImGui.SetNextWindowPos(new Vector2(SidePanelWidth + BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
         ImGui.SetNextWindowSize(new Vector2(windowWidth - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
         var flags = WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar;
 
@@ -223,66 +213,41 @@ public class HVInnerWindow : IDisposable
         frameNumber++;
         ImGui.Begin($"{HVApp.AppTitleTab} {VERSION.version}", flags);
         var oscMessages = _routine.UiOscMessages();
-        if (useTabs)
+        switch (_panel)
         {
-            DisplayAsTabs(isEyeTrackingMenuBeingViewedThroughHandOverlay, oscMessages);
+            case HPanel.Shortcuts:
+                _scrollManager.MakeScroll(() => _expressionsTab.ShortcutsTab(oscMessages));
+                break;
+            case HPanel.Costumes:
+                _scrollManager.MakeScroll(() => _costumesTab.CostumesTab(oscMessages));
+                break;
+            case HPanel.Networking:
+                _scrollManager.MakeScroll(() => _networkingTabOptional?.NetworkingTab());
+                break;
+            case HPanel.Parameters:
+                _scrollManager.MakeScroll(() => ParametersTab(oscMessages));
+                break;
+            case HPanel.Hardware:
+                _scrollManager.MakeScroll(() => _hardwareTab.HardwareTab());
+                break;
+            case HPanel.Options:
+                _scrollManager.MakeScroll(() => _optionsTab.OptionsTab());
+                break;
+            case HPanel.Tabs:
+                DisplayAsTabs(isEyeTrackingMenuBeingViewedThroughHandOverlay, oscMessages);
+                break;
+            case HPanel.Thirdparty:
+                _optionsTab.ThirdPartyTab();
+                break;
+            case HPanel.DevTools:
+                _optionsTab.DevToolsTab();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
-        else
-        {
-            switch (_panel)
-            {
-                case HPanel.Shortcuts:
-                {
-                    _scrollManager.MakeScroll(() => _expressionsTab.ShortcutsTab(oscMessages));
-                    break;
-                }
-                case HPanel.Costumes:
-                {
-                    _scrollManager.MakeScroll(() => _costumesTab.CostumesTab(oscMessages));
-                    break;
-                }
-                case HPanel.Networking:
-                {
-                    _scrollManager.MakeScroll(() => _networkingTabOptional?.NetworkingTab());
-                    break;
-                }
-                case HPanel.Parameters:
-                {
-                    _scrollManager.MakeScroll(() => ParametersTab(oscMessages));
-                    break;
-                }
-                case HPanel.Hardware:
-                {
-                    _scrollManager.MakeScroll(() => _hardwareTab.HardwareTab());
-                    break;
-                }
-                case HPanel.Options:
-                {
-                    _scrollManager.MakeScroll(() => _optionsTab.OptionsTab());
-                    break;
-                }
-                case HPanel.Tabs:
-                {
-                    DisplayAsTabs(isEyeTrackingMenuBeingViewedThroughHandOverlay, oscMessages);
-                    break;
-                }
-                case HPanel.Thirdparty:
-                {
-                    _optionsTab.ThirdPartyTab();
-                    break;
-                }
-                case HPanel.DevTools:
-                {
-                    _optionsTab.DevToolsTab();
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
 
-            _scrollManager.StoreIfAnyItemHovered();
-        }
-        
+        _scrollManager.StoreIfAnyItemHovered();
+
         ImGuiVR.End();
 
         ImGui.End();
