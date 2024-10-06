@@ -18,6 +18,8 @@ public class HVOpenVRThread
     public const int TotalWindowHeight = (int)(VRWindowHeight * 0.6f);
     private const int VRWindowWidth = 1400;
     private const int VRWindowHeight = 800;
+    private const ushort HoverHapticPulseDurationMicroseconds = 25_000;
+    private const ushort ButtonPressHapticPulseDurationMicroseconds = 50_000;
     public const string VrManifestAppKey = "Hai.HView";
 
     private readonly HVRoutine _routine;
@@ -101,14 +103,14 @@ public class HVOpenVRThread
             
             mainApp.RegisterHoverChanged(() =>
             {
-                _queuedForOvr.Enqueue(() => OpenVR.System.TriggerHapticPulse(dashboard.LastMouseMoveDeviceIndex, 0, 25_000));
+                _queuedForOvr.Enqueue(() => OpenVRUtils.TriggerHapticPulse(dashboard.LastMouseMoveDeviceIndex, HoverHapticPulseDurationMicroseconds));
             });
             
             mainApp.RegisterButtonPressed(() =>
             {
                 _queuedForOvr.Enqueue(() =>
                 {
-                    OpenVR.System.TriggerHapticPulse(dashboard.LastMouseMoveDeviceIndex, 0, 50_000);
+                    OpenVRUtils.TriggerHapticPulse(dashboard.LastMouseMoveDeviceIndex, ButtonPressHapticPulseDurationMicroseconds);
                     _playSound ??= new PlaySound(HAssets.ClickAudio.Absolute());
                     _playSound.Play();
                 });

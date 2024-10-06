@@ -39,4 +39,10 @@ public static class OpenVRUtils
     {
         return deviceIndex != OpenVR.k_unTrackedDeviceIndexInvalid;
     }
+
+    public static void TriggerHapticPulse(uint deviceIndex, ushort durationMicroseconds)
+    {
+        // unAxisId is always zero ( https://steamcommunity.com/app/358720/discussions/0/517141624283630663/ )
+        OpenVR.System.TriggerHapticPulse(deviceIndex, 0, durationMicroseconds);
+    }
 }

@@ -173,6 +173,7 @@ public class HVRoutine
         _steamworksOptional?.Update();
     }
 
+    /// Needs to be called from the VR update loop.
     public void HardwareUpdateIfNecessary()
     {
         if (_hardwareRequiredAtLeastOnce && _lastHardwareRequired.ElapsedMilliseconds < 1000)
