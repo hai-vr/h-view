@@ -10,7 +10,8 @@ namespace Hai.HView.Ui;
 
 public class UiOptions
 {
-    private readonly HVInnerWindow _inner;
+    private readonly Action<HVInnerWindow.HPanel> _switchPanelCallback;
+    private readonly ImGuiVR ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly SavedData _config;
     private readonly bool _isWindowlessStyle;
@@ -19,9 +20,10 @@ public class UiOptions
     private HThirdPartyRegistry _thirdPartyRegistry;
     private int _selectedIndex = -1;
 
-    public UiOptions(HVInnerWindow inner, HVRoutine routine, SavedData config, bool isWindowlessStyle, UiScrollManager scrollManager)
+    public UiOptions(ImGuiVR imGuiVr, Action<HVInnerWindow.HPanel> switchPanelCallback, HVRoutine routine, SavedData config, bool isWindowlessStyle, UiScrollManager scrollManager)
     {
-        _inner = inner;
+        _switchPanelCallback = switchPanelCallback;
+        ImGuiVR = imGuiVr;
         _routine = routine;
         _config = config;
         _isWindowlessStyle = isWindowlessStyle;
@@ -47,14 +49,14 @@ public class UiOptions
         {
             _config.SaveConfig();
         }
-        if (_inner.HapticButton(HLocalizationPhrase.ShowThirdPartyAcknowledgementsLabel))
+        if (ImGuiVR.HapticButton(HLocalizationPhrase.ShowThirdPartyAcknowledgementsLabel))
         {
             _selectedIndex = -1;
-            _inner.SwitchPanel(HVInnerWindow.HPanel.Thirdparty);
+            _switchPanelCallback.Invoke(HVInnerWindow.HPanel.Thirdparty);
         }
-        if (_inner.HapticButton("Open Developer tools"))
+        if (ImGuiVR.HapticButton("Open Developer tools"))
         {
-            _inner.SwitchPanel(HVInnerWindow.HPanel.DevTools);
+            _switchPanelCallback.Invoke(HVInnerWindow.HPanel.DevTools);
         }
         
         ImGui.Text("");
@@ -64,7 +66,7 @@ public class UiOptions
         for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
         {
             var language = languages[languageIndex];
-            if (_inner.HapticButton(language))
+            if (ImGuiVR.HapticButton(language))
             {
                 _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
                 HLocalization.SwitchLanguage(languageIndex);
@@ -102,14 +104,14 @@ public class UiOptions
                 
                 var selectedEntry = entries[_selectedIndex];
                 ImGui.SeparatorText(selectedEntry.projectName);
-                if (_inner.HapticButton($"{selectedEntry.projectUrl}###projecturl"))
+                if (ImGuiVR.HapticButton($"{selectedEntry.projectUrl}###projecturl"))
                 {
                     UiUtil.OpenProjectUrl(selectedEntry.projectUrl);
                 }
                 
                 ImGui.TextWrapped($"Attributed to: {selectedEntry.attributedTo}");
                 ImGui.TextWrapped($"License: {selectedEntry.licenseName}");
-                if (_inner.HapticButton($"{selectedEntry.licenseUrl}###licenseurl"))
+                if (ImGuiVR.HapticButton($"{selectedEntry.licenseUrl}###licenseurl"))
                 {
                     UiUtil.OpenProjectUrl(selectedEntry.licenseUrl);
                 }
@@ -142,7 +144,7 @@ public class UiOptions
         for (var index = 0; index < entries.Length; index++)
         {
             var entry = entries[index];
-            if (_inner.HapticButton($"{entry.projectName}###project_{index}"))
+            if (ImGuiVR.HapticButton($"{entry.projectName}###project_{index}"))
             {
                 _selectedIndex = index;
             }

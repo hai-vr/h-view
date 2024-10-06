@@ -17,10 +17,6 @@ namespace Hai.HView.Gui;
 
 public class HVInnerWindow : IDisposable
 {
-    public event ButtonEvent OnHoverChanged;
-    public event ButtonEvent OnButtonPressed;
-    public delegate void ButtonEvent();
-    
     private const int BorderWidth = 0;
     private const int BorderHeight = BorderWidth;
     private const ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoResize;
@@ -45,11 +41,13 @@ public class HVInnerWindow : IDisposable
     private bool _eyeTrackingMenuActiveLastFrame;
     
     // Externally set
-    internal bool usingEyeTracking;
     private bool _isBeingViewedThroughHandOverlay;
 
     // UI state
     private readonly RgbaFloat _transparentClearColor = new RgbaFloat(0f, 0f, 0f, 0f);
+    private readonly ImGuiVR ImGuiVR;
+    private readonly UiSharedData _sharedData;
+    private readonly UiScrollManager _scrollManager = new UiScrollManager();
     
     // Overlay only
     private Texture _overlayTexture;
@@ -57,8 +55,6 @@ public class HVInnerWindow : IDisposable
     private Framebuffer _overlayFramebuffer;
     
     // Tabs
-    private readonly UiSharedData _sharedData;
-    private readonly UiScrollManager _scrollManager = new UiScrollManager();
     private readonly UiExpressions _expressionsTab;
     private readonly UiCostumes _costumesTab;
     private readonly UiOscQuery _oscQueryTab;
@@ -77,7 +73,6 @@ public class HVInnerWindow : IDisposable
     private long frameNumber;
     private HPanel _panel = HPanel.Shortcuts;
     private bool _debugTransparency;
-    private string _hovered;
 
     public HVInnerWindow(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config)
     {
@@ -93,15 +88,16 @@ public class HVInnerWindow : IDisposable
         
         _imageLoader = new HVImageLoader();
         _sharedData = new UiSharedData();
+        ImGuiVR = new ImGuiVR(_isWindowlessStyle);
 
         var oscQueryTab = new UiOscQuery(_routine, _sharedData);
-        _expressionsTab = new UiExpressions(this, _routine, _imageLoader, oscQueryTab, _sharedData);
-        _costumesTab = new UiCostumes(this, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
+        _expressionsTab = new UiExpressions(ImGuiVR, _routine, _imageLoader, oscQueryTab, _sharedData);
+        _costumesTab = new UiCostumes(ImGuiVR, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
         _oscQueryTab = oscQueryTab;
         _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
         _eyeTrackingMenu = new UiEyeTrackingMenu(isWindowlessStyle, _imageLoader, _sharedData);
-        _hardwareTab = new UiHardware(this, _routine, _config);
-        _optionsTab = new UiOptions(this, _routine, _config, _isWindowlessStyle, _scrollManager);
+        _hardwareTab = new UiHardware(ImGuiVR, _routine, _config);
+        _optionsTab = new UiOptions(ImGuiVR, SwitchPanel, _routine, _config, _isWindowlessStyle, _scrollManager);
         _utilityTab = new UiUtility(_scrollManager, _routine);
     }
 
@@ -124,40 +120,6 @@ public class HVInnerWindow : IDisposable
         foreach (var param in manifest.expressionParameters)
         {
             _sharedData.isLocal[param.parameter] = !param.synced;
-        }
-    }
-
-    internal bool HapticButton(string label)
-    {
-        var clicked = ImGui.Button(label);
-        CheckHapticButton(label);
-        return clicked;
-    }
-
-    internal bool HapticImageButton(string label, IntPtr textureId, Vector2 size)
-    {
-        var clicked = ImGui.ImageButton(label, textureId, size);
-        CheckHapticButton(label);
-        return clicked;
-    }
-
-    internal bool HapticButton(string label, Vector2 size)
-    {
-        var clicked = ImGui.Button(label, size);
-        CheckHapticButton(label);
-        return clicked;
-    }
-
-    private void CheckHapticButton(string label)
-    {
-        if (ImGui.IsItemHovered())
-        {
-            _hovered = label;
-        }
-
-        if (ImGui.IsItemClicked())
-        {
-            OnButtonPressed?.Invoke();
         }
     }
 
@@ -190,7 +152,7 @@ public class HVInnerWindow : IDisposable
         var windowHeight = _window.Height - BorderHeight * 2;
 
         var useTabs = false;
-        var prevHover = _hovered;
+        ImGuiVR.Begin();
 
         int sidePanel;
         if (useTabs)
@@ -321,10 +283,7 @@ public class HVInnerWindow : IDisposable
             _scrollManager.StoreIfAnyItemHovered();
         }
         
-        if (_isWindowlessStyle && _hovered != prevHover)
-        {
-            OnHoverChanged?.Invoke();
-        }
+        ImGuiVR.End();
 
         ImGui.End();
         ImGui.PopFont();
@@ -342,7 +301,7 @@ public class HVInnerWindow : IDisposable
 
     private void ShowSidebarButton(Vector2 buttonSize, string label, HPanel target)
     {
-        if (ColoredBg(_panel == target, () => HapticButton(label, buttonSize))) _panel = target;
+        if (ColoredBg(_panel == target, () => ImGuiVR.HapticButton(label, buttonSize))) _panel = target;
     }
 
     private bool ColoredBg(bool useColor, Func<bool> func)
@@ -668,7 +627,7 @@ public class HVInnerWindow : IDisposable
 
     public void SetEyeTracking(bool usingEyeTracking)
     {
-        this.usingEyeTracking = usingEyeTracking;
+        _sharedData.usingEyeTracking = usingEyeTracking;
     }
 
     public void SetIsHandOverlay(bool isHandOverlay)
@@ -687,8 +646,18 @@ public class HVInnerWindow : IDisposable
         }
     }
 
-    public void SwitchPanel(HPanel newPanel)
+    private void SwitchPanel(HPanel newPanel)
     {
         _panel = newPanel;
+    }
+
+    public void RegisterHoverChanged(ImGuiVR.ButtonEvent buttonEvent)
+    {
+        ImGuiVR.OnHoverChanged += buttonEvent;
+    }
+
+    public void RegisterButtonPressed(ImGuiVR.ButtonEvent buttonEvent)
+    {
+        ImGuiVR.OnButtonPressed += buttonEvent;
     }
 }

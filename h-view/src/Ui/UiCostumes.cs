@@ -8,7 +8,7 @@ namespace Hai.HView.Gui.Tab;
 
 public class UiCostumes
 {
-    private readonly HVInnerWindow _inner;
+    private readonly ImGuiVR ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly UiScrollManager _scrollManager;
     private readonly bool _noLogin;
@@ -23,9 +23,9 @@ public class UiCostumes
     private string _twoferBuffer__sensitive = "";
     private string _avatarIdBuffer = "";
 
-    public UiCostumes(HVInnerWindow inner, HVRoutine routine, UiScrollManager scrollManager, bool noLogin, HVImageLoader imageLoader)
+    public UiCostumes(ImGuiVR imGuiVr, HVRoutine routine, UiScrollManager scrollManager, bool noLogin, HVImageLoader imageLoader)
     {
-        _inner = inner;
+        ImGuiVR = imGuiVr;
         _routine = routine;
         _scrollManager = scrollManager;
         _noLogin = noLogin;
@@ -110,7 +110,7 @@ public class UiCostumes
     private void DrawAviButton(string avatarId, string pngPath, HVExternalService uiExternalService, string currentAvi)
     {
         if (avatarId == currentAvi) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
-        if (_inner.HapticImageButton($"###switch_{avatarId}", _imageLoader.GetOrLoadImage(pngPath), _portraitSize))
+        if (ImGuiVR.HapticImageButton($"###switch_{avatarId}", _imageLoader.GetOrLoadImage(pngPath), _portraitSize))
         {
             _routine.EjectUserFromCostumeMenu();
             uiExternalService.SelectAvatar(avatarId);

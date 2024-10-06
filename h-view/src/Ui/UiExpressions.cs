@@ -9,7 +9,7 @@ namespace Hai.HView.Gui;
 
 public class UiExpressions
 {
-    private readonly HVInnerWindow _inner;
+    private readonly ImGuiVR ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly HVImageLoader _imageLoader;
     private readonly UiOscQuery _oscQueryTab;
@@ -22,9 +22,9 @@ public class UiExpressions
     private Vector2 _imagelessButtonSize;
     private int _buttonTableWidth;
 
-    public UiExpressions(HVInnerWindow inner, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiSharedData sharedData)
+    public UiExpressions(ImGuiVR imGuiVr, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiSharedData sharedData)
     {
-        _inner = inner;
+        ImGuiVR = imGuiVr;
         _routine = routine;
         _imageLoader = imageLoader;
         _oscQueryTab = oscQueryTab;
@@ -34,8 +34,8 @@ public class UiExpressions
     private void UpdateIconSize()
     {
         var eyeTrackingSizeMultiplier = 1.5f;
-        var width = (int)(NominalImageWidth * (_inner.usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
-        var height = (int)(NominalImageHeight * (_inner.usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
+        var width = (int)(NominalImageWidth * (_sharedData.usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
+        var height = (int)(NominalImageHeight * (_sharedData.usingEyeTracking ? eyeTrackingSizeMultiplier : 1));
         _imageSize = new Vector2(width, height);
         _imagelessButtonSize = new Vector2(width + 6, height + 6);
         _buttonTableWidth = width + 6;
@@ -519,11 +519,11 @@ public class UiExpressions
         bool button;
         if (item.icon != -1)
         {
-            button = _inner.HapticImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), _imageSize);
+            button = ImGuiVR.HapticImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), _imageSize);
         }
         else
         {
-            button = _inner.HapticButton($"?###{id}", _imagelessButtonSize);
+            button = ImGuiVR.HapticButton($"?###{id}", _imagelessButtonSize);
         }
 
         return button;

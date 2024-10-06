@@ -91,12 +91,12 @@ public class HVOpenVRThread
             var dashboard = new HVImGuiOverlay(innerWindow, "main", true, windowRatio);
             dashboard.Start();
             
-            innerWindow.OnHoverChanged += () =>
+            innerWindow.RegisterHoverChanged(() =>
             {
                 _queuedForOvr.Enqueue(() => OpenVR.System.TriggerHapticPulse(dashboard.LastMouseMoveDeviceIndex, 0, 25_000));
-            };
+            });
             
-            innerWindow.OnButtonPressed += () =>
+            innerWindow.RegisterButtonPressed(() =>
             {
                 _queuedForOvr.Enqueue(() =>
                 {
@@ -104,7 +104,7 @@ public class HVOpenVRThread
                     _playSound ??= new PlaySound(HAssets.ClickAudio.Absolute());
                     _playSound.Play();
                 });
-            };
+            });
 
             var overlayables = new List<IOverlayable>();
             overlayables.Add(dashboard);

@@ -1,7 +1,6 @@
 ﻿using Hai.HView.Hardware;
 using Hai.HView.Core;
 using Hai.HView.Data;
-using Hai.HView.Gui;
 using ImGuiNET;
 using Valve.VR;
 
@@ -9,7 +8,7 @@ namespace Hai.HView.Ui;
 
 public class UiHardware
 {
-    private readonly HVInnerWindow _inner;
+    private readonly ImGuiVR ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly SavedData _config;
 
@@ -20,9 +19,9 @@ public class UiHardware
 
     private bool _editNames;
 
-    public UiHardware(HVInnerWindow inner, HVRoutine routine, SavedData config)
+    public UiHardware(ImGuiVR imGuiVr, HVRoutine routine, SavedData config)
     {
-        _inner = inner;
+        ImGuiVR = imGuiVr;
         _routine = routine;
         _config = config;
     }
@@ -126,7 +125,7 @@ public class UiHardware
                     ImGui.InputText($"##edit{hardware.SerialNumber}", ref options.ovrSerialToPreference[hardware.SerialNumber].name, 10_000);
                     ItemHovered(hardware, color);
                     ImGui.SameLine();
-                    if (_inner.HapticButton($"{HLocalizationPhrase.OkLabel}##ok{hardware.SerialNumber}"))
+                    if (ImGuiVR.HapticButton($"{HLocalizationPhrase.OkLabel}##ok{hardware.SerialNumber}"))
                     {
                         _config.SaveConfig();
                         _editNames = false;
