@@ -38,7 +38,7 @@ public class HVOpenVRThread
     {
         var desktopImageLoader = new HVImageLoader();
         var desktopWindow = new HVInnerWindow(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, desktopImageLoader);
-        var desktopImGuiManagement = new HVImGuiManagement(false, TotalWindowWidth, TotalWindowHeight, desktopImageLoader);
+        var desktopImGuiManagement = new HVRendering(false, TotalWindowWidth, TotalWindowHeight, desktopImageLoader);
         desktopImGuiManagement.OnSubmitUi += desktopWindow.SubmitUI;
         desktopImGuiManagement.SetupUi(false);
         
@@ -89,7 +89,7 @@ public class HVOpenVRThread
         {
             var imageLoader = new HVImageLoader();
             var innerWindow = new HVInnerWindow(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight, _config, imageLoader);
-            var imGuiManagement = new HVImGuiManagement(true, VRWindowWidth, VRWindowWidth, imageLoader);
+            var imGuiManagement = new HVRendering(true, VRWindowWidth, VRWindowWidth, imageLoader);
             imGuiManagement.OnSubmitUi += innerWindow.SubmitUI;
             imGuiManagement.SetupUi(true);
 

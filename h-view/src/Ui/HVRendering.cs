@@ -8,7 +8,7 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace Hai.HView.Gui;
 
-public class HVImGuiManagement
+public class HVRendering
 {
     public event SubmitUi OnSubmitUi;
     public delegate void SubmitUi(CustomImGuiController controller, Sdl2Window window);
@@ -40,7 +40,7 @@ public class HVImGuiManagement
     // Debug
     private bool _debugTransparency;
     
-    public HVImGuiManagement(bool isWindowlessStyle, int windowWidth, int windowHeight, HVImageLoader imageLoader)
+    public HVRendering(bool isWindowlessStyle, int windowWidth, int windowHeight, HVImageLoader imageLoader)
     {
         _isWindowlessStyle = isWindowlessStyle;
 
