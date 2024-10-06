@@ -1,32 +1,32 @@
 ﻿using System.Numerics;
+using Hai.HView.Core;
 using Hai.HView.OSC;
 using Hai.HView.Ui;
 using ImGuiNET;
 
 namespace Hai.HView.Gui;
 
-public partial class HVInnerWindow
+public class UiUtility
 {
+    private readonly UiScrollManager _scrollManager;
+    private readonly HVRoutine _routine;
+
     internal const string LanguagesNonTranslated = "Languages";
     private const string KeysTabLabel = "Keys";
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     private string[] _thirdPartyLateInit;
 
-    private void UtilityTab(Dictionary<string, HOscItem> oscMessages)
+    public UiUtility(UiScrollManager scrollManager, HVRoutine routine)
+    {
+        _scrollManager = scrollManager;
+        _routine = routine;
+    }
+
+    public void UtilityTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTabBar("##tabs_keys");
         _scrollManager.MakeTab(KeysTabLabel, () => KeysTab(oscMessages));
         ImGui.EndTabBar();
-    }
-    
-    private void OptionsTab(Dictionary<string, HOscItem> oscMessages)
-    {
-        _optionsTab.OptionsTab();
-    }
-
-    private void ThirdPartyTab()
-    {
-        _optionsTab.ThirdPartyTab();
     }
 
     private void KeysTab(Dictionary<string, HOscItem> oscMessages)

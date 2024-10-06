@@ -69,6 +69,7 @@ public partial class HVInnerWindow : IDisposable
     private readonly UiEyeTrackingMenu _eyeTrackingMenu;
     private readonly UiHardware _hardwareTab;
     private readonly UiOptions _optionsTab;
+    private readonly UiUtility _utilityTab;
     private readonly int _windowWidth;
     private readonly int _windowHeight;
     private readonly SavedData _config;
@@ -101,6 +102,7 @@ public partial class HVInnerWindow : IDisposable
         _eyeTrackingMenu = new UiEyeTrackingMenu(this, isWindowlessStyle, _imageLoader);
         _hardwareTab = new UiHardware(this, _routine, _config);
         _optionsTab = new UiOptions(this, _routine, _config, _isWindowlessStyle, _scrollManager);
+        _utilityTab = new UiUtility(_scrollManager, _routine);
     }
 
     public void Dispose()
@@ -231,7 +233,7 @@ public partial class HVInnerWindow : IDisposable
             else
             {
                 ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 3);
-                if (ImGui.Button(LanguagesNonTranslated, buttonSize))
+                if (ImGui.Button(UiUtility.LanguagesNonTranslated, buttonSize))
                 {
                     _panel = HPanel.Options;
                 }
@@ -294,7 +296,7 @@ public partial class HVInnerWindow : IDisposable
                 }
                 case HPanel.Options:
                 {
-                    _scrollManager.MakeScroll(() => OptionsTab(oscMessages));
+                    _scrollManager.MakeScroll(() => _optionsTab.OptionsTab());
                     break;
                 }
                 case HPanel.Tabs:
@@ -304,7 +306,7 @@ public partial class HVInnerWindow : IDisposable
                 }
                 case HPanel.Thirdparty:
                 {
-                    ThirdPartyTab();
+                    _optionsTab.ThirdPartyTab();
                     break;
                 }
                 case HPanel.DevTools:
@@ -382,9 +384,9 @@ public partial class HVInnerWindow : IDisposable
                 ImGui.EndTabBar();
             });
             if (_networkingTabOptional != null) _scrollManager.MakeTab(HLocalizationPhrase.NetworkingTabLabel, () => _networkingTabOptional.NetworkingTab());
-            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.UtilityTabLabel, () => UtilityTab(oscMessages));
+            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.UtilityTabLabel, () => _utilityTab.UtilityTab(oscMessages));
             _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.HardwareTabLabel, () => _hardwareTab.HardwareTab());
-            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.OptionsTabLabel, () => OptionsTab(oscMessages));
+            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.OptionsTabLabel, () => _optionsTab.OptionsTab());
             ImGui.EndTabBar();
         }
         else
