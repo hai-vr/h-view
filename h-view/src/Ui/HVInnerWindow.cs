@@ -58,7 +58,6 @@ public class HVInnerWindow : IDisposable
     
     // Tabs
     private readonly UiSharedData _sharedData;
-    private readonly ShortcutResolver _shortcutResolver;
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
     private readonly UiExpressions _expressionsTab;
     private readonly UiCostumes _costumesTab;
@@ -94,7 +93,6 @@ public class HVInnerWindow : IDisposable
         
         _imageLoader = new HVImageLoader();
         _sharedData = new UiSharedData();
-        _shortcutResolver = new ShortcutResolver(_sharedData);
 
         var oscQueryTab = new UiOscQuery(_routine, _sharedData);
         _expressionsTab = new UiExpressions(this, _routine, _imageLoader, oscQueryTab, _sharedData);
@@ -117,7 +115,7 @@ public class HVInnerWindow : IDisposable
     {
         _sharedData.ManifestNullable = newManifest;
         _imageLoader.FreeImagesFromMemory();
-        _shortcutResolver.RebuildManifestAsShortcuts(newManifest);
+        _sharedData.ShortcutsNullable = ShortcutResolver.RebuildManifestAsShortcuts(newManifest);
         BuildIsLocalTable(newManifest);
     });
 

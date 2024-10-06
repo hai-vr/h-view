@@ -3,48 +3,14 @@ using static Hai.HView.Gui.HVShortcutType;
 
 namespace Hai.HView.Gui;
 
-    /*
-TODO:
-## Shortcut rework
-
-- Read the current avatar ID through OSC Query for when the application loads.
-- When the manifest changes:
-    - (DONE) (Make an event listener for the manifest changes) 
-    - (DONE) Free the allocated icons and clear the icon cache.
-        - (DONE) Switch the icon cache back to indices only.
-    - (PARTIAL) Process the manifest to create a new model with the following information:
-        - Store whether the parameter associated with a control is local or synced.
-        - (DONE) Store the Expression Parameter type of a control, so that we can get and submit the correct value type
-          through OSC without having to rely on the Message Box.
-        - (DONE) Ignore controls of type Button or Toggle that have both an empty parameter AND a whitespace-only label.
-        - (DONE) Partition the controls into 3 groups:
-            - Toggles and Buttons.
-            - Radials and Axis Puppets.
-            - Sub Menus.
-- On menu display:
-    - (DONE) Show all Toggles and Buttons on the same line, if any exists.
-    - (PARTIAL) Show every individual Radials and Axis Puppets on their own lines.
-    - (DONE) Show all Sub Menus at the end.
-- (DONE) On control display:
-    - (DONE) Get the current state of the control through the OSC Message Box.
-    - (DONE) Add a way to track press/releasing a non-boolean control (i.e. Toggle sets parameter to value 126).
-
-    */
-public class ShortcutResolver
+public static class ShortcutResolver
 {
-    private readonly UiSharedData _sharedData;
-
-    public ShortcutResolver(UiSharedData sharedData)
+    public static HVShortcutHost RebuildManifestAsShortcuts(EMManifest manifest)
     {
-        _sharedData = sharedData;
+        return AsHost(manifest.menu, manifest);
     }
 
-    public void RebuildManifestAsShortcuts(EMManifest manifest)
-    {
-        _sharedData.ShortcutsNullable = AsHost(manifest.menu, manifest);
-    }
-
-    private HVShortcutHost AsHost(EMMenu[] controls, EMManifest manifest)
+    private static HVShortcutHost AsHost(EMMenu[] controls, EMManifest manifest)
     {
         var everything = controls
             .Select(menu => AsShortcut(menu, manifest))
@@ -69,7 +35,7 @@ public class ShortcutResolver
                && string.IsNullOrWhiteSpace(shortcut.label);
     }
 
-    private HVShortcut AsShortcut(EMMenu menu, EMManifest manifest)
+    private static HVShortcut AsShortcut(EMMenu menu, EMManifest manifest)
     {
         // When the parameter is not an empty string:
         // For non-empty strings, this is not supposed to ever be null on a correctly formed VRCAvatarDescriptor, but we can't trust the client.
@@ -100,13 +66,13 @@ public class ShortcutResolver
         };
     }
 
-    private HVShortcutType AsShortcutType(string menuType)
+    private static HVShortcutType AsShortcutType(string menuType)
     {
         // TODO: This can throw an exception.
         return Enum.Parse<HVShortcutType>(menuType);
     }
 
-    private HVReferencedParameterType AsParameterType(string type)
+    private static HVReferencedParameterType AsParameterType(string type)
     {
         // TODO: This can throw an exception.
         return Enum.Parse<HVReferencedParameterType>(type);
