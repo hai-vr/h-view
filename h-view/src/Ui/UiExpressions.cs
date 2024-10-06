@@ -126,7 +126,7 @@ public class UiExpressions
                 var b = oscItem.WriteOnlyValueRef is int i && i == expected;
                 var doit = b;
                 if (doit) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
-                if (ImGui.Button($"= {expected}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f)))
+                if (ImGuiVR.HapticButton($"= {expected}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f)))
                 {
                     if (b)
                     {
@@ -139,7 +139,7 @@ public class UiExpressions
                 }
                 if (doit) ImGui.PopStyleColor();
                 // ImGui.SameLine();
-                // if (ImGui.Button($"{HoldLabel}##{key}.hold", new Vector2(50, 0f))) ;
+                // if (ImGuiVR.HapticButton($"{HoldLabel}##{key}.hold", new Vector2(50, 0f))) ;
                 // _routine.EmitOscFlipEventOnChange(oscItem.Key, ImGui.IsItemActive());
 
                 ImGui.SameLine();

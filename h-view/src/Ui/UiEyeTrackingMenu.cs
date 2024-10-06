@@ -15,7 +15,8 @@ public class UiEyeTrackingMenu
     private float _radialHeight;
     private float _linearWidth;
     private float _linearHeight;
-    
+
+    private readonly ImGuiVR ImGuiVR;
     private readonly bool _isWindowlessStyle;
     private readonly HVImageLoader _imageLoader;
     private readonly UiSharedData _sharedData;
@@ -27,8 +28,9 @@ public class UiEyeTrackingMenu
     private static float _iconSizeMul = 1f;
     private static float _iconSpacingMul = 1.228f;
 
-    public UiEyeTrackingMenu(bool isWindowlessStyle, HVImageLoader imageLoader, UiSharedData sharedData)
+    public UiEyeTrackingMenu(ImGuiVR imGuiVr, bool isWindowlessStyle, HVImageLoader imageLoader, UiSharedData sharedData)
     {
+        ImGuiVR = imGuiVr;
         _isWindowlessStyle = isWindowlessStyle;
         _imageLoader = imageLoader;
         _sharedData = sharedData;
@@ -63,12 +65,12 @@ public class UiEyeTrackingMenu
 
         var icons = _sharedData.ManifestNullable.icons;
         
-        if (ImGui.Button("Home") && _menuState.Count > 0)
+        if (ImGuiVR.HapticButton("Home") && _menuState.Count > 0)
         {
             _menuState.Clear();
         }
         ImGui.SameLine();
-        if (ImGui.Button("Back") && _menuState.Count > 0)
+        if (ImGuiVR.HapticButton("Back") && _menuState.Count > 0)
         {
             _menuState.Pop();
         }
@@ -244,11 +246,11 @@ public class UiEyeTrackingMenu
         bool button;
         if (item.icon != -1)
         {
-            button = ImGui.ImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), new Vector2(_iconWidth, _iconHeight));
+            button = ImGuiVR.HapticImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), new Vector2(_iconWidth, _iconHeight));
         }
         else
         {
-            button = ImGui.Button($"?###{id}", new Vector2(_iconWidth + IconBorder * 2, _iconHeight + IconBorder * 2));
+            button = ImGuiVR.HapticButton($"?###{id}", new Vector2(_iconWidth + IconBorder * 2, _iconHeight + IconBorder * 2));
         }
 
         return button;

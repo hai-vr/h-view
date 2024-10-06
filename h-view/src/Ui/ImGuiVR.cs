@@ -9,7 +9,6 @@ public class ImGuiVR
     public event ButtonEvent OnButtonPressed;
     public delegate void ButtonEvent();
     
-    private readonly bool _isWindowlessStyle;
     private string _hovered;
     private string _prevHover;
     
@@ -20,15 +19,10 @@ public class ImGuiVR
 
     public void End()
     {
-        if (_isWindowlessStyle && _hovered != _prevHover)
+        if (_hovered != _prevHover)
         {
             OnHoverChanged?.Invoke();
         }
-    }
-
-    public ImGuiVR(bool isWindowlessStyle)
-    {
-        _isWindowlessStyle = isWindowlessStyle;
     }
 
     public bool HapticButton(string label)

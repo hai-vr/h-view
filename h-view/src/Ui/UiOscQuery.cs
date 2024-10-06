@@ -8,6 +8,7 @@ namespace Hai.HView.Gui;
 
 public class UiOscQuery
 {
+    private readonly ImGuiVR ImGuiVR;
     private readonly HVRoutine _routine;
     private readonly UiSharedData _sharedData;
     private const string AvatarParametersPath = "/avatar/parameters/";
@@ -31,8 +32,9 @@ public class UiOscQuery
     private bool _chatboxB;
     private bool _chatboxN;
 
-    public UiOscQuery(HVRoutine routine, UiSharedData sharedData)
+    public UiOscQuery(ImGuiVR imGuiVr, HVRoutine routine, UiSharedData sharedData)
     {
+        ImGuiVR = imGuiVr;
         _routine = routine;
         _sharedData = sharedData;
     }
@@ -42,7 +44,7 @@ public class UiOscQuery
     public void AvatarTab(Dictionary<string, HOscItem> messages)
     {
         var filtered = messages.Values.Where(item => !item.IsDisabled).ToArray();
-        if (false && ImGui.Button(HLocalizationPhrase.RandomizeParametersLabel))
+        if (false && ImGuiVR.HapticButton(HLocalizationPhrase.RandomizeParametersLabel))
         {
             SendRandomAvatarParameters(filtered);
         }
@@ -57,7 +59,7 @@ public class UiOscQuery
         MakeOscTable(ThirdParty_FaceTrackingPath, filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)), _sharedData.ManifestNullable != null, AvatarParametersPath);
         
         var randFiltered = filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath)).ToArray();
-        if (ImGui.Button(HLocalizationPhrase.RandomizeParametersLabel))
+        if (ImGuiVR.HapticButton(HLocalizationPhrase.RandomizeParametersLabel))
         {
             SendRandomAvatarParameters(randFiltered);
         }
@@ -67,7 +69,7 @@ public class UiOscQuery
         RandomPercent(filtered, 0.20f);
         RandomPercent(filtered, 0.10f);
         ImGui.SameLine();
-        if (ImGui.Button("Reset"))
+        if (ImGuiVR.HapticButton("Reset"))
         {
             ResetFaceTrackingParameters(randFiltered);
         }
@@ -76,7 +78,7 @@ public class UiOscQuery
     private void RandomPercent(HOscItem[] filtered, float normalized)
     {
         ImGui.SameLine();
-        if (ImGui.Button($"{normalized * 100}%"))
+        if (ImGuiVR.HapticButton($"{normalized * 100}%"))
         {
             var rand = new Random();
             var randFiltered2 = filtered.Where(item => item.Key.StartsWith(ThirdParty_FaceTrackingPath))
@@ -259,13 +261,13 @@ public class UiOscQuery
                 }
 
                 ImGui.SameLine();
-                if (ImGui.Button($"0##{key}=0"))
+                if (ImGuiVR.HapticButton($"0##{key}=0"))
                 {
                     _routine.UpdateMessage(oscItem.Key, 0f);
                 }
 
                 ImGui.SameLine();
-                if (ImGui.Button($"1##{key}=1"))
+                if (ImGuiVR.HapticButton($"1##{key}=1"))
                 {
                     _routine.UpdateMessage(oscItem.Key, 1f);
                 }
@@ -275,13 +277,13 @@ public class UiOscQuery
                 var b = (bool)oscItem.WriteOnlyValueRef;
                 var doit = b;
                 if (doit) ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 1, 1, 0.75f));
-                if (ImGui.Button($"{b}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f)))
+                if (ImGuiVR.HapticButton($"{b}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f)))
                 {
                     _routine.UpdateMessage(oscItem.Key, !b);
                 }
                 if (doit) ImGui.PopStyleColor();
                 ImGui.SameLine();
-                if (ImGui.Button($"{HLocalizationPhrase.HoldLabel}##{key}.hold",
+                if (ImGuiVR.HapticButton($"{HLocalizationPhrase.HoldLabel}##{key}.hold",
                         new Vector2(50, 0f))) ;
                 // {
                 //     _routine.UpdateMessage(oscItem.Key, !b);
@@ -290,7 +292,7 @@ public class UiOscQuery
 
                 ImGui.SameLine();
                 // ImGui.PushButtonRepeat(true);
-                // if (ImGui.Button($"!!##{key}.punch"))
+                // if (ImGuiVR.HapticButton($"!!##{key}.punch"))
                 // {
                 // _routine.SendOsc(oscItem.key, !b);
                 // }
@@ -299,7 +301,7 @@ public class UiOscQuery
             else if (oscItem.OscType == IntOscTypeI && oscItem.WriteOnlyValueRef is int)
             {
                 var ii = (int)oscItem.WriteOnlyValueRef;
-                if (ImGui.Button($"-##{key}.-"))
+                if (ImGuiVR.HapticButton($"-##{key}.-"))
                 {
                     _routine.UpdateMessage(oscItem.Key, Math.Clamp(ii - 1, 0, 255));
                 }
@@ -316,25 +318,25 @@ public class UiOscQuery
 
                 ImGui.PopItemWidth();
                 ImGui.SameLine();
-                if (ImGui.Button($"+##{key}.+"))
+                if (ImGuiVR.HapticButton($"+##{key}.+"))
                 {
                     _routine.UpdateMessage(oscItem.Key, Math.Clamp(ii + 1, 0, 255));
                 }
 
                 ImGui.SameLine();
-                if (ImGui.Button($"0##{key}=0"))
+                if (ImGuiVR.HapticButton($"0##{key}=0"))
                 {
                     _routine.UpdateMessage(oscItem.Key, 0);
                 }
 
                 ImGui.SameLine();
-                if (ImGui.Button($"1##{key}=1"))
+                if (ImGuiVR.HapticButton($"1##{key}=1"))
                 {
                     _routine.UpdateMessage(oscItem.Key, 1);
                 }
 
                 ImGui.SameLine();
-                if (ImGui.Button($"!##{key}=0"))
+                if (ImGuiVR.HapticButton($"!##{key}=0"))
                 {
                     _routine.UpdateMessage(oscItem.Key, ii > 0 ? 0 : 1);
                 }
@@ -343,7 +345,7 @@ public class UiOscQuery
             {
                 ImGui.InputText($"##{oscItem.Key}.input", ref _chatboxBuffer, 10_000);
                 ImGui.SameLine();
-                if (ImGui.Button(_chatboxB ? $"{HLocalizationPhrase.SendLabel}##{oscItem.Key}.press" : $"{HLocalizationPhrase.KeyboardLabel}##{oscItem.Key}.press"))
+                if (ImGuiVR.HapticButton(_chatboxB ? $"{HLocalizationPhrase.SendLabel}##{oscItem.Key}.press" : $"{HLocalizationPhrase.KeyboardLabel}##{oscItem.Key}.press"))
                 {
                     var userinput_message = _chatboxBuffer;
                     Console.WriteLine(userinput_message);
@@ -371,7 +373,7 @@ public class UiOscQuery
             else if (oscItem.Key == AvatarChangePath)
             {
                 var avatarIdStr = (string)oscItem.Values[0];
-                if (ImGui.Button($"{HLocalizationPhrase.OpenBrowserLabel} ({avatarIdStr})"))
+                if (ImGuiVR.HapticButton($"{HLocalizationPhrase.OpenBrowserLabel} ({avatarIdStr})"))
                 {
                     UiUtil.OpenAvatarUrl(avatarIdStr);
                 }

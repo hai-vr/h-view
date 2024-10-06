@@ -89,17 +89,17 @@ public class HVInnerWindow : IDisposable
         
         _imageLoader = new HVImageLoader();
         _sharedData = new UiSharedData();
-        ImGuiVR = new ImGuiVR(_isWindowlessStyle);
+        ImGuiVR = new ImGuiVR();
 
-        var oscQueryTab = new UiOscQuery(_routine, _sharedData);
+        var oscQueryTab = new UiOscQuery(ImGuiVR, _routine, _sharedData);
         _expressionsTab = new UiExpressions(ImGuiVR, _routine, _imageLoader, oscQueryTab, _sharedData);
         _costumesTab = new UiCostumes(ImGuiVR, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
         _oscQueryTab = oscQueryTab;
-        _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(_routine) : null;
-        _eyeTrackingMenu = new UiEyeTrackingMenu(isWindowlessStyle, _imageLoader, _sharedData);
+        _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(ImGuiVR, _routine) : null;
+        _eyeTrackingMenu = new UiEyeTrackingMenu(ImGuiVR, isWindowlessStyle, _imageLoader, _sharedData);
         _hardwareTab = new UiHardware(ImGuiVR, _routine, _config);
         _optionsTab = new UiOptions(ImGuiVR, SwitchPanel, _routine, _config, _isWindowlessStyle, _scrollManager);
-        _utilityTab = new UiUtility(_scrollManager, _routine);
+        _utilityTab = new UiUtility(ImGuiVR, _scrollManager, _routine);
     }
 
     public void Dispose()
@@ -176,7 +176,7 @@ public class HVInnerWindow : IDisposable
             for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
             {
                 var language = languages[languageIndex].Replace(" (ChatGPT)" , " GPT");
-                if (ImGui.Button(language, buttonSize))
+                if (ImGuiVR.HapticButton(language, buttonSize))
                 {
                     _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
                     HLocalization.SwitchLanguage(languageIndex);
@@ -186,7 +186,7 @@ public class HVInnerWindow : IDisposable
         else
         {
             ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 3);
-            if (ImGui.Button(UiOptions.LanguagesNonTranslated, buttonSize))
+            if (ImGuiVR.HapticButton(UiOptions.LanguagesNonTranslated, buttonSize))
             {
                 _panel = HPanel.Options;
             }

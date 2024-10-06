@@ -55,12 +55,12 @@ public class UiCostumes
     {
         ImGui.SeparatorText(HLocalizationPhrase.CurrentAvatarLabel);
         ImGui.Text(currentAvi);
-        if (ImGui.Button(HLocalizationPhrase.CopyLabel))
+        if (ImGuiVR.HapticButton(HLocalizationPhrase.CopyLabel))
         {
             ImGui.SetClipboardText(currentAvi);
         }
         ImGui.SameLine();
-        if (ImGui.Button(HLocalizationPhrase.OpenBrowserLabel))
+        if (ImGuiVR.HapticButton(HLocalizationPhrase.OpenBrowserLabel))
         {
             UiUtil.OpenAvatarUrl(currentAvi);
         }
@@ -70,7 +70,7 @@ public class UiCostumes
         
         ImGui.BeginDisabled(uiExternalService.IsProcessingSwitchAvatar);
         ImGui.InputText($"{HLocalizationPhrase.AvatarIdLabel}##avatarid.input", ref _avatarIdBuffer, MaxLength);
-        if (ImGui.Button(HLocalizationPhrase.SwitchAvatarLabel))
+        if (ImGuiVR.HapticButton(HLocalizationPhrase.SwitchAvatarLabel))
         {
             _routine.EjectUserFromCostumeMenu();
             var userinput_avatarId = _avatarIdBuffer;
@@ -135,7 +135,7 @@ public class UiCostumes
                 ImGui.BeginDisabled(uiExternalService.IsProcessingLogin);
                 ImGui.InputText($"{HLocalizationPhrase.UsernameLabel}##username.input", ref _accountNameBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
                 ImGui.InputText($"{HLocalizationPhrase.PasswordLabel}##password.input", ref _accountPasswordBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
-                if (ImGui.Button(HLocalizationPhrase.LoginLabel))
+                if (ImGuiVR.HapticButton(HLocalizationPhrase.LoginLabel))
                 {
                     var userinput_username__sensitive = _accountNameBuffer__sensitive;
                     var userinput_password__sensitive = _accountPasswordBuffer__sensitive;
@@ -151,7 +151,7 @@ public class UiCostumes
                 ImGui.BeginDisabled(uiExternalService.IsProcessingLogin);
                 ImGui.Text(HLocalizationPhrase.MsgMultifactorCheckEmails);
                 ImGui.InputText($"{HLocalizationPhrase.MultifactorCodeLabel}##twofer.input", ref _twoferBuffer__sensitive, MaxLength);
-                if (ImGui.Button(HLocalizationPhrase.SubmitCodeLabel))
+                if (ImGuiVR.HapticButton(HLocalizationPhrase.SubmitCodeLabel))
                 {
                     var userinput_twoferCode__sensitive = _twoferBuffer__sensitive;
 
@@ -174,7 +174,7 @@ public class UiCostumes
             ImGui.Text(HLocalizationPhrase.MsgLoggedIn);
             ImGui.TextWrapped(string.Format(HLocalizationPhrase.MsgCookieSaveLocation, HVExternalService.NewCookieFile));
             ImGui.TextWrapped(HLocalizationPhrase.MsgLogoutToDeleteTheseCookies);
-            if (ImGui.Button(HLocalizationPhrase.LogoutLabel))
+            if (ImGuiVR.HapticButton(HLocalizationPhrase.LogoutLabel))
             {
                 uiExternalService.Logout();
             }

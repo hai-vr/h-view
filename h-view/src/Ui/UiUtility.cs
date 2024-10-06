@@ -8,6 +8,7 @@ namespace Hai.HView.Gui;
 
 public class UiUtility
 {
+    private readonly ImGuiVR ImGuiVR;
     private readonly UiScrollManager _scrollManager;
     private readonly HVRoutine _routine;
 
@@ -15,8 +16,9 @@ public class UiUtility
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     private string[] _thirdPartyLateInit;
 
-    public UiUtility(UiScrollManager scrollManager, HVRoutine routine)
+    public UiUtility(ImGuiVR imGuiVr, UiScrollManager scrollManager, HVRoutine routine)
     {
+        ImGuiVR = imGuiVr;
         _scrollManager = scrollManager;
         _routine = routine;
     }
@@ -33,10 +35,10 @@ public class UiUtility
         var id = 0;
 
         var size = new Vector2(ImGui.GetWindowWidth() / 2, 40);
-        ImGui.Button(HLocalizationPhrase.QuickMenuLeftLabel, size);
+        ImGuiVR.HapticButton(HLocalizationPhrase.QuickMenuLeftLabel, size);
         SimplePressEvent(ref id, "/input/QuickMenuToggleLeft");
         ImGui.SameLine();
-        ImGui.Button(HLocalizationPhrase.QuickMenuRightLabel, size);
+        ImGuiVR.HapticButton(HLocalizationPhrase.QuickMenuRightLabel, size);
         SimplePressEvent(ref id, "/input/QuickMenuToggleRight");
         
         ImGui.Text("");
@@ -45,7 +47,7 @@ public class UiUtility
         {
             var isMuted = item.Values[0] is bool ? (bool)item.Values[0] : false;
             
-            ImGui.Button($"Voice is {(isMuted ? "OFF" : "ON")}###voiceToggle", size);
+            ImGuiVR.HapticButton($"Voice is {(isMuted ? "OFF" : "ON")}###voiceToggle", size);
             SimplePressEvent(ref id, "/input/Voice");
             
             var size2 = new Vector2(ImGui.GetWindowWidth() / 5, 40);
@@ -53,7 +55,7 @@ public class UiUtility
 
             _utilityClick.TryGetValue(id, out var offPressed);
             ImGui.BeginDisabled(isMuted && !offPressed);
-            ImGui.Button("Turn OFF", size2);
+            ImGuiVR.HapticButton("Turn OFF", size2);
             SimplePressEvent(ref id, "/input/Voice");
             ImGui.EndDisabled();
             
@@ -61,7 +63,7 @@ public class UiUtility
 
             _utilityClick.TryGetValue(id, out var onPressed);
             ImGui.BeginDisabled(!isMuted && !onPressed);
-            ImGui.Button("Turn ON", size2);
+            ImGuiVR.HapticButton("Turn ON", size2);
             SimplePressEvent(ref id, "/input/Voice");
             ImGui.EndDisabled();
         }
