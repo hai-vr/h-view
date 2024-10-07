@@ -29,6 +29,7 @@ public class SavedData
     public ColorReplacement colorTrackingRecovered = new() { color = UiColors.V3(UiColors.DEFAULT_TrackingRecovered) };
     public ColorReplacement colorStaleParameter = new() { color = UiColors.V3(UiColors.DEFAULT_StaleParameter) };
     public ColorReplacement colorActiveButton = new() { color = UiColors.V3(UiColors.DEFAULT_ActiveButton) };
+    public ColorReplacement colorSecondaryTheme = new() { color = UiColors.V3(UiColors.DEFAULT_SecondaryTheme) };
 
     [Serializable]
     public struct ColorReplacement

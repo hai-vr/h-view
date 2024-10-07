@@ -13,10 +13,12 @@ public static class UiColors
     public static readonly Vector4 DEFAULT_TrackingRecovered = AccessibilityBlue;
     public static readonly Vector4 DEFAULT_ActiveButton = new(0, 1, 1, 0.75f);
     public static readonly Vector4 DEFAULT_StaleParameter = AccessibilityOrange;
+    public static readonly Vector4 DEFAULT_SecondaryTheme = new(0, 0, 0, 0.75f);
 
     public static readonly Vector4 ErroringRed = new(1f, 0f, 0f, 1f);
     public static Vector4 StaleParameter => ConfigOr(_config.colorStaleParameter, DEFAULT_StaleParameter);
     public static Vector4 ActiveButton => ConfigOr(_config.colorActiveButton, DEFAULT_ActiveButton);
+    public static Vector4 SecondaryTheme => ConfigOr(_config.colorSecondaryTheme, DEFAULT_SecondaryTheme);
     public static readonly Vector4 FakeButtonBlackInvisible = new(0, 0, 0, 0);
     public static readonly Vector4 UnhandledOscCompositeTypeDarkRed = new(0.75f, 0.5f, 0.5f, 1);
     public static readonly Vector4 HardwareIsWorkingLighthouse = new(0.627451F, 0.627451F, 0.627451F, 1);

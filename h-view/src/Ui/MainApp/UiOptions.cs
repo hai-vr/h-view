@@ -54,6 +54,10 @@ internal class UiOptions
         needsSave |= ColorReplacementEdit(HLocalizationPhrase.TrackingRecoveredColorLabel, ref _config.colorTrackingRecovered, UiColors.DEFAULT_TrackingRecovered);
         needsSave |= ColorReplacementEdit(HLocalizationPhrase.StaleParameterColorLabel, ref _config.colorStaleParameter, UiColors.DEFAULT_StaleParameter);
         needsSave |= ColorReplacementEdit(HLocalizationPhrase.ActiveButtonColorLabel, ref _config.colorActiveButton, UiColors.DEFAULT_ActiveButton);
+        if (_config.colorActiveButton.use)
+        {
+            needsSave |= ColorReplacementEdit("", ref _config.colorSecondaryTheme, UiColors.DEFAULT_SecondaryTheme);
+        }
 
         if (needsSave)
         {

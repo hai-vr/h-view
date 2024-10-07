@@ -9,6 +9,8 @@ public class UiThemeUpdater
         ImGuiCol.Button,
         ImGuiCol.ButtonHovered,
         ImGuiCol.ButtonActive,
+        ImGuiCol.SliderGrab,
+        ImGuiCol.SliderGrabActive,
         ImGuiCol.Tab,
         ImGuiCol.TabHovered,
         ImGuiCol.TabSelected,
@@ -28,7 +30,7 @@ public class UiThemeUpdater
 
         var style = ImGui.GetStyle();
         var themeWithAlpha = new Vector4(themeColor.X, themeColor.Y, themeColor.Z, UiColors.DEFAULT_ActiveButton.W);
-        var blackSameAlpha = new Vector4(0, 0, 0, UiColors.DEFAULT_ActiveButton.W);
+        var blackSameAlpha = UiColors.SecondaryTheme;
         var buttonBg = Vector4.Lerp(themeWithAlpha, blackSameAlpha, 0.5f);
         var buttonBgHovered = Vector4.Lerp(themeWithAlpha, blackSameAlpha, 0.25f);
         var buttonBgActive = Vector4.Lerp(themeWithAlpha, blackSameAlpha, 0.1f);
@@ -36,6 +38,8 @@ public class UiThemeUpdater
         style.Colors[(int)ImGuiCol.Button] = buttonBg;
         style.Colors[(int)ImGuiCol.ButtonHovered] = buttonBgHovered;
         style.Colors[(int)ImGuiCol.ButtonActive] = buttonBgActive;
+        style.Colors[(int)ImGuiCol.SliderGrab] = buttonBgActive;
+        style.Colors[(int)ImGuiCol.SliderGrabActive] = buttonBgActive;
         style.Colors[(int)ImGuiCol.Tab] = buttonBg;
         style.Colors[(int)ImGuiCol.TabHovered] = buttonBgHovered;
         style.Colors[(int)ImGuiCol.TabSelected] = buttonBgActive;
