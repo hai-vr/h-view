@@ -125,7 +125,7 @@ internal class UiCostumes
     {
         if (_noLogin && !uiExternalService.IsLoggedIn)
         {
-            ImGui.Text(HLocalizationPhrase.MsgNoVrNotLoggedIn);
+            ImGui.TextWrapped(HLocalizationPhrase.MsgNoVrNotLoggedIn);
             return;
         }
         
