@@ -39,8 +39,9 @@ public class HVOpenVRThread
 
     public void Run()
     {
+        var themeUpdater = new UiThemeUpdater();
         var desktopImageLoader = new HVImageLoader();
-        var desktopMainApp = new UiMainApplication(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, desktopImageLoader);
+        var desktopMainApp = new UiMainApplication(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, desktopImageLoader, themeUpdater);
         var desktopImGuiManagement = new HVRendering(false, TotalWindowWidth, TotalWindowHeight, desktopImageLoader, _config);
         desktopImGuiManagement.OnSubmitUi += desktopMainApp.SubmitUI;
         desktopImGuiManagement.SetupUi(false);
@@ -94,7 +95,7 @@ public class HVOpenVRThread
         {
             var imageLoader = new HVImageLoader();
             // We pass the width twice (as width and height) because we want OpenVR to deal with a square texture, which will be trimmed by the overlay window ratio.
-            var mainApp = new UiMainApplication(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight, _config, imageLoader);
+            var mainApp = new UiMainApplication(_routine, true, VRWindowWidth, VRWindowWidth, VRWindowWidth, VRWindowHeight, _config, imageLoader, themeUpdater);
             var imGuiManagement = new HVRendering(true, VRWindowWidth, VRWindowWidth, imageLoader, _config);
             imGuiManagement.OnSubmitUi += mainApp.SubmitUI;
             imGuiManagement.SetupUi(true);

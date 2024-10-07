@@ -26,8 +26,9 @@ public class HVDesktopStarter
 
     public void Run()
     {
+        var themeUpdater = new UiThemeUpdater();
         var imageLoader = new HVImageLoader();
-        var mainApp = new UiMainApplication(_routine, _simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, imageLoader);
+        var mainApp = new UiMainApplication(_routine, _simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, imageLoader, themeUpdater);
         var imGuiManagement = new HVRendering(_simulateWindowlessStyle, TotalWindowWidth, TotalWindowHeight, imageLoader, _config);
         imGuiManagement.OnSubmitUi += mainApp.SubmitUI;
         

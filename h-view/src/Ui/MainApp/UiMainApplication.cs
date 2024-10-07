@@ -26,6 +26,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
     private readonly HVRoutine _routine;
     private readonly bool _isWindowlessStyle;
     private readonly HVImageLoader _imageLoader;
+    private readonly UiThemeUpdater _themeUpdater;
 
     private readonly ConcurrentQueue<Action> _queuedForUi = new ConcurrentQueue<Action>();
     private bool _eyeTrackingMenuActiveLastFrame;
@@ -55,7 +56,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
     private long frameNumber;
     private HPanel _panel = HPanel.Shortcuts;
 
-    public UiMainApplication(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config, HVImageLoader imageLoader)
+    public UiMainApplication(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config, HVImageLoader imageLoader, UiThemeUpdater themeUpdater)
     {
         _routine = routine;
         _isWindowlessStyle = isWindowlessStyle;
@@ -63,6 +64,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 
         _config = config;
         _imageLoader = imageLoader;
+        _themeUpdater = themeUpdater;
         _trimWidth = (windowWidth - innerWidth) / 2;
         _trimHeight = (windowHeight - innerHeight) / 2;
         
@@ -117,9 +119,20 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 
     public void SubmitUI(CustomImGuiController controller, Sdl2Window window)
     {
+        _themeUpdater.ApplyStyleAdjustments(_isWindowlessStyle);
+        
         var sw = new Stopwatch();
         sw.Start();
-        
+
+        if (_config.colorActiveButton.use)
+        {
+            _themeUpdater.OverrideStyleWithTheme(UiColors.V3(UiColors.ActiveButton));
+        }
+        else
+        {
+            _themeUpdater.Reset();
+        }
+
         var smallFont = _isWindowlessStyle ? _config.useSmallFontVR : _config.useSmallFontDesktop;
 
         ImGui.PushFont(smallFont ? controller.SmallFont : controller.MainFont);
