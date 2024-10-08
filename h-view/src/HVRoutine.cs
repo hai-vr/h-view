@@ -7,6 +7,7 @@ using Hai.HNetworking.Steamworks;
 using Hai.HView.Data;
 using Hai.HView.OSC;
 using Hai.HView.OSC.PretendToBeVRC;
+using Hai.HView.Overlay;
 using Hai.HView.OVR;
 using hcontroller.Lyuma;
 using Newtonsoft.Json;
@@ -50,6 +51,7 @@ public class HVRoutine
     private Stopwatch _lastHardwareRequired = new Stopwatch();
     private bool _hardwareRequiredAtLeastOnce;
     private bool _isOpenVrAvailable;
+    private bool _isInteractDown;
 
     public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional, FakeVRCOSC fakeVrcOptional, SavedData config)
     {
@@ -458,6 +460,16 @@ public class HVRoutine
     public bool IsOpenVrAvailable()
     {
         return _isOpenVrAvailable;
+    }
+
+    public void SetInteractDown(bool isDown)
+    {
+        _isInteractDown = isDown;
+    }
+
+    public bool IsInteractDown()
+    {
+        return _isInteractDown;
     }
 }
 

@@ -118,7 +118,7 @@ public class HVOpenVRThread
                     _playSound.Play();
                 });
             });
-
+            
             var overlayables = new List<IOverlayable>();
             overlayables.Add(dashboard);
             
@@ -170,6 +170,12 @@ public class HVOpenVRThread
                     eyeTrackingOptional.Teardown();
                     overlayables.Remove(eyeTrackingOptional);
                     eyeTrackingOptional = null;
+                }
+
+                // FIXME: This is a hack so that the Ui classes can read that button for development purposes
+                if (ovr.PoseData().Interact.bChanged)
+                {
+                    _routine.SetInteractDown(ovr.PoseData().Interact.bState);
                 }
 
                 var data = OpenVRUtils.GetDigitalInput(_ovr.ActionOpenRight);

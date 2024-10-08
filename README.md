@@ -49,6 +49,7 @@ Logging in will save a cookie file in the `%APPDATA%/H-View/` folder, called `hv
 
 - Included in source code form and DLLs: [h-view/THIRDPARTY.md](h-view/THIRDPARTY.md)
   - A3ESimpleOSC @ https://github.com/lyuma/Av3Emulator/blob/master/Runtime/Scripts/A3ESimpleOSC.cs ([MIT License](https://github.com/lyuma/Av3Emulator/blob/master/Runtime/Scripts/A3ESimpleOSC.cs))
+  - openvr-screengrab @ https://github.com/cnlohr/openvr-screengrab ([MIT License](https://github.com/cnlohr/openvr-screengrab/blob/master/LICENSE))
   - ImGui.NET @ https://github.com/ImGuiNET/ImGui.NET ([MIT License](https://github.com/ImGuiNET/ImGui.NET/blob/master/LICENSE))
   - OpenVR API @ https://github.com/ValveSoftware/openvr ([BSD-3-Clause license](https://github.com/ValveSoftware/openvr/blob/master/LICENSE))
 - Other dependencies included through NuGet: [h-view/h-view.csproj](h-view/h-view.csproj)

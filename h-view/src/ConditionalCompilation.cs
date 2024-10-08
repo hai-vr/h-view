@@ -17,6 +17,7 @@ public static class ConditionalCompilation
     public static bool IncludesSteamworks => _IncludesSteamworks;
     public static bool CookiesSupported => _CookiesSupported;
     public static bool EnableFakeVrcOsc => _EnableFakeVrcOsc;
+    public static bool IncludesOCR => _IncludesOCR;
 #endif
     
 #if INCLUDES_OPENVR
@@ -47,5 +48,11 @@ public static class ConditionalCompilation
     private const bool _EnableFakeVrcOsc = true;
 #else
     private const bool _EnableFakeVrcOsc = false;
+#endif
+    
+#if INCLUDES_OCR
+    private const bool _IncludesOCR = true;
+#else
+    private const bool _IncludesOCR = false;
 #endif
 }

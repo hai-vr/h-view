@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <RootNamespace>Hai.HView</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -14,7 +13,7 @@
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DefineConstants>TRACE;HV_DEBUG;INCLUDES_OPENVR;COOKIES_SUPPORTED;INCLUDES_STEAMWORKS</DefineConstants>
+        <DefineConstants>TRACE;HV_DEBUG;INCLUDES_OPENVR;COOKIES_SUPPORTED;INCLUDES_STEAMWORKS;INCLUDES_OCR</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -33,9 +32,26 @@
         <DefineConstants>TRACE;INCLUDES_OPENVR;COOKIES_SUPPORTED;REGISTER_MANIFEST;INCLUDES_STEAMWORKS;USE_CONSTS_IN_RELEASE</DefineConstants>
     </PropertyGroup>
 
+    <Choose>
+        <When Condition="$(DefineConstants.Contains('INCLUDES_OCR'))">
+            <PropertyGroup>
+                <TargetFramework>net7.0-windows10.0.19041.0</TargetFramework>
+            </PropertyGroup>
+            <ItemGroup>
+                <ProjectReference Include="..\h-ocr\h-ocr.csproj" />
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <TargetFramework>net7.0</TargetFramework>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
     <ItemGroup>
         <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
         <PackageReference Include="System.Windows.Extensions" Version="8.0.0" />
         <PackageReference Include="Veldrid" Version="4.9.0" />
         <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0" />
@@ -116,10 +132,10 @@
       <None Update="HThirdParty\THIRDPARTY-LICENSES\IMGUI-OCORNUT-MIT.md">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="HThirdParty\THIRDPARTY-LICENSES\IMGUINET-IMGUINET-MIT.md">
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\IMGUINET-ERICMELLINO-MIT.md">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="HThirdParty\THIRDPARTY-LICENSES\IMGUINETSAMPLEPROGRAM-IMGUINET-MIT.md">
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\IMGUINETSAMPLEPROGRAM-ERICMELLINO-MIT.md">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="HThirdParty\THIRDPARTY-LICENSES\NEWTONSOFTJSON-JAMESNK-MIT.md">
@@ -134,10 +150,16 @@
       <None Update="HThirdParty\THIRDPARTY-LICENSES\TEMPLATE-SILOFL.md">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="HThirdParty\THIRDPARTY-LICENSES\VELDRID-VELDRID-MIT.md">
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\VELDRID-ERICMELLINO-MIT.md">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="HThirdParty\THIRDPARTY-LICENSES\VRCOSCQUERYLIB-VRCHAT-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\OPENVRSCREENGRAB-CNLOHR-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\VORTICEWINDOWS-AMERKOLECI-MIT.md">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
