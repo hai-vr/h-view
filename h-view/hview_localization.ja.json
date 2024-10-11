@@ -96,5 +96,9 @@
     "label_TrackingRecoveredColorLabel": "トラッキングが回復しました",
     "label_StaleParameterColorLabel": "パラメータが古い",
     "label_ActiveButtonColorLabel": "アクティブなボタン",
-    "label_OpenDeveloperToolsLabel": "開発者ツールを開く"
+    "label_OpenDeveloperToolsLabel": "開発者ツールを開く",
+    "label_ProcessingTabLabel": "処理",
+    "label_ScanImageLabel": "画像をスキャン",
+    "label_ApplicationsLabel": "アプリケーション",
+    "label_EnableVrcFunctionsLabel": "VRChat機能を有効化"
 }

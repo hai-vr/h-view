@@ -54,7 +54,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
     
     // Debug
     private long frameNumber;
-    private HPanel _panel = HPanel.Shortcuts;
+    private HPanel _panel;
 
     public UiMainApplication(HVRoutine routine, bool isWindowlessStyle, int windowWidth, int windowHeight, int innerWidth, int innerHeight, SavedData config, HVImageLoader imageLoader, UiThemeUpdater themeUpdater)
     {
@@ -75,12 +75,13 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
         _expressionsTab = new UiExpressions(ImGuiVR, _routine, _imageLoader, oscQueryTab, _sharedData);
         _costumesTab = new UiCostumes(ImGuiVR, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
         _oscQueryTab = oscQueryTab;
-        _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(ImGuiVR, _routine) : null;
+        _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(ImGuiVR, _routine, _config) : null;
         _eyeTrackingMenu = new UiEyeTrackingMenu(ImGuiVR, isWindowlessStyle, _imageLoader, _sharedData);
         _hardwareTab = new UiHardware(ImGuiVR, _routine, _config);
         _optionsTab = new UiOptions(ImGuiVR, SwitchPanel, _routine, _config, _isWindowlessStyle, _scrollManager);
         _processingTab = new UiProcessing(ImGuiVR, _routine);
-        _utilityTab = new UiUtility(ImGuiVR, _scrollManager, _routine, _processingTab);
+        _utilityTab = new UiUtility(ImGuiVR, _scrollManager, _routine, _processingTab, _config);
+        _panel = _config.modeVrc ? HPanel.Shortcuts : HPanel.None;
     }
 
     public void Dispose()
@@ -107,6 +108,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 
     public enum HPanel
     {
+        None,
         Shortcuts,
         Costumes,
         Networking,
@@ -153,10 +155,10 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
         ImGui.Begin("###sidepanel", WindowFlagsNoCollapse | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoScrollbar);
         
         var buttonSize = new Vector2(ImGui.GetWindowWidth() - 16, 35);
-        ShowSidebarButton(buttonSize, HLocalizationPhrase.ShortcutsTabLabel, HPanel.Shortcuts);
-        ShowSidebarButton(buttonSize, HLocalizationPhrase.CostumesTabLabel, HPanel.Costumes);
+        if (_config.modeVrc) ShowSidebarButton(buttonSize, HLocalizationPhrase.ShortcutsTabLabel, HPanel.Shortcuts);
+        if (_config.modeVrc) ShowSidebarButton(buttonSize, HLocalizationPhrase.CostumesTabLabel, HPanel.Costumes);
         if (_networkingTabOptional != null) ShowSidebarButton(buttonSize, HLocalizationPhrase.NetworkingTabLabel, HPanel.Networking);
-        ShowSidebarButton(buttonSize, HLocalizationPhrase.ParametersTabLabel, HPanel.Parameters);
+        if (_config.modeVrc) ShowSidebarButton(buttonSize, HLocalizationPhrase.ParametersTabLabel, HPanel.Parameters);
         if (ConditionalCompilation.IncludesOpenVR) ShowSidebarButton(buttonSize, HLocalizationPhrase.HardwareTabLabel, HPanel.Hardware);
         ShowSidebarButton(buttonSize, HLocalizationPhrase.OptionsTabLabel, HPanel.Options);
         ShowSidebarButton(buttonSize, HLocalizationPhrase.TabsTabLabel, HPanel.Tabs);
@@ -239,6 +241,8 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
             case HPanel.DevTools:
                 _optionsTab.DevToolsTab();
                 break;
+            case HPanel.None:
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -276,7 +280,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
         if (!isEyeTrackingMenuBeingViewedThroughHandOverlay)
         {
             ImGui.BeginTabBar("##tabs");
-            _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.AvatarTabLabel, () =>
+            if (_config.modeVrc) _scrollManager.MakeUnscrollableTab(HLocalizationPhrase.AvatarTabLabel, () =>
             {
                 ImGui.BeginTabBar("##tabs_menulike");
                 _scrollManager.MakeTab(HLocalizationPhrase.ShortcutsTabLabel, () => _expressionsTab.ShortcutsTab(oscMessages));

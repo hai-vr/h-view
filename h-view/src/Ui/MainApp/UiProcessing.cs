@@ -42,7 +42,7 @@ internal class UiProcessing
         else if (_routine.IsOpenVrAvailable())
         {
             _captureModule.RequireCapture();
-            if (VrGui.HapticButton(HLocalizationPhrase.CaptureLabel, new Vector2(300, 40))
+            if (VrGui.HapticButton(HLocalizationPhrase.ScanImageLabel, new Vector2(300, 40))
                 || _continuousCapture && !_captureModule.IsProcessing && _time.ElapsedMilliseconds > 200)
             {
                 // TODO: We should run that in the OVR thread.

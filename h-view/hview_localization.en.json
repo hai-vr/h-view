@@ -97,5 +97,9 @@
     "label_TrackingRecoveredColorLabel": "Tracking recovered",
     "label_StaleParameterColorLabel": "Stale parameter",
     "label_ActiveButtonColorLabel": "Active button",
-    "label_OpenDeveloperToolsLabel": "Open Developer tools"
+    "label_OpenDeveloperToolsLabel": "Open Developer tools",
+    "label_ProcessingTabLabel": "Processing",
+    "label_ScanImageLabel": "Scan image",
+    "label_ApplicationsLabel": "Applications",
+    "label_EnableVrcFunctionsLabel": "Enable VRChat functions"
 }

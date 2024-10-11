@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Hai.HNetworking.Steamworks;
 using Hai.HView.Core;
+using Hai.HView.Data;
 using ImGuiNET;
 
 namespace Hai.HView.Ui.MainApp;
@@ -9,16 +10,18 @@ internal class UiNetworking
 {
     private readonly ImGuiVRCore ImGuiVR;
     private readonly HVRoutine _routine;
+    private readonly SavedData _config;
 
     private readonly HNSteamworks _steamworks;
     private string _joinCode = "";
 
-    public UiNetworking(ImGuiVRCore imGuiVr, HVRoutine routine)
+    public UiNetworking(ImGuiVRCore imGuiVr, HVRoutine routine, SavedData config)
     {
         if (!ConditionalCompilation.IncludesSteamworks) throw new InvalidOperationException("Instances of UiNetworking should not be created when Steamworks is disabled in conditional compilation.");
 
         ImGuiVR = imGuiVr;
         _routine = routine;
+        _config = config;
         _steamworks = routine.SteamworksModule();
     }
 
@@ -60,11 +63,14 @@ internal class UiNetworking
         if (_steamworks.LobbyIsJoinable)
         {
             ImGui.Text(string.Format(HLocalizationPhrase.MsgAskOtherUsersToJoin, _steamworks.LobbyShareable()));
-            ImGui.SameLine();
         
-            if (ImGuiVR.HapticButton(HLocalizationPhrase.SendInChatboxLabel))
+            if (_config.modeVrc)
             {
-                _routine.SendChatMessage(string.Format(HLocalizationPhrase.MsgJoinMyLobbyChatMessage, _steamworks.LobbyShareable()));
+                ImGui.SameLine();
+                if (ImGuiVR.HapticButton(HLocalizationPhrase.SendInChatboxLabel))
+                {
+                    _routine.SendChatMessage(string.Format(HLocalizationPhrase.MsgJoinMyLobbyChatMessage, _steamworks.LobbyShareable()));
+                }
             }
         }
         

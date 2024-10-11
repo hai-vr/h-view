@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Hai.HView.Core;
+using Hai.HView.Data;
 using Hai.HView.OSC;
 using ImGuiNET;
 
@@ -11,23 +12,25 @@ internal class UiUtility
     private readonly UiScrollManager _scrollManager;
     private readonly HVRoutine _routine;
     private readonly UiProcessing _processingTab;
+    private readonly SavedData _config;
 
     private const string KeysTabLabel = "Keys";
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     private string[] _thirdPartyLateInit;
 
-    public UiUtility(ImGuiVRCore imGuiVr, UiScrollManager scrollManager, HVRoutine routine, UiProcessing processingTab)
+    public UiUtility(ImGuiVRCore imGuiVr, UiScrollManager scrollManager, HVRoutine routine, UiProcessing processingTab, SavedData config)
     {
         ImGuiVR = imGuiVr;
         _scrollManager = scrollManager;
         _routine = routine;
         _processingTab = processingTab;
+        _config = config;
     }
 
     public void UtilityTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTabBar("##tabs_keys");
-        _scrollManager.MakeTab(KeysTabLabel, () => KeysTab(oscMessages));
+        if (_config.modeVrc) _scrollManager.MakeTab(KeysTabLabel, () => KeysTab(oscMessages));
         _scrollManager.MakeTab(HLocalizationPhrase.ProcessingTabLabel, () => _processingTab.ProcessingTab());
         ImGui.EndTabBar();
     }

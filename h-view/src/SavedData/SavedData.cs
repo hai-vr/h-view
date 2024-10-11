@@ -31,6 +31,8 @@ public class SavedData
     public ColorReplacement colorActiveButton = new() { color = UiColors.V3(UiColors.DEFAULT_ActiveButton) };
     public ColorReplacement colorSecondaryTheme = new() { color = UiColors.V3(UiColors.DEFAULT_SecondaryTheme) };
 
+    public bool modeVrc = true;
+
     [Serializable]
     public struct ColorReplacement
     {

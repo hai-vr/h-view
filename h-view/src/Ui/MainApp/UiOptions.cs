@@ -42,11 +42,13 @@ internal class UiOptions
             _routine.SetAutoLaunch(autoLaunch);
         }
         ImGui.EndDisabled();
+
+        var needsSave = false;        
+        ImGui.SeparatorText(HLocalizationPhrase.ApplicationsLabel);
+        needsSave |= ImGui.Checkbox(HLocalizationPhrase.EnableVrcFunctionsLabel, ref _config.modeVrc);
         
-        ImGui.Text("");
         ImGui.SeparatorText(HLocalizationPhrase.OtherLabel);
 
-        var needsSave = false;
         if (!_isWindowlessStyle) needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontDesktopLabel, ref _config.useSmallFontDesktop);
         else needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontVRLabel, ref _config.useSmallFontVR);
 

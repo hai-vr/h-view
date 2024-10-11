@@ -106,12 +106,15 @@ public class HLocalizationPhrase
     public static string StaleParameterColorLabel => HLocalization.LocalizeOrElse(nameof(StaleParameterColorLabel), "Stale parameter");
     public static string ActiveButtonColorLabel => HLocalization.LocalizeOrElse(nameof(ActiveButtonColorLabel), "Active button");
     public static string OpenDeveloperToolsLabel => HLocalization.LocalizeOrElse(nameof(OpenDeveloperToolsLabel), "Open Developer tools");
+    // Adding in 1.9
+    public static string ProcessingTabLabel => HLocalization.LocalizeOrElse(nameof(ProcessingTabLabel), "Processing");
+    public static string ScanImageLabel => HLocalization.LocalizeOrElse(nameof(ScanImageLabel), "Scan image");
+    public static string ApplicationsLabel => HLocalization.LocalizeOrElse(nameof(ApplicationsLabel), "Applications");
+    public static string EnableVrcFunctionsLabel => HLocalization.LocalizeOrElse(nameof(EnableVrcFunctionsLabel), "Enable VRChat functions");
     
     // -- Staging -- => HLocalization.LocalizeOrElse(nameof(Object), 
     public static string Separator => "-----------------------------";
     // - Labels
     // - Tabs
     // - Messages
-    public const string ProcessingTabLabel = "Processing";
-    public const string CaptureLabel = "Capture";
 }

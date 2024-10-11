@@ -202,7 +202,7 @@ public class HVRoutine
             }
             else if (msg is HQuery.HQueryCompleteEvent)
             {
-                if (_expressionsManifest == null)
+                if (_expressionsManifest == null && _config.modeVrc)
                 {
                     if (_messageBox.TryGet(CommonOSCAddresses.AvatarChangeOscAddress, out var avatar))
                     {
@@ -220,7 +220,7 @@ public class HVRoutine
         {
             _messageBox.ReceivedOsc(result.path, result.arguments);
             
-            if (result.path == CommonOSCAddresses.AvatarChangeOscAddress)
+            if (result.path == CommonOSCAddresses.AvatarChangeOscAddress && _config.modeVrc)
             {
                 Console.WriteLine("Detected avatar change");
                 _query.Refresh();
