@@ -39,14 +39,10 @@ internal class UiHardware
         }
         else
         {
-            var elapsedMilliseconds = _time.ElapsedMilliseconds;
-            var switchEveryHalfSecond = (2 * elapsedMilliseconds / 1000) % 2 == 0;
-            ImGui.PushStyleColor(ImGuiCol.Text, switchEveryHalfSecond ? UiColors.ErroringRed : UiColors.RegularWhite);
-            ImGui.TextWrapped(HLocalizationPhrase.MsgOpenVrIsNotRunning);
-            ImGui.PopStyleColor();
+            UiMainApplication.OpenVrUnavailableBlinker(_time);
         }
     }
-        
+
     private void OptionsWindow()
     {
         var changed = false;

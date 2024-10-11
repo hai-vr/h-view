@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Numerics;
 using Hai.ExternalExpressionsMenu;
 using Hai.HView.Core;
 using Hai.HView.Data;
@@ -47,6 +46,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
     private readonly UiEyeTrackingMenu _eyeTrackingMenu;
     private readonly UiHardware _hardwareTab;
     private readonly UiOptions _optionsTab;
+    private readonly UiProcessing _processingTab;
     private readonly UiUtility _utilityTab;
     private readonly SavedData _config;
     private readonly int _trimWidth;
@@ -79,7 +79,8 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
         _eyeTrackingMenu = new UiEyeTrackingMenu(ImGuiVR, isWindowlessStyle, _imageLoader, _sharedData);
         _hardwareTab = new UiHardware(ImGuiVR, _routine, _config);
         _optionsTab = new UiOptions(ImGuiVR, SwitchPanel, _routine, _config, _isWindowlessStyle, _scrollManager);
-        _utilityTab = new UiUtility(ImGuiVR, _scrollManager, _routine);
+        _processingTab = new UiProcessing(ImGuiVR, _routine);
+        _utilityTab = new UiUtility(ImGuiVR, _scrollManager, _routine, _processingTab);
     }
 
     public void Dispose()
@@ -111,6 +112,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
         Networking,
         Parameters,
         Hardware,
+        Processing,
         Options,
         Tabs,
         Thirdparty,
@@ -124,7 +126,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
         var sw = new Stopwatch();
         sw.Start();
 
-        if (_config.colorActiveButton.use)
+        if (true)
         {
             _themeUpdater.OverrideStyleWithTheme(UiColors.V3(UiColors.ActiveButton));
         }
@@ -158,6 +160,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
         if (ConditionalCompilation.IncludesOpenVR) ShowSidebarButton(buttonSize, HLocalizationPhrase.HardwareTabLabel, HPanel.Hardware);
         ShowSidebarButton(buttonSize, HLocalizationPhrase.OptionsTabLabel, HPanel.Options);
         ShowSidebarButton(buttonSize, HLocalizationPhrase.TabsTabLabel, HPanel.Tabs);
+        // ShowSidebarButton(buttonSize, HLocalizationPhrase.ProcessingTabLabel, HPanel.Processing);
         
         var languages = HLocalization.GetLanguages();
         var desiredY = ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 2f - (buttonSize.Y + 6) * languages.Count;
@@ -223,6 +226,9 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
                 break;
             case HPanel.Options:
                 _scrollManager.MakeScroll(() => _optionsTab.OptionsTab());
+                break;
+            case HPanel.Processing:
+                _scrollManager.MakeScroll(() => _processingTab.ProcessingTab());
                 break;
             case HPanel.Tabs:
                 DisplayAsTabs(isEyeTrackingMenuBeingViewedThroughHandOverlay, oscMessages);
@@ -340,5 +346,14 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
     public void RegisterButtonPressed(ImGuiVRCore.ButtonEvent buttonEvent)
     {
         ImGuiVR.OnButtonPressed += buttonEvent;
+    }
+
+    internal static void OpenVrUnavailableBlinker(Stopwatch time)
+    {
+        var elapsedMilliseconds = time.ElapsedMilliseconds;
+        var switchEveryHalfSecond = (2 * elapsedMilliseconds / 1000) % 2 == 0;
+        ImGui.PushStyleColor(ImGuiCol.Text, switchEveryHalfSecond ? UiColors.ErroringRed : UiColors.RegularWhite);
+        ImGui.TextWrapped(HLocalizationPhrase.MsgOpenVrIsNotRunning);
+        ImGui.PopStyleColor();
     }
 }

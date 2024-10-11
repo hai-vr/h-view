@@ -11,7 +11,7 @@ public static class UiColors
     
     public static readonly Vector4 DEFAULT_TrackingLost = AccessibilityOrange;
     public static readonly Vector4 DEFAULT_TrackingRecovered = AccessibilityBlue;
-    public static readonly Vector4 DEFAULT_ActiveButton = new(0, 1, 1, 0.75f);
+    public static readonly Vector4 DEFAULT_ActiveButton = new(0.9764706F, 0.078431375F, 0.6901961F, 0.75f);
     public static readonly Vector4 DEFAULT_StaleParameter = AccessibilityOrange;
     public static readonly Vector4 DEFAULT_SecondaryTheme = new(0, 0, 0, 0.75f);
 

@@ -60,7 +60,7 @@
             "kind": [
                 "Direct-Dependency-Invocation"
             ],
-            "fullLicenseTextFile": "IMGUINET-IMGUINET-MIT.md",
+            "fullLicenseTextFile": "IMGUINET-ERICMELLINO-MIT.md",
             "isRestricted": false,
             "conditionallyIncludedWhen": []
         },
@@ -74,7 +74,7 @@
             "kind": [
                 "Source-Included"
             ],
-            "fullLicenseTextFile": "IMGUINETSAMPLEPROGRAM-IMGUINET-MIT.md",
+            "fullLicenseTextFile": "IMGUINETSAMPLEPROGRAM-ERICMELLINO-MIT.md",
             "isRestricted": false,
             "conditionallyIncludedWhen": []
         },
@@ -88,7 +88,7 @@
             "kind": [
                 "Direct-Dependency-Invocation"
             ],
-            "fullLicenseTextFile": "IMGUI-OCORNUT-MIT.md",
+            "fullLicenseTextFile": "VELDRID-ERICMELLINO-MIT.md",
             "isRestricted": false,
             "conditionallyIncludedWhen": []
         },
@@ -134,6 +134,34 @@
                 "Direct-Dependency-Invocation"
             ],
             "fullLicenseTextFile": "VRCOSCQUERYLIB-VRCHAT-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "openvr-screengrab",
+            "attributedTo": "CNLohr",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/cnlohr/openvr-screengrab/blob/master/LICENSE",
+            "projectUrl": "https://github.com/cnlohr/openvr-screengrab",
+            "kind": [
+                "Source-Included"
+            ],
+            "fullLicenseTextFile": "OPENVRSCREENGRAB-CNLOHR-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "Vortice.Windows",
+            "attributedTo": "Amer Koleci and Contributors",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/amerkoleci/Vortice.Windows/blob/main/LICENSE",
+            "projectUrl": "https://github.com/amerkoleci/Vortice.Windows",
+            "kind": [
+                "Direct-Dependency-Invocation"
+            ],
+            "fullLicenseTextFile": "VORTICEWINDOWS-AMERKOLECI-MIT.md",
             "isRestricted": false,
             "conditionallyIncludedWhen": []
         },

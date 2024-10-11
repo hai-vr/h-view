@@ -50,11 +50,15 @@ public class HVImageLoader
     private IntPtr LoadTextureFromStream(Stream stream, out ImageSharpTexture texture)
     {
         // https://github.com/ImGuiNET/ImGui.NET/issues/141#issuecomment-905927496
-        var img = new ImageSharpTexture(stream, true);
+        texture = new ImageSharpTexture(stream, true);
+        return LoadFromImageSharp(texture);
+    }
+
+    private IntPtr LoadFromImageSharp(ImageSharpTexture img)
+    {
         var deviceTexture = img.CreateDeviceTexture(_gd, _gd.ResourceFactory);
         _loadedTextures.Add(deviceTexture);
         var pointer = _controller.GetOrCreateImGuiBinding(_gd.ResourceFactory, deviceTexture);
-        texture = img;
         return pointer;
     }
 

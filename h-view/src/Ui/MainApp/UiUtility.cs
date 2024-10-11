@@ -10,22 +10,25 @@ internal class UiUtility
     private readonly ImGuiVRCore ImGuiVR;
     private readonly UiScrollManager _scrollManager;
     private readonly HVRoutine _routine;
+    private readonly UiProcessing _processingTab;
 
     private const string KeysTabLabel = "Keys";
     private readonly Dictionary<int, bool> _utilityClick = new Dictionary<int, bool>();
     private string[] _thirdPartyLateInit;
 
-    public UiUtility(ImGuiVRCore imGuiVr, UiScrollManager scrollManager, HVRoutine routine)
+    public UiUtility(ImGuiVRCore imGuiVr, UiScrollManager scrollManager, HVRoutine routine, UiProcessing processingTab)
     {
         ImGuiVR = imGuiVr;
         _scrollManager = scrollManager;
         _routine = routine;
+        _processingTab = processingTab;
     }
 
     public void UtilityTab(Dictionary<string, HOscItem> oscMessages)
     {
         ImGui.BeginTabBar("##tabs_keys");
         _scrollManager.MakeTab(KeysTabLabel, () => KeysTab(oscMessages));
+        _scrollManager.MakeTab(HLocalizationPhrase.ProcessingTabLabel, () => _processingTab.ProcessingTab());
         ImGui.EndTabBar();
     }
 

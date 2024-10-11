@@ -112,4 +112,6 @@ public class HLocalizationPhrase
     // - Labels
     // - Tabs
     // - Messages
+    public const string ProcessingTabLabel = "Processing";
+    public const string CaptureLabel = "Capture";
 }

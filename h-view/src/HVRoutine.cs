@@ -28,7 +28,9 @@ public class HVRoutine
     private readonly FakeVRCOSC _fakeVrcOptional;
     private readonly SavedData _config;
     private readonly HOsc _osc;
-    private readonly HHardwareRoutine _hardwareRouting;
+    private readonly HHardwareRoutine _hardwareRoutine;
+    
+    public HVCaptureModule CaptureModule { get; }
     
     private readonly Regex _avoidPathTraversalInAvtrPipelineName = new Regex(@"^avtr_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
@@ -51,7 +53,7 @@ public class HVRoutine
     private bool _hardwareRequiredAtLeastOnce;
     private bool _isOpenVrAvailable;
 
-    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional, FakeVRCOSC fakeVrcOptional, SavedData config)
+    public HVRoutine(HOsc osc, HQuery query, HMessageBox messageBox, HVExternalService externalService, HNSteamworks steamworksOptional, FakeVRCOSC fakeVrcOptional, SavedData config, HVCaptureModule captureModule)
     {
         _osc = osc;
         _query = query;
@@ -60,8 +62,9 @@ public class HVRoutine
         _steamworksOptional = steamworksOptional;
         _fakeVrcOptional = fakeVrcOptional;
         _config = config;
+        CaptureModule = captureModule;
 
-        _hardwareRouting = new HHardwareRoutine(_config);
+        _hardwareRoutine = new HHardwareRoutine(_config);
         _lastHardwareRequired.Start();
     }
 
@@ -179,7 +182,7 @@ public class HVRoutine
     {
         if (_hardwareRequiredAtLeastOnce && _lastHardwareRequired.ElapsedMilliseconds < 1000)
         {
-            _hardwareRouting.UpdateHardwareTrackers();
+            _hardwareRoutine.UpdateHardwareTrackers();
         }
     }
 
@@ -447,7 +450,7 @@ public class HVRoutine
 
     public UiHardwareResponse UiHardware()
     {
-        return _hardwareRouting.UiHardware();
+        return _hardwareRoutine.UiHardware();
     }
 
     public void SetOpenVrAvailable(bool isOpenVrAvailable)
@@ -458,6 +461,15 @@ public class HVRoutine
     public bool IsOpenVrAvailable()
     {
         return _isOpenVrAvailable;
+    }
+
+    public void InteractDown()
+    {
+        if (CaptureModule.IsWarranted())
+        {
+            CaptureModule.RequireCapture();
+            CaptureModule.TryCapture(() => {});
+        }
     }
 }
 

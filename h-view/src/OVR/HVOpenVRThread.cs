@@ -44,8 +44,11 @@ public class HVOpenVRThread
         var desktopMainApp = new UiMainApplication(_routine, false, TotalWindowWidth, TotalWindowHeight, TotalWindowWidth, TotalWindowHeight, _config, desktopImageLoader, themeUpdater);
         var desktopImGuiManagement = new HVRendering(false, TotalWindowWidth, TotalWindowHeight, desktopImageLoader, _config);
         desktopImGuiManagement.OnSubmitUi += desktopMainApp.SubmitUI;
+        
+        // - We start the desktop app.
         desktopImGuiManagement.SetupUi(false);
         
+        // - We try to see if OpenVR is running (if it's not running, we don't want to start OpenVR).
         var ovr = _ovr;
         var ovrStarted = ovr.TryStart();
 
@@ -56,6 +59,9 @@ public class HVOpenVRThread
         {
             var sw = new Stopwatch();
             sw.Start();
+            // - If it is not running, we update the desktop app anyway, and check if OpenVR is running every 5 seconds.
+            // - Whenever OpenVR starts running, we exit this loop.
+            // - Whenever we detect the application exiting, we exit this loop early.
             while (!ovrStarted)
             {
                 var shouldRerender = desktopImGuiManagement.HandleSleep();
@@ -118,7 +124,7 @@ public class HVOpenVRThread
                     _playSound.Play();
                 });
             });
-
+            
             var overlayables = new List<IOverlayable>();
             overlayables.Add(dashboard);
             
@@ -172,8 +178,14 @@ public class HVOpenVRThread
                     eyeTrackingOptional = null;
                 }
 
-                var data = OpenVRUtils.GetDigitalInput(_ovr.ActionOpenRight);
-                if (data.bChanged && data.bState)
+                var interactAction = OpenVRUtils.GetDigitalInput(_ovr.ActionInteract);
+                if (interactAction.bChanged && interactAction.bState)
+                {
+                    _routine.InteractDown();
+                }
+
+                var rightAction = OpenVRUtils.GetDigitalInput(_ovr.ActionOpenRight);
+                if (rightAction.bChanged && rightAction.bState)
                 {
                     _routine.ToggleCostumes();
                 }

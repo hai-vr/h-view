@@ -61,8 +61,9 @@ internal class HViewProgram
 
         var messageBox = new HMessageBox();
         externalService = new HVExternalService();
-        
-        routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworksOptional, fakeVrcOptional, config);
+
+        var captureModule = new HVCaptureModule();
+        routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworksOptional, fakeVrcOptional, config, captureModule);
         
         ovrThreadOptional = isOverlay ? new HVOpenVRThread(routine, registerManifest, config) : null;
         

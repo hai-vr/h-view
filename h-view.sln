@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "h-view", "h-view\h-view.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "h-networking", "h-networking\h-networking.csproj", "{34FC0138-9638-4221-AE74-FA841E32B967}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "h-ocr", "h-ocr\h-ocr.csproj", "{7631DED3-4880-43C2-A8E4-DCE340423473}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,5 +34,15 @@ Global
 		{34FC0138-9638-4221-AE74-FA841E32B967}.ReleaseNoOpenVR|Any CPU.Build.0 = Debug|Any CPU
 		{34FC0138-9638-4221-AE74-FA841E32B967}.ReleaseSteamworks|Any CPU.ActiveCfg = Debug|Any CPU
 		{34FC0138-9638-4221-AE74-FA841E32B967}.ReleaseSteamworks|Any CPU.Build.0 = Debug|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.DebugNoOpenVR|Any CPU.ActiveCfg = Debug|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.DebugNoOpenVR|Any CPU.Build.0 = Debug|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.ReleaseNoOpenVR|Any CPU.ActiveCfg = Debug|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.ReleaseNoOpenVR|Any CPU.Build.0 = Debug|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.ReleaseSteamworks|Any CPU.ActiveCfg = Debug|Any CPU
+		{7631DED3-4880-43C2-A8E4-DCE340423473}.ReleaseSteamworks|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal
