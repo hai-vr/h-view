@@ -21,6 +21,7 @@ internal class UiExpressions
     private Vector2 _imageSize;
     private Vector2 _imagelessButtonSize;
     private int _buttonTableWidth;
+    private int _hoveredItem;
 
     public UiExpressions(ImGuiVRCore imGuiVr, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiSharedData sharedData)
     {
@@ -416,7 +417,7 @@ internal class UiExpressions
                     var isMatch = hasOscItem && IsControlMatchingOscValue(item, oscItem);
                     if (isMatch) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.ActiveButton);
 
-                    var button = DrawButtonFor(id, icons, item);
+                    var button = DrawButtonFor(id, icons, item, isMatch);
                     if (hasOscItem && button && item.type == HVShortcutType.Toggle)
                     {
                         _routine.UpdateMessage(oscItem.Key, TransformFloatToType(item.referencedParameterType, !isMatch ? item.value : 0f));
@@ -449,7 +450,7 @@ internal class UiExpressions
                     ImGui.TableSetColumnIndex(0);
                     
                     ImGui.BeginGroup();
-                    var ignored = DrawButtonFor(id, icons, item);
+                    var ignored = DrawButtonFor(id, icons, item, false);
                     ImGui.TextWrapped($"{item.label}");
                     ImGui.EndGroup();
 
@@ -511,18 +512,25 @@ internal class UiExpressions
         }
     }
 
-    private bool DrawButtonFor(int id, string[] icons, HVShortcut item)
+    private bool DrawButtonFor(int id, string[] icons, HVShortcut item, bool isMatch)
     {
-        bool button;
-        if (item.icon != -1)
+        var button = UiColors.Bordered(_hoveredItem == id, isMatch ? UiColors.ActiveButton : UiColors.SecondaryTheme, () =>
         {
-            button = ImGuiVR.HapticImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), _imageSize);
-        }
-        else
-        {
-            button = ImGuiVR.HapticButton($"?###{id}", _imagelessButtonSize);
-        }
+            if (item.icon != -1)
+            {
+                return ImGuiVR.HapticImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), _imageSize);
+            }
 
+            return ImGuiVR.HapticButton($"?###{id}", _imagelessButtonSize);
+        });
+        if (ImGui.IsItemHovered())
+        {
+            _hoveredItem = id;
+        }
+        if (!ImGui.IsAnyItemHovered())
+        {
+            _hoveredItem = -1;
+        }
         return button;
     }
 

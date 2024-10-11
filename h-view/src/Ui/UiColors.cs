@@ -52,6 +52,23 @@ public static class UiColors
         return new Vector4(v.X, v.Y, v.Z, alpha);
     }
 
+    public static bool Bordered(bool useColor, Vector4 color, Func<bool> func)
+    {
+        if (useColor)
+        {
+            ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 6);
+            ImGui.PushStyleColor(ImGuiCol.Border, color);
+        }
+        var result = func.Invoke();
+        if (useColor)
+        {
+            ImGui.PopStyleColor();
+            ImGui.PopStyleVar();
+        } 
+        
+        return result;
+    }
+
     public static bool ColoredBackground(bool useColor, Func<bool> func)
     {
         if (useColor) ImGui.PushStyleColor(ImGuiCol.Button, ActiveButton);
