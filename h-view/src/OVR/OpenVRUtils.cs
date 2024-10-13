@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using Valve.VR;
 
 namespace Hai.HView.OVR;
@@ -44,5 +45,30 @@ public static class OpenVRUtils
     {
         // unAxisId is always zero ( https://steamcommunity.com/app/358720/discussions/0/517141624283630663/ )
         OpenVR.System.TriggerHapticPulse(deviceIndex, 0, durationMicroseconds);
+    }
+
+    public static Dictionary<ulong, string> FindAllOverlayHandlesBrute()
+    {
+        var results = new Dictionary<ulong, string>();
+        
+        // There seems to be a pattern where j == i - 8, but there are some exceptions.
+        ulong lowerBound = 0;
+        ulong searchUpperBound = 256;
+        for (ulong i = lowerBound; i < searchUpperBound; i++)
+        {
+            for (ulong j = 0; j < searchUpperBound; j++)
+            {
+                ulong possibleHandle = (i << 32) + j;
+                var err = EVROverlayError.None;
+                var sb = new StringBuilder(256);
+                _ = OpenVR.Overlay.GetOverlayKey(possibleHandle, sb, 256, ref err);
+                if (err == EVROverlayError.None)
+                {
+                    results.Add(possibleHandle, sb.ToString());
+                }
+            }
+        }
+
+        return results;
     }
 }

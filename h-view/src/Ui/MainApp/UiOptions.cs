@@ -4,7 +4,10 @@ using Hai.HView.Core;
 using Hai.HView.Data;
 using Hai.HView.Gui;
 using Hai.HView.HThirdParty;
+using Hai.HView.Overlay;
+using Hai.HView.OVR;
 using ImGuiNET;
+using Valve.VR;
 
 namespace Hai.HView.Ui.MainApp;
 
@@ -21,6 +24,7 @@ internal class UiOptions
     private string[] _thirdPartyLateInit;
     private HThirdPartyRegistry _thirdPartyRegistry;
     private int _selectedIndex = -1;
+    private List<string> _devOverlaySearchNullable;
 
     public UiOptions(ImGuiVRCore imGuiVr, Action<UiMainApplication.HPanel> switchPanelCallback, HVRoutine routine, SavedData config, bool isWindowlessStyle, UiScrollManager scrollManager)
     {
@@ -177,6 +181,54 @@ internal class UiOptions
         {
             _switchPanelCallback.Invoke(UiMainApplication.HPanel.Processing);
         }
+        
+        if (_routine.IsOpenVrAvailable() && ImGui.Button("[DEV] Try overlay search"))
+        {
+            TryOverlaySearch();
+        }
+        
+        if (_devOverlaySearchNullable != null)
+        {
+            ImGui.Text($"Found {_devOverlaySearchNullable.Count} overlays.");
+            foreach (var key in _devOverlaySearchNullable)
+            {
+                ImGui.Text(key);
+            }
+        }
+    }
+
+    private void TryOverlaySearch()
+    {
+        _devOverlaySearchNullable = null;
+        Task.Run(() =>
+        {
+            var keys = new List<string>();
+            
+            foreach (var handleToKey in OpenVRUtils.FindAllOverlayHandlesBrute())
+            {
+                var handle = handleToKey.Key;
+                
+                var evrOverlayError = EVROverlayError.None;
+                var sb2 = new StringBuilder(1024);
+                var klen2 = OpenVR.Overlay.GetOverlayName(handle, sb2, 1024, ref evrOverlayError);
+
+                if (evrOverlayError == EVROverlayError.None)
+                {
+                    ETrackingUniverseOrigin origin = ETrackingUniverseOrigin.TrackingUniverseStanding;
+                    HmdMatrix34_t t = default;
+                    OpenVR.Overlay.GetOverlayTransformAbsolute(handle, ref origin, ref t);
+
+                    var ovrnum = HVOvrGeofunctions.OvrToOvrnum(t);
+                    HVGeofunctions.ToPosRotV3(ovrnum, out var pos, out var rot);
+
+                    keys.Add($"{handleToKey.Value} -> 0x{handle:X} = {sb2} @ ({pos.X},{pos.Y},{pos.Z})");
+                }
+            }
+
+            // keys.Sort();
+
+            _devOverlaySearchNullable = keys;
+        });
     }
 
     private void DisplayEntries(HThirdPartyEntry[] entries, bool aerated)
