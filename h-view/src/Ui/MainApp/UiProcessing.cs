@@ -26,6 +26,7 @@ internal class UiProcessing
         VrGui = imGuiVr;
         _routine = routine;
         _captureModule = _routine.CaptureModule;
+        ApplyLanguage();
 
         _time = new Stopwatch();
         _time.Start();
@@ -51,7 +52,7 @@ internal class UiProcessing
             ImGui.SameLine();
             if (ImGui.Checkbox("Detect Japanese", ref _detectJapanese))
             {
-                _captureModule.SetLanguage(_detectJapanese ? HVCaptureModule.JapaneseLanguage : HVCaptureModule.EnglishLanguage);
+                ApplyLanguage();
             }
             ImGui.SameLine();
             ImGui.Checkbox("Show individual words", ref _main);
@@ -108,6 +109,11 @@ internal class UiProcessing
             if (!_main) ImGui.PopStyleColor();
         }
 #endif
+    }
+
+    private void ApplyLanguage()
+    {
+        _captureModule.SetLanguage(_detectJapanese ? HVCaptureModule.JapaneseLanguage : HVCaptureModule.EnglishLanguage);
     }
 
     private static void SetCursorToPrintText(float minX, float minY, float maxX, float maxY, float posX, float posY, int borderX, int borderY, string text, Vector2 avail, float verticalMul)
