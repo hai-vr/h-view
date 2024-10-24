@@ -13,18 +13,24 @@ public class HVOpenVRManagement
     // Overlay management
     private readonly HVPoseData _mgtPoseData = new HVPoseData
     {
-        Poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount]
+        Poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount],
+        PredictedPoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount]
     };
     private bool _exitRequested;
     private readonly VRActiveActionSet_t[] _actionsets = new VRActiveActionSet_t[1];
     
+    // We need these private fields in order to `ref` them directly
     private ulong _actionSetHandle;
     private ulong _actionOpenLeft;
     private ulong _actionOpenRight;
     private ulong _actionInteract;
+    private ulong _actionGrabLeft;
+    private ulong _actionGrabRight;
     public ulong ActionOpenLeft => _actionOpenLeft;
     public ulong ActionOpenRight => _actionOpenRight;
     public ulong ActionInteract => _actionInteract;
+    public ulong ActionGrabLeft => _actionGrabLeft;
+    public ulong ActionGrabRight => _actionGrabRight;
 
     public bool Start()
     {
@@ -69,6 +75,8 @@ public class HVOpenVRManagement
             OpenVR.Input.GetActionHandle("/actions/h_view/in/open_left", ref _actionOpenLeft);
             OpenVR.Input.GetActionHandle("/actions/h_view/in/open_right", ref _actionOpenRight);
             OpenVR.Input.GetActionHandle("/actions/h_view/in/interact", ref _actionInteract);
+            OpenVR.Input.GetActionHandle("/actions/h_view/in/grab_left", ref _actionGrabLeft);
+            OpenVR.Input.GetActionHandle("/actions/h_view/in/grab_right", ref _actionGrabRight);
 
             _actionsets[0].ulActionSet = _actionSetHandle;
         }
@@ -97,14 +105,7 @@ public class HVOpenVRManagement
         processInstances.Invoke(stopwatch);
         
         stopwatch.Restart();
-        if (OpenVR.Applications.GetSceneApplicationState() == EVRSceneApplicationState.Running)
-        {
-            OpenVR.Overlay.WaitFrameSync(1000 / 30);
-        }
-        else
-        {
-            Thread.Sleep(1000 / 60);
-        }
+        OpenVR.Overlay.WaitFrameSync(100);
     }
 
     public void Teardown()
@@ -125,11 +126,14 @@ public class HVOpenVRManagement
     private void OverlayManagementFillPose()
     {
         // Fill the pose data
-            
-        // TODO: Proper predicted seconds info
-        var fPredictedSecondsToPhotonsFromNow = 0f;
+        
+        // https://github.com/cnlohr/openvr_overlay_model/blob/master/overlay_model_test.c
+        // Get all tracked devices for when we think our frame is likely to land.
+        var fPredictedSecondsToPhotonsFromNow = CNLUtils.OvrPredictedTime();
         // TODO: Proper tracking universe
-        OpenVR.System.GetDeviceToAbsoluteTrackingPose(OpenVR.Compositor.GetTrackingSpace(), fPredictedSecondsToPhotonsFromNow, _mgtPoseData.Poses);
+        OpenVR.System.GetDeviceToAbsoluteTrackingPose(OpenVR.Compositor.GetTrackingSpace(), 0f, _mgtPoseData.Poses);
+        OpenVR.System.GetDeviceToAbsoluteTrackingPose(OpenVR.Compositor.GetTrackingSpace(), fPredictedSecondsToPhotonsFromNow, _mgtPoseData.PredictedPoses);
+        
         _mgtPoseData.LeftHandDeviceIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.LeftHand);
         _mgtPoseData.RightHandDeviceIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.RightHand);
         _mgtPoseData.Interact = OpenVRUtils.GetDigitalInput(_actionInteract);

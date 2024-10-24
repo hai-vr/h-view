@@ -20,6 +20,8 @@ internal class UiProcessing
     private bool _main;
     private bool _continuousCapture;
     private static bool _detectJapanese;
+    private readonly Dictionary<string, string> _translations = new Dictionary<string, string>();
+    private readonly HashSet<string> _submittedTranslations = new HashSet<string>();
 
     public UiProcessing(ImGuiVRCore imGuiVr, HVRoutine routine)
     {
@@ -50,14 +52,14 @@ internal class UiProcessing
                 _captureModule.TryCapture(() => _time.Restart());
             }
             ImGui.SameLine();
-            if (ImGui.Checkbox("Detect Japanese", ref _detectJapanese))
+            if (VrGui.HapticCheckbox("Detect Japanese", ref _detectJapanese))
             {
                 ApplyLanguage();
             }
             ImGui.SameLine();
-            ImGui.Checkbox("Show individual words", ref _main);
+            VrGui.HapticCheckbox("Show individual words", ref _main);
             ImGui.SameLine();
-            ImGui.Checkbox("Continuous capture", ref _continuousCapture);
+            VrGui.HapticCheckbox("Continuous capture", ref _continuousCapture);
         }
         else
         {
@@ -81,32 +83,70 @@ internal class UiProcessing
             
             var borderX = 0;
             var borderY = 0;
-            
-            if (_main) ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1, 1, 1, 0.2f));
-            foreach (var line in ocrResult.Lines)
+
+            if (!_main)
             {
-                var text = line.Text;
+                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1, 1, 1, 0.2f));
+                foreach (var line in ocrResult.Lines)
+                {
+                    var theText = line.Text;
+                    var rectifiedText = _detectJapanese ? theText.Replace(" ", "") : theText;
+                    if (_translations.ContainsKey(rectifiedText))
+                    {
+                        FindMinMaxes(line, out var minX, out var minY, out var maxX, out var maxY);
+                        SetCursorToPrintText(minX, minY, maxX, maxY, posX, posY, borderX, borderY, rectifiedText, avail, 0f);
+                        ImGui.SetCursorPosY(ImGui.GetCursorPosY());
+                        ImGui.Text(rectifiedText);
+                    }
+                }
+                ImGui.PopStyleColor();
                 
-                FindMinMaxes(line, out var minX, out var minY, out var maxX, out var maxY);
-                SetCursorToPrintText(minX, minY, maxX, maxY, posX, posY, borderX, borderY, text, avail, 0f);
-                ImGui.Text(text);
+                if (_main) ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1, 1, 1, 0.2f));
+                foreach (var line in ocrResult.Lines)
+                {
+                    var theText = line.Text;
+                    var rectifiedText = _detectJapanese ? theText.Replace(" ", "") : theText;
+                    if (_translations.TryGetValue(rectifiedText, out var translated))
+                    {
+                        rectifiedText = translated;
+                    }
+                    else if (_submittedTranslations.Add(rectifiedText))
+                    {
+                        var from = _detectJapanese ? HVCaptureModule.Japanese : HVCaptureModule.English;
+                        var to = _detectJapanese ? HVCaptureModule.English : HVCaptureModule.Japanese;
+                        Task.Run(async () =>
+                        {
+                            Console.WriteLine($"Translating {rectifiedText} from {from} to {to}");
+                            var result = await _captureModule.Translate(rectifiedText, from, to);
+                            Console.WriteLine($"=> {rectifiedText} is {result}");
+                            _translations.Add(rectifiedText, result);
+                            return Task.CompletedTask;
+                        });
+                    }
+                
+                    FindMinMaxes(line, out var minX, out var minY, out var maxX, out var maxY);
+                    SetCursorToPrintText(minX, minY, maxX, maxY, posX, posY, borderX, borderY, rectifiedText, avail, 0f);
+                    ImGui.Text(rectifiedText);
+                }
+                if (_main) ImGui.PopStyleColor();
             }
-            if (_main) ImGui.PopStyleColor();
-            
-            if (!_main) ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1, 1, 1, 0.2f));
-            foreach (var lineWord in ocrResult.Lines.SelectMany(line => line.Words))
+            else
             {
-                var text = lineWord.Text;
+                if (!_main) ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1, 1, 1, 0.2f));
+                foreach (var lineWord in ocrResult.Lines.SelectMany(line => line.Words))
+                {
+                    var text = lineWord.Text;
                 
-                var rect = lineWord.BoundingRect;
-                var minX = (float)rect.X;
-                var minY = (float)rect.Y;
-                var maxX = (float)(rect.X + rect.Width);
-                var maxY = (float)(rect.Y + rect.Height);
-                SetCursorToPrintText(minX, minY, maxX, maxY, posX, posY, borderX, borderY, text, avail, 0.25f);
-                ImGui.Text(text);
+                    var rect = lineWord.BoundingRect;
+                    var minX = (float)rect.X;
+                    var minY = (float)rect.Y;
+                    var maxX = (float)(rect.X + rect.Width);
+                    var maxY = (float)(rect.Y + rect.Height);
+                    SetCursorToPrintText(minX, minY, maxX, maxY, posX, posY, borderX, borderY, text, avail, 0.25f);
+                    ImGui.Text(text);
+                }
+                if (!_main) ImGui.PopStyleColor();
             }
-            if (!_main) ImGui.PopStyleColor();
         }
 #endif
     }

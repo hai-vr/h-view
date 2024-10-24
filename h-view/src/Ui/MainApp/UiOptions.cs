@@ -16,7 +16,7 @@ internal class UiOptions
     internal const string LanguagesNonTranslated = "Languages";
 
     private readonly Action<UiMainApplication.HPanel> _switchPanelCallback;
-    private readonly ImGuiVRCore ImGuiVR;
+    private readonly ImGuiVRCore VrGui;
     private readonly HVRoutine _routine;
     private readonly SavedData _config;
     private readonly bool _isWindowlessStyle;
@@ -26,10 +26,10 @@ internal class UiOptions
     private int _selectedIndex = -1;
     private List<string> _devOverlaySearchNullable;
 
-    public UiOptions(ImGuiVRCore imGuiVr, Action<UiMainApplication.HPanel> switchPanelCallback, HVRoutine routine, SavedData config, bool isWindowlessStyle, UiScrollManager scrollManager)
+    public UiOptions(ImGuiVRCore vrGui, Action<UiMainApplication.HPanel> switchPanelCallback, HVRoutine routine, SavedData config, bool isWindowlessStyle, UiScrollManager scrollManager)
     {
         _switchPanelCallback = switchPanelCallback;
-        ImGuiVR = imGuiVr;
+        VrGui = vrGui;
         _routine = routine;
         _config = config;
         _isWindowlessStyle = isWindowlessStyle;
@@ -41,7 +41,7 @@ internal class UiOptions
         ImGui.SeparatorText(HLocalizationPhrase.SteamVRLabel);
         var autoLaunch = _routine.IsAutoLaunch();
         ImGui.BeginDisabled(!_routine.IsOpenVrAvailable());
-        if (ImGui.Checkbox(HLocalizationPhrase.StartWithSteamVRLabel, ref autoLaunch))
+        if (VrGui.HapticCheckbox(HLocalizationPhrase.StartWithSteamVRLabel, ref autoLaunch))
         {
             _routine.SetAutoLaunch(autoLaunch);
         }
@@ -49,12 +49,12 @@ internal class UiOptions
 
         var needsSave = false;        
         ImGui.SeparatorText(HLocalizationPhrase.ApplicationsLabel);
-        needsSave |= ImGui.Checkbox(HLocalizationPhrase.EnableVrcFunctionsLabel, ref _config.modeVrc);
+        needsSave |= VrGui.HapticCheckbox(HLocalizationPhrase.EnableVrcFunctionsLabel, ref _config.modeVrc);
         
         ImGui.SeparatorText(HLocalizationPhrase.OtherLabel);
 
-        if (!_isWindowlessStyle) needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontDesktopLabel, ref _config.useSmallFontDesktop);
-        else needsSave |= ImGui.Checkbox(HLocalizationPhrase.UseSmallFontVRLabel, ref _config.useSmallFontVR);
+        if (!_isWindowlessStyle) needsSave |= VrGui.HapticCheckbox(HLocalizationPhrase.UseSmallFontDesktopLabel, ref _config.useSmallFontDesktop);
+        else needsSave |= VrGui.HapticCheckbox(HLocalizationPhrase.UseSmallFontVRLabel, ref _config.useSmallFontVR);
 
         needsSave |= ColorReplacementEdit(HLocalizationPhrase.TrackingLostColorLabel, ref _config.colorTrackingLost, UiColors.DEFAULT_TrackingLost);
         needsSave |= ColorReplacementEdit(HLocalizationPhrase.TrackingRecoveredColorLabel, ref _config.colorTrackingRecovered, UiColors.DEFAULT_TrackingRecovered);
@@ -69,12 +69,12 @@ internal class UiOptions
         {
             _config.SaveConfig();
         }
-        if (ImGuiVR.HapticButton(HLocalizationPhrase.ShowThirdPartyAcknowledgementsLabel))
+        if (VrGui.HapticButton(HLocalizationPhrase.ShowThirdPartyAcknowledgementsLabel))
         {
             _selectedIndex = -1;
             _switchPanelCallback.Invoke(UiMainApplication.HPanel.Thirdparty);
         }
-        if (ImGuiVR.HapticButton(HLocalizationPhrase.OpenDeveloperToolsLabel))
+        if (VrGui.HapticButton(HLocalizationPhrase.OpenDeveloperToolsLabel))
         {
             _switchPanelCallback.Invoke(UiMainApplication.HPanel.DevTools);
         }
@@ -86,7 +86,7 @@ internal class UiOptions
         for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
         {
             var language = languages[languageIndex];
-            if (ImGuiVR.HapticButton(language))
+            if (VrGui.HapticButton(language))
             {
                 _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
                 HLocalization.SwitchLanguage(languageIndex);
@@ -97,7 +97,7 @@ internal class UiOptions
     private bool ColorReplacementEdit(string label, ref SavedData.ColorReplacement replacement, Vector4 defaultValue)
     {
         var anyChanged = false;
-        anyChanged |= ImGui.Checkbox($"{HLocalizationPhrase.ReplaceColorLabel}###replace_checkbox_{label}", ref replacement.use);
+        anyChanged |= VrGui.HapticCheckbox($"{HLocalizationPhrase.ReplaceColorLabel}###replace_checkbox_{label}", ref replacement.use);
         ImGui.SameLine();
         if (replacement.use)
         {
@@ -143,14 +143,14 @@ internal class UiOptions
                 
                 var selectedEntry = entries[_selectedIndex];
                 ImGui.SeparatorText(selectedEntry.projectName);
-                if (ImGuiVR.HapticButton($"{selectedEntry.projectUrl}###projecturl"))
+                if (VrGui.HapticButton($"{selectedEntry.projectUrl}###projecturl"))
                 {
                     UiUtil.OpenProjectUrl(selectedEntry.projectUrl);
                 }
                 
                 ImGui.TextWrapped($"Attributed to: {selectedEntry.attributedTo}");
                 ImGui.TextWrapped($"License: {selectedEntry.licenseName}");
-                if (ImGuiVR.HapticButton($"{selectedEntry.licenseUrl}###licenseurl"))
+                if (VrGui.HapticButton($"{selectedEntry.licenseUrl}###licenseurl"))
                 {
                     UiUtil.OpenProjectUrl(selectedEntry.licenseUrl);
                 }
@@ -175,14 +175,15 @@ internal class UiOptions
     public void DevToolsTab()
     {
         ImGui.SeparatorText("DevTools");
-        ImGui.Checkbox("[DEV] Use Eye Tracking instead of controllers as input", ref _config.devTools__EyeTracking);
-        ImGui.Checkbox("[DEV] Test transparency", ref _config.devTools__TestTransparency);
-        if (ImGuiVR.HapticButton("[DEV] Open Processing tab"))
+        VrGui.HapticCheckbox("[DEV][SAVED] Enable Stereocomposer", ref _config.devTools__StereoComposer);
+        VrGui.HapticCheckbox("[DEV] Use Eye Tracking instead of controllers as input", ref _config.devTools__EyeTracking);
+        VrGui.HapticCheckbox("[DEV] Test transparency", ref _config.devTools__TestTransparency);
+        if (VrGui.HapticButton("[DEV] Open Processing tab"))
         {
             _switchPanelCallback.Invoke(UiMainApplication.HPanel.Processing);
         }
         
-        if (_routine.IsOpenVrAvailable() && ImGui.Button("[DEV] Try overlay search"))
+        if (_routine.IsOpenVrAvailable() && VrGui.HapticButton("[DEV] Try overlay search"))
         {
             TryOverlaySearch();
         }
@@ -195,6 +196,10 @@ internal class UiOptions
                 ImGui.Text(key);
             }
         }
+
+        ImGui.SliderFloat("[DEV] Scale", ref _config.devTools__Scale, 0.001f, 2f);
+        ImGui.SliderFloat("[DEV] MoveAmount", ref _config.devTools__MoveAmount, 0.1f, 100f);
+        ImGui.SliderFloat("[DEV] FOV test", ref _config.devTools__FovTest, 0.1f, 2f);
     }
 
     private void TryOverlaySearch()
@@ -236,15 +241,32 @@ internal class UiOptions
         for (var index = 0; index < entries.Length; index++)
         {
             var entry = entries[index];
-            if (ImGuiVR.HapticButton($"{entry.projectName}###project_{index}"))
-            {
-                _selectedIndex = index;
-            }
+            var isIncluded = IsIncluded(entry.conditionallyIncludedWhen);
 
-            if (aerated) ImGui.SameLine();
-            ImGui.TextWrapped($"by {entry.attributedTo} ({DisplaySpdxOrFallback(entry)})");
-            if (!aerated) ImGui.Separator();
+            UiColors.Colored(!isIncluded, ImGuiCol.Text, UiColors.IsDefaultGray, () =>
+            {
+                if (VrGui.HapticButton($"{entry.projectName}###project_{index}"))
+                {
+                    _selectedIndex = index;
+                }
+
+                if (aerated) ImGui.SameLine();
+                ImGui.TextWrapped($"by {entry.attributedTo} ({DisplaySpdxOrFallback(entry)})");
+                if (!aerated) ImGui.Separator();
+            });
         }
+    }
+
+    private bool IsIncluded(List<string> conditionallyIncludedWhen)
+    {
+        if (conditionallyIncludedWhen.Count == 0) return true;
+
+        if (conditionallyIncludedWhen.Contains("INCLUDES_OCR") && !ConditionalCompilation.IncludesOCR)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static string DisplaySpdxOrFallback(HThirdPartyEntry entry)

@@ -25,28 +25,42 @@ public class ImGuiVRCore
         }
     }
 
+    public bool HapticCheckbox(string label, ref bool value)
+    {
+        var clicked = ImGui.Checkbox(label, ref value);
+        CheckHapticElement(label);
+        return clicked;
+    }
+
     public bool HapticButton(string label)
     {
         var clicked = ImGui.Button(label);
-        CheckHapticButton(label);
+        CheckHapticElement(label);
         return clicked;
     }
 
     public bool HapticImageButton(string label, IntPtr textureId, Vector2 size)
     {
         var clicked = ImGui.ImageButton(label, textureId, size);
-        CheckHapticButton(label);
+        CheckHapticElement(label);
         return clicked;
     }
 
     public bool HapticButton(string label, Vector2 size)
     {
         var clicked = ImGui.Button(label, size);
-        CheckHapticButton(label);
+        CheckHapticElement(label);
         return clicked;
     }
 
-    private void CheckHapticButton(string label)
+    public T MakeAction<T>(string label, Func<T> operation)
+    {
+        var result = operation.Invoke();
+        CheckHapticElement(label);
+        return result;
+    }
+
+    private void CheckHapticElement(string label)
     {
         if (ImGui.IsItemHovered())
         {

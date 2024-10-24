@@ -65,6 +65,7 @@ public class HEyeTrackingOverlay : IOverlayable
 
     public void Teardown()
     {
+        _dashboard.ForgetEyeTracking();
         OpenVR.Overlay.DestroyOverlay(_handle);
     }
 

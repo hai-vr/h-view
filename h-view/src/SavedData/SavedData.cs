@@ -44,6 +44,10 @@ public class SavedData
     public bool showSerial;
     [JsonIgnore] public bool devTools__EyeTracking;
     [JsonIgnore] public bool devTools__TestTransparency;
+    public bool devTools__StereoComposer;
+    [JsonIgnore] public float devTools__Scale = 1f;
+    [JsonIgnore] public float devTools__MoveAmount = 750f;
+    [JsonIgnore] public float devTools__FovTest = 1f;
 
     public static SavedData OpenConfig()
     {

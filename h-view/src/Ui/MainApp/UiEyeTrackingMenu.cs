@@ -16,7 +16,7 @@ internal class UiEyeTrackingMenu
     private float _linearWidth;
     private float _linearHeight;
 
-    private readonly ImGuiVRCore ImGuiVR;
+    private readonly ImGuiVRCore VrGui;
     private readonly bool _isWindowlessStyle;
     private readonly HVImageLoader _imageLoader;
     private readonly UiSharedData _sharedData;
@@ -28,9 +28,9 @@ internal class UiEyeTrackingMenu
     private static float _iconSizeMul = 1f;
     private static float _iconSpacingMul = 1.228f;
 
-    public UiEyeTrackingMenu(ImGuiVRCore imGuiVr, bool isWindowlessStyle, HVImageLoader imageLoader, UiSharedData sharedData)
+    public UiEyeTrackingMenu(ImGuiVRCore vrGui, bool isWindowlessStyle, HVImageLoader imageLoader, UiSharedData sharedData)
     {
-        ImGuiVR = imGuiVr;
+        VrGui = vrGui;
         _isWindowlessStyle = isWindowlessStyle;
         _imageLoader = imageLoader;
         _sharedData = sharedData;
@@ -50,12 +50,12 @@ internal class UiEyeTrackingMenu
 
         if (!_isWindowlessStyle)
         {
-            if (ImGui.Checkbox("Radial layout", ref _mode))
+            if (VrGui.HapticCheckbox("Radial layout", ref _mode))
             {
                 if (_staggered && _mode) _staggered = false;
             }
             ImGui.SameLine();
-            if (ImGui.Checkbox("Staggered layout", ref _staggered))
+            if (VrGui.HapticCheckbox("Staggered layout", ref _staggered))
             {
                 if (_staggered && _mode) _mode = false;
             }
@@ -65,12 +65,12 @@ internal class UiEyeTrackingMenu
 
         var icons = _sharedData.ManifestNullable.icons;
         
-        if (ImGuiVR.HapticButton("Home") && _menuState.Count > 0)
+        if (VrGui.HapticButton("Home") && _menuState.Count > 0)
         {
             _menuState.Clear();
         }
         ImGui.SameLine();
-        if (ImGuiVR.HapticButton("Back") && _menuState.Count > 0)
+        if (VrGui.HapticButton("Back") && _menuState.Count > 0)
         {
             _menuState.Pop();
         }
@@ -246,11 +246,11 @@ internal class UiEyeTrackingMenu
         bool button;
         if (item.icon != -1)
         {
-            button = ImGuiVR.HapticImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), new Vector2(_iconWidth, _iconHeight));
+            button = VrGui.HapticImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), new Vector2(_iconWidth, _iconHeight));
         }
         else
         {
-            button = ImGuiVR.HapticButton($"?###{id}", new Vector2(_iconWidth + IconBorder * 2, _iconHeight + IconBorder * 2));
+            button = VrGui.HapticButton($"?###{id}", new Vector2(_iconWidth + IconBorder * 2, _iconHeight + IconBorder * 2));
         }
 
         return button;

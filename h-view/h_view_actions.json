@@ -12,6 +12,14 @@
         {
             "name": "/actions/h_view/in/interact",
             "type": "boolean"
+        },
+        {
+            "name": "/actions/h_view/in/grab_left",
+            "type": "boolean"
+        },
+        {
+            "name": "/actions/h_view/in/grab_right",
+            "type": "boolean"
         }
     ]
 }

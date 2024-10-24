@@ -28,6 +28,7 @@ public class HVOverlayMovement
 public class HVPoseData
 {
     public TrackedDevicePose_t[] Poses;
+    public TrackedDevicePose_t[] PredictedPoses;
     public uint LeftHandDeviceIndex;
     public uint RightHandDeviceIndex;
     public InputDigitalActionData_t Interact;

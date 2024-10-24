@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Hai.HView.Hardware;
@@ -470,6 +471,11 @@ public class HVRoutine
             CaptureModule.RequireCapture();
             CaptureModule.TryCapture(() => {});
         }
+    }
+
+    public void SendVrcTracker(int oscTrackerNumber, Vector3 unityPos, Quaternion unityRot)
+    {
+        _osc.SendVrcTracker(oscTrackerNumber, unityPos, unityRot);
     }
 }
 

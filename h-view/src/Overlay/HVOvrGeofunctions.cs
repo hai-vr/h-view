@@ -64,6 +64,16 @@ public static class HVOvrGeofunctions
             0, 0, 0, 1
         );
     }
+
+    public static Matrix4x4 OvrToOvrnum(HmdMatrix44_t ovr)
+    {
+        return new Matrix4x4(
+            ovr.m0, ovr.m1, ovr.m2, ovr.m3,
+            ovr.m4, ovr.m5, ovr.m6, ovr.m7,
+            ovr.m8, ovr.m9, ovr.m10, ovr.m11,
+            ovr.m12, ovr.m12, ovr.m14, ovr.m15
+        );
+    }
     
     public static HmdMatrix34_t OvrnumToOvr(Matrix4x4 overnum)
     {

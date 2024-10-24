@@ -8,18 +8,18 @@ namespace Hai.HView.Ui.MainApp;
 
 internal class UiNetworking
 {
-    private readonly ImGuiVRCore ImGuiVR;
+    private readonly ImGuiVRCore VrGui;
     private readonly HVRoutine _routine;
     private readonly SavedData _config;
 
     private readonly HNSteamworks _steamworks;
     private string _joinCode = "";
 
-    public UiNetworking(ImGuiVRCore imGuiVr, HVRoutine routine, SavedData config)
+    public UiNetworking(ImGuiVRCore vrGui, HVRoutine routine, SavedData config)
     {
         if (!ConditionalCompilation.IncludesSteamworks) throw new InvalidOperationException("Instances of UiNetworking should not be created when Steamworks is disabled in conditional compilation.");
 
-        ImGuiVR = imGuiVr;
+        VrGui = vrGui;
         _routine = routine;
         _config = config;
         _steamworks = routine.SteamworksModule();
@@ -34,7 +34,7 @@ internal class UiNetworking
         else
         {
             var appId = HNSteamworks.RVRAppId;
-            if (ImGuiVR.HapticButton(HLocalizationPhrase.EnableSteamworksLabel))
+            if (VrGui.HapticButton(HLocalizationPhrase.EnableSteamworksLabel))
             {
                 _steamworks.Enable(appId);
             }
@@ -48,14 +48,14 @@ internal class UiNetworking
     {
         ImGui.SeparatorText(HLocalizationPhrase.CreateServerLabel);
         ImGui.BeginDisabled(_steamworks.LobbyEnabled);
-        if (ImGuiVR.HapticButton(HLocalizationPhrase.StartServerLabel))
+        if (VrGui.HapticButton(HLocalizationPhrase.StartServerLabel))
         {
             _steamworks.Enqueue(() => _ = _steamworks.CreateLobby());
         }
         ImGui.EndDisabled();
         ImGui.BeginDisabled(!_steamworks.LobbyIsJoinable);
         ImGui.SameLine();
-        if (ImGuiVR.HapticButton(HLocalizationPhrase.StopServerLabel))
+        if (VrGui.HapticButton(HLocalizationPhrase.StopServerLabel))
         {
             _steamworks.Enqueue(() => _steamworks.TerminateServer());
         }
@@ -67,7 +67,7 @@ internal class UiNetworking
             if (_config.modeVrc)
             {
                 ImGui.SameLine();
-                if (ImGuiVR.HapticButton(HLocalizationPhrase.SendInChatboxLabel))
+                if (VrGui.HapticButton(HLocalizationPhrase.SendInChatboxLabel))
                 {
                     _routine.SendChatMessage(string.Format(HLocalizationPhrase.MsgJoinMyLobbyChatMessage, _steamworks.LobbyShareable()));
                 }
@@ -81,7 +81,7 @@ internal class UiNetworking
             ImGui.SameLine();
         
             ImGui.BeginDisabled(_joinCode.Length < HNSteamworks.TotalDigitCount || _steamworks.ClientEnabled);
-            if (ImGuiVR.HapticButton("Join", new Vector2(64, 32)))
+            if (VrGui.HapticButton("Join", new Vector2(64, 32)))
             {
                 _steamworks.Enqueue(() => _ = _steamworks.Join(_joinCode));
             }
@@ -99,7 +99,7 @@ internal class UiNetworking
         
         ImGui.SeparatorText(HLocalizationPhrase.DebugLobbiesLabel);
         ImGui.BeginDisabled(_steamworks.Refreshing);
-        if (ImGuiVR.HapticButton(HLocalizationPhrase.RefreshLobbiesLabel))
+        if (VrGui.HapticButton(HLocalizationPhrase.RefreshLobbiesLabel))
         {
             _steamworks.Enqueue(() => _ = _steamworks.RefreshLobbies());
         }
@@ -118,18 +118,18 @@ internal class UiNetworking
         ImGui.Dummy(new Vector2(2, 32));
         ImGui.SameLine();
         ImGui.PushStyleColor(ImGuiCol.Button, UiColors.FakeButtonBlackInvisible);
-        ImGuiVR.HapticButton("HV-", new Vector2(48, 32));
+        VrGui.HapticButton("HV-", new Vector2(48, 32));
         ImGui.PopStyleColor();
         for (var i = 0; i < HNSteamworks.TotalDigitCount; i++)
         {
             var num = i < code.Length ? $"{code[i]}###n{i}" : "";
             ImGui.SameLine();
-            ImGuiVR.HapticButton(num, new Vector2(24, 32));
+            VrGui.HapticButton(num, new Vector2(24, 32));
             if (HNSteamworks.NeedsSeparator && i == HNSteamworks.SearchKeyDigitCount - 1)
             {
                 ImGui.SameLine();
                 ImGui.PushStyleColor(ImGuiCol.Button, UiColors.FakeButtonBlackInvisible);
-                ImGuiVR.HapticButton("-", new Vector2(16, 32));
+                VrGui.HapticButton("-", new Vector2(16, 32));
                 ImGui.PopStyleColor();
             }
         }
@@ -149,7 +149,7 @@ internal class UiNetworking
                 ImGui.Dummy(size);
                 ImGui.SameLine();
             }
-            if (ImGuiVR.HapticButton($"{n}", size))
+            if (VrGui.HapticButton($"{n}", size))
             {
                 _joinCode += $"{n}";
                 
@@ -160,7 +160,7 @@ internal class UiNetworking
         ImGui.EndDisabled();
         ImGui.SameLine();
         ImGui.BeginDisabled(_joinCode.Length == 0);
-        if (ImGuiVR.HapticButton("<", size))
+        if (VrGui.HapticButton("<", size))
         {
             _joinCode = _joinCode.Substring(0, _joinCode.Length - 1);
         }

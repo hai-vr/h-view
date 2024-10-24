@@ -25,6 +25,8 @@ internal class HViewProgram
     private readonly HVRoutine routine;
     private readonly HVOpenVRThread ovrThreadOptional;
     private readonly Thread uiThread;
+    private readonly HVCaptureModule captureModule;
+    
     // ReSharper restore InconsistentNaming
 
     public HViewProgram(string[] arguments)
@@ -68,7 +70,7 @@ internal class HViewProgram
         var messageBox = new HMessageBox();
         externalService = new HVExternalService();
 
-        var captureModule = new HVCaptureModule();
+        captureModule = new HVCaptureModule();
         routine = new HVRoutine(oscClient, oscQuery, messageBox, externalService, steamworksOptional, fakeVrcOptional, config, captureModule);
         
         ovrThreadOptional = isOverlay ? new HVOpenVRThread(routine, registerManifest, config) : null;
@@ -106,7 +108,7 @@ internal class HViewProgram
         sw.WriteLine("- Other dependencies included through NuGet: [h-view/h-view.csproj](h-view/h-view.csproj)");
         var thirdPartyEntries = entries
             .Where(entry => !IsSourceOrDLL(entry) && !entry.kind.Contains("Asset-Included"))
-            .OrderBy(entry => entry.conditionallyIncludedWhen.Length)
+            .OrderBy(entry => entry.conditionallyIncludedWhen.Count)
             .ToArray();
         foreach (var entry in thirdPartyEntries)
         {
@@ -129,7 +131,7 @@ internal class HViewProgram
 
     private static string FormatEntry(HThirdPartyEntry entry)
     {
-        if (entry.conditionallyIncludedWhen.Length > 0)
+        if (entry.conditionallyIncludedWhen.Count > 0)
         {
             return $"  - *{entry.projectName}* @ {entry.projectUrl} ([{entry.licenseName}]({entry.licenseUrl})) by {entry.attributedTo} (conditionally included when {string.Join(", ", entry.conditionallyIncludedWhen)} flag is set)";
         }
@@ -146,6 +148,7 @@ internal class HViewProgram
         oscClient.Finish();
         ovrThreadOptional?.Finish();
         fakeVrcOptional?.Finish();
+        captureModule.Teardown();
     }
 
     internal void Run()

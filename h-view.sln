@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "h-networking", "h-networkin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "h-ocr", "h-ocr\h-ocr.csproj", "{7631DED3-4880-43C2-A8E4-DCE340423473}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "h-pynet-translate", "h-pynet-translate\h-pynet-translate.csproj", "{60570F11-ABD2-45FB-858B-96FC14E9D339}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,15 @@ Global
 		{7631DED3-4880-43C2-A8E4-DCE340423473}.ReleaseNoOpenVR|Any CPU.Build.0 = Debug|Any CPU
 		{7631DED3-4880-43C2-A8E4-DCE340423473}.ReleaseSteamworks|Any CPU.ActiveCfg = Debug|Any CPU
 		{7631DED3-4880-43C2-A8E4-DCE340423473}.ReleaseSteamworks|Any CPU.Build.0 = Debug|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.DebugNoOpenVR|Any CPU.ActiveCfg = Debug|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.DebugNoOpenVR|Any CPU.Build.0 = Debug|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.ReleaseNoOpenVR|Any CPU.ActiveCfg = Debug|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.ReleaseNoOpenVR|Any CPU.Build.0 = Debug|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.ReleaseSteamworks|Any CPU.ActiveCfg = Debug|Any CPU
+		{60570F11-ABD2-45FB-858B-96FC14E9D339}.ReleaseSteamworks|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal

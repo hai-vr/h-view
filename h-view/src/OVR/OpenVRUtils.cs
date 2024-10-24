@@ -15,6 +15,13 @@ public static class OpenVRUtils
         OpenVR.Input.GetDigitalActionData(action, ref data, SizeOfDigitalActionData, 0);
         return data;
     }
+    
+    public static bool IfDigitalInputChanged(ulong action, out bool newValue)
+    {
+        var data = GetDigitalInput(action);
+        newValue = data.bState;
+        return data.bChanged;
+    }
 
     /// Invokes ComputeOverlayIntersection but restricts the accepted U and V components to [0, 1], returning false when not in that range.
     public static bool ComputeOverlayIntersectionStrictUVs(ulong ulOverlayHandle, VROverlayIntersectionParams_t pParams, out Vector2 uv)
@@ -70,5 +77,18 @@ public static class OpenVRUtils
         }
 
         return results;
+    }
+
+    public static string GetOverlayNameOrNull(ulong handle)
+    {
+        var err = EVROverlayError.None;
+        var nameBuilder = new StringBuilder(1024);
+        var klen2 = OpenVR.Overlay.GetOverlayName(handle, nameBuilder, 1024, ref err);
+        if (err == EVROverlayError.None)
+        {
+            return nameBuilder.ToString();
+        }
+
+        return null;
     }
 }

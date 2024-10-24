@@ -48,6 +48,20 @@ public static class HVGeofunctions
         pos = new Vector3(matrix.M14, matrix.M24, matrix.M34);
         rot = Quaternion.CreateFromRotationMatrix(matrix);
     }
+    
+    // FIXME: This is a patched function that immediately inverts the quaternion obtained from the rotation matrix.
+    // I have no idea why this is needed. This is probably caused by Quaternion.CreateFromRotationMatrix
+    // outputting the transpose, because cols and rows are swapped or something like this.
+    public static void ToPosRotV3__RectifiedRotation(Matrix4x4 matrix, out Vector3 pos, out Quaternion rot)
+    {
+        pos = new Vector3(matrix.M14, matrix.M24, matrix.M34);
+        rot = Quaternion.Inverse(Quaternion.CreateFromRotationMatrix(matrix));
+    }
+    
+    public static void ToV4(Matrix4x4 matrix, out Vector4 v4)
+    {
+        v4 = new Vector4(matrix.M14, matrix.M24, matrix.M34, matrix.M44);
+    }
 
     /// TODO: this function is total improv, I don't know if there's a formal system to represent this.
     public static Quaternion QuaternionFromAngles(Vector3 degreesOnEachAxis, HVRotationMulOrder mulOrder)

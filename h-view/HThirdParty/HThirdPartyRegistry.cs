@@ -67,5 +67,5 @@ public struct HThirdPartyEntry
     public string[] kind;
     public string fullLicenseTextFile;
     public bool isRestricted;
-    public string[] conditionallyIncludedWhen;
+    public List<string> conditionallyIncludedWhen;
 }

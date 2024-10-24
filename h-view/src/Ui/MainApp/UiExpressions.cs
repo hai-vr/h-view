@@ -9,7 +9,7 @@ namespace Hai.HView.Ui.MainApp;
 
 internal class UiExpressions
 {
-    private readonly ImGuiVRCore ImGuiVR;
+    private readonly ImGuiVRCore VrGui;
     private readonly HVRoutine _routine;
     private readonly HVImageLoader _imageLoader;
     private readonly UiOscQuery _oscQueryTab;
@@ -23,9 +23,9 @@ internal class UiExpressions
     private int _buttonTableWidth;
     private int _hoveredItem;
 
-    public UiExpressions(ImGuiVRCore imGuiVr, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiSharedData sharedData)
+    public UiExpressions(ImGuiVRCore vrGui, HVRoutine routine, HVImageLoader imageLoader, UiOscQuery oscQueryTab, UiSharedData sharedData)
     {
-        ImGuiVR = imGuiVr;
+        VrGui = vrGui;
         _routine = routine;
         _imageLoader = imageLoader;
         _oscQueryTab = oscQueryTab;
@@ -125,7 +125,7 @@ internal class UiExpressions
             {
                 var expected = (int)item.value;
                 var b = oscItem.WriteOnlyValueRef is int i && i == expected;
-                if (UiColors.ColoredBackground(b, () => ImGuiVR.HapticButton($"= {expected}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f))))
+                if (UiColors.ColoredBackground(b, () => VrGui.HapticButton($"= {expected}##{key}.toggle", new Vector2(ImGui.GetContentRegionAvail().X - 50 - 20, 0f))))
                 {
                     if (b)
                     {
@@ -518,10 +518,10 @@ internal class UiExpressions
         {
             if (item.icon != -1)
             {
-                return ImGuiVR.HapticImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), _imageSize);
+                return VrGui.HapticImageButton($"###{id}", _imageLoader.GetOrLoadImage(icons, item.icon), _imageSize);
             }
 
-            return ImGuiVR.HapticButton($"?###{id}", _imagelessButtonSize);
+            return VrGui.HapticButton($"?###{id}", _imagelessButtonSize);
         });
         if (ImGui.IsItemHovered())
         {

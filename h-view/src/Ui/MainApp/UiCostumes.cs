@@ -9,7 +9,7 @@ namespace Hai.HView.Ui.MainApp;
 
 internal class UiCostumes
 {
-    private readonly ImGuiVRCore ImGuiVR;
+    private readonly ImGuiVRCore VrGui;
     private readonly HVRoutine _routine;
     private readonly UiScrollManager _scrollManager;
     private readonly bool _noLogin;
@@ -24,9 +24,9 @@ internal class UiCostumes
     private string _twoferBuffer__sensitive = "";
     private string _avatarIdBuffer = "";
 
-    public UiCostumes(ImGuiVRCore imGuiVr, HVRoutine routine, UiScrollManager scrollManager, bool noLogin, HVImageLoader imageLoader)
+    public UiCostumes(ImGuiVRCore vrGui, HVRoutine routine, UiScrollManager scrollManager, bool noLogin, HVImageLoader imageLoader)
     {
-        ImGuiVR = imGuiVr;
+        VrGui = vrGui;
         _routine = routine;
         _scrollManager = scrollManager;
         _noLogin = noLogin;
@@ -56,12 +56,12 @@ internal class UiCostumes
     {
         ImGui.SeparatorText(HLocalizationPhrase.CurrentAvatarLabel);
         ImGui.Text(currentAvi);
-        if (ImGuiVR.HapticButton(HLocalizationPhrase.CopyLabel))
+        if (VrGui.HapticButton(HLocalizationPhrase.CopyLabel))
         {
             ImGui.SetClipboardText(currentAvi);
         }
         ImGui.SameLine();
-        if (ImGuiVR.HapticButton(HLocalizationPhrase.OpenBrowserLabel))
+        if (VrGui.HapticButton(HLocalizationPhrase.OpenBrowserLabel))
         {
             UiUtil.OpenAvatarUrl(currentAvi);
         }
@@ -71,7 +71,7 @@ internal class UiCostumes
         
         ImGui.BeginDisabled(uiExternalService.IsProcessingSwitchAvatar);
         ImGui.InputText($"{HLocalizationPhrase.AvatarIdLabel}##avatarid.input", ref _avatarIdBuffer, MaxLength);
-        if (ImGuiVR.HapticButton(HLocalizationPhrase.SwitchAvatarLabel))
+        if (VrGui.HapticButton(HLocalizationPhrase.SwitchAvatarLabel))
         {
             _routine.EjectUserFromCostumeMenu();
             var userinput_avatarId = _avatarIdBuffer;
@@ -111,7 +111,7 @@ internal class UiCostumes
     private void DrawAviButton(string avatarId, string pngPath, HVExternalService uiExternalService, string currentAvi)
     {
         if (avatarId == currentAvi) ImGui.PushStyleColor(ImGuiCol.Button, UiColors.ActiveButton);
-        if (ImGuiVR.HapticImageButton($"###switch_{avatarId}", _imageLoader.GetOrLoadImage(pngPath), _portraitSize))
+        if (VrGui.HapticImageButton($"###switch_{avatarId}", _imageLoader.GetOrLoadImage(pngPath), _portraitSize))
         {
             _routine.EjectUserFromCostumeMenu();
             uiExternalService.SelectAvatar(avatarId);
@@ -136,7 +136,7 @@ internal class UiCostumes
                 ImGui.BeginDisabled(uiExternalService.IsProcessingLogin);
                 ImGui.InputText($"{HLocalizationPhrase.UsernameLabel}##username.input", ref _accountNameBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
                 ImGui.InputText($"{HLocalizationPhrase.PasswordLabel}##password.input", ref _accountPasswordBuffer__sensitive, MaxLength, ImGuiInputTextFlags.Password);
-                if (ImGuiVR.HapticButton(HLocalizationPhrase.LoginLabel))
+                if (VrGui.HapticButton(HLocalizationPhrase.LoginLabel))
                 {
                     var userinput_username__sensitive = _accountNameBuffer__sensitive;
                     var userinput_password__sensitive = _accountPasswordBuffer__sensitive;
@@ -152,7 +152,7 @@ internal class UiCostumes
                 ImGui.BeginDisabled(uiExternalService.IsProcessingLogin);
                 ImGui.Text(HLocalizationPhrase.MsgMultifactorCheckEmails);
                 ImGui.InputText($"{HLocalizationPhrase.MultifactorCodeLabel}##twofer.input", ref _twoferBuffer__sensitive, MaxLength);
-                if (ImGuiVR.HapticButton(HLocalizationPhrase.SubmitCodeLabel))
+                if (VrGui.HapticButton(HLocalizationPhrase.SubmitCodeLabel))
                 {
                     var userinput_twoferCode__sensitive = _twoferBuffer__sensitive;
 
@@ -175,7 +175,7 @@ internal class UiCostumes
             ImGui.Text(HLocalizationPhrase.MsgLoggedIn);
             ImGui.TextWrapped(string.Format(HLocalizationPhrase.MsgCookieSaveLocation, HVExternalService.NewCookieFile));
             ImGui.TextWrapped(HLocalizationPhrase.MsgLogoutToDeleteTheseCookies);
-            if (ImGuiVR.HapticButton(HLocalizationPhrase.LogoutLabel))
+            if (VrGui.HapticButton(HLocalizationPhrase.LogoutLabel))
             {
                 uiExternalService.Logout();
             }

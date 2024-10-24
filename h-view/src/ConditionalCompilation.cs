@@ -11,6 +11,7 @@ public static class ConditionalCompilation
     public const bool IncludesSteamworks = _IncludesSteamworks;
     public const bool CookiesSupported = _CookiesSupported;
     public const bool EnableFakeVrcOsc = _EnableFakeVrcOsc;
+    public const bool IncludesOCR = _IncludesOCR;
 #else
     public static bool IncludesOpenVR => _IncludesOpenVR;
     public static bool RegisterManifest => _RegisterManifest;

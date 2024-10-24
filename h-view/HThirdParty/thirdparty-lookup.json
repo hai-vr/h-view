@@ -152,6 +152,48 @@
             "conditionallyIncludedWhen": []
         },
         {
+            "projectName": "openvr_overlay_model",
+            "attributedTo": "CNLohr",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/cnlohr/openvr_overlay_model/blob/master/LICENSE",
+            "projectUrl": "https://github.com/cnlohr/openvr_overlay_model",
+            "kind": [
+                "Source-Included"
+            ],
+            "fullLicenseTextFile": "OPENVROVERLAYMODEL-CNLOHR-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": []
+        },
+        {
+            "projectName": "Argos Translate",
+            "attributedTo": "Argos Open Technologies, LLC",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/argosopentech/argos-translate/blob/master/LICENSE",
+            "projectUrl": "https://github.com/argosopentech/argos-translate",
+            "kind": [
+                "Direct-Dependency-Invocation"
+            ],
+            "fullLicenseTextFile": "ARGOSTRANSLATE-ARGOSOPENTECH-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": ["INCLUDES_OCR"]
+        },
+        {
+            "projectName": "Python.NET",
+            "attributedTo": "the contributors of the Python.NET project",
+            "licenseName": "MIT license",
+            "SPDX": "MIT",
+            "licenseUrl": "https://github.com/pythonnet/pythonnet/blob/master/LICENSE",
+            "projectUrl": "https://github.com/pythonnet/pythonnet",
+            "kind": [
+                "Direct-Dependency-Invocation"
+            ],
+            "fullLicenseTextFile": "PYTHONNET-PYTHONNET-MIT.md",
+            "isRestricted": false,
+            "conditionallyIncludedWhen": ["INCLUDES_OCR"]
+        },
+        {
             "projectName": "Vortice.Windows",
             "attributedTo": "Amer Koleci and Contributors",
             "licenseName": "MIT license",

@@ -34,7 +34,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
     private bool _isBeingViewedThroughHandOverlay;
 
     // UI state
-    private readonly ImGuiVRCore ImGuiVR;
+    private readonly ImGuiVRCore VrGui;
     private readonly UiSharedData _sharedData;
     private readonly UiScrollManager _scrollManager = new UiScrollManager();
     
@@ -69,18 +69,18 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
         _trimHeight = (windowHeight - innerHeight) / 2;
         
         _sharedData = new UiSharedData();
-        ImGuiVR = new ImGuiVRCore();
+        VrGui = new ImGuiVRCore();
 
-        var oscQueryTab = new UiOscQuery(ImGuiVR, _routine, _sharedData);
-        _expressionsTab = new UiExpressions(ImGuiVR, _routine, _imageLoader, oscQueryTab, _sharedData);
-        _costumesTab = new UiCostumes(ImGuiVR, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
+        var oscQueryTab = new UiOscQuery(VrGui, _routine, _sharedData);
+        _expressionsTab = new UiExpressions(VrGui, _routine, _imageLoader, oscQueryTab, _sharedData);
+        _costumesTab = new UiCostumes(VrGui, _routine, _scrollManager, isWindowlessStyle, _imageLoader);
         _oscQueryTab = oscQueryTab;
-        _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(ImGuiVR, _routine, _config) : null;
-        _eyeTrackingMenu = new UiEyeTrackingMenu(ImGuiVR, isWindowlessStyle, _imageLoader, _sharedData);
-        _hardwareTab = new UiHardware(ImGuiVR, _routine, _config);
-        _optionsTab = new UiOptions(ImGuiVR, SwitchPanel, _routine, _config, _isWindowlessStyle, _scrollManager);
-        _processingTab = new UiProcessing(ImGuiVR, _routine);
-        _utilityTab = new UiUtility(ImGuiVR, _scrollManager, _routine, _processingTab, _config);
+        _networkingTabOptional = ConditionalCompilation.IncludesSteamworks ? new UiNetworking(VrGui, _routine, _config) : null;
+        _eyeTrackingMenu = new UiEyeTrackingMenu(VrGui, isWindowlessStyle, _imageLoader, _sharedData);
+        _hardwareTab = new UiHardware(VrGui, _routine, _config);
+        _optionsTab = new UiOptions(VrGui, SwitchPanel, _routine, _config, _isWindowlessStyle, _scrollManager);
+        _processingTab = new UiProcessing(VrGui, _routine);
+        _utilityTab = new UiUtility(VrGui, _scrollManager, _routine, _processingTab, _config);
         _panel = _config.modeVrc ? HPanel.Shortcuts : HPanel.None;
     }
 
@@ -147,7 +147,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 
         var windowHeight = window.Height - BorderHeight * 2;
 
-        ImGuiVR.Begin();
+        VrGui.Begin();
 
         ImGui.SetNextWindowPos(new Vector2(BorderWidth + _trimWidth, BorderHeight + _trimHeight), ImGuiCond.Always);
         ImGui.SetNextWindowSize(new Vector2(SidePanelWidth - _trimWidth * 2, windowHeight - _trimHeight * 2), ImGuiCond.Always);
@@ -172,7 +172,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
             for (var languageIndex = 0; languageIndex < languages.Count; languageIndex++)
             {
                 var language = languages[languageIndex].Replace(" (ChatGPT)" , " GPT");
-                if (ImGuiVR.HapticButton(language, buttonSize))
+                if (VrGui.HapticButton(language, buttonSize))
                 {
                     _routine.SetLocale(HLocalization.GetLanguageCodes()[languageIndex]);
                     HLocalization.SwitchLanguage(languageIndex);
@@ -182,7 +182,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
         else
         {
             ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetTextLineHeight() * 3);
-            if (ImGuiVR.HapticButton(UiOptions.LanguagesNonTranslated, buttonSize))
+            if (VrGui.HapticButton(UiOptions.LanguagesNonTranslated, buttonSize))
             {
                 _panel = HPanel.Options;
             }
@@ -249,7 +249,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 
         _scrollManager.StoreIfAnyItemHovered();
 
-        ImGuiVR.End();
+        VrGui.End();
 
         ImGui.End();
         ImGui.PopFont();
@@ -267,7 +267,7 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 
     private void ShowSidebarButton(Vector2 buttonSize, string label, HPanel target)
     {
-        if (UiColors.ColoredBackground(_panel == target, () => ImGuiVR.HapticButton(label, buttonSize))) _panel = target;
+        if (UiColors.ColoredBackground(_panel == target, () => VrGui.HapticButton(label, buttonSize))) _panel = target;
     }
 
     private void DisplayAsTabs(bool isEyeTrackingMenuBeingViewedThroughHandOverlay, Dictionary<string, HOscItem> oscMessages)
@@ -344,12 +344,12 @@ internal class UiMainApplication : IDisposable, IEyeTrackingCapable
 
     public void RegisterHoverChanged(ImGuiVRCore.ButtonEvent buttonEvent)
     {
-        ImGuiVR.OnHoverChanged += buttonEvent;
+        VrGui.OnHoverChanged += buttonEvent;
     }
 
     public void RegisterButtonPressed(ImGuiVRCore.ButtonEvent buttonEvent)
     {
-        ImGuiVR.OnButtonPressed += buttonEvent;
+        VrGui.OnButtonPressed += buttonEvent;
     }
 
     internal static void OpenVrUnavailableBlinker(Stopwatch time)

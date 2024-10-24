@@ -4,6 +4,7 @@ using Hai.HView.Audio;
 using Hai.HView.Core;
 using Hai.HView.Data;
 using Hai.HView.Overlay;
+using Hai.HView.Overlay.Stereocomposer;
 using Hai.HView.Rendering;
 using Hai.HView.Ui.MainApp;
 using Valve.VR;
@@ -124,12 +125,12 @@ public class HVOpenVRThread
                     _playSound.Play();
                 });
             });
-            
+
             var overlayables = new List<IOverlayable>();
             overlayables.Add(dashboard);
             
             HEyeTrackingOverlay eyeTrackingOptional = null;
-            
+
             HHandOverlay handOverlay = null;
             var onShowCostumes = () => _queuedForOvr.Enqueue(() =>
             {
@@ -158,34 +159,33 @@ public class HVOpenVRThread
 
             _routine.OnShowCostumes += onShowCostumes;
             _routine.OnHideCostumes += onHideCostumes;
-        
+
+            var togglables = new List<HTogglableOverlay>
+            {
+                new(overlayables, () =>
+                {
+                    var result = new HEyeTrackingOverlay(_routine, dashboard);
+                    eyeTrackingOptional = result;
+                    return result;
+                }, () => _config.devTools__EyeTracking),
+                new(overlayables, () => new HStereocomposer(_config, _routine, new HGrabMachine(), _ovr), () => _config.devTools__StereoComposer)
+            };
+
             ovr.Run(stopwatch =>
             {
                 while (_queuedForOvr.TryDequeue(out var action)) action();
-
-                var useEyeTracking = _config.devTools__EyeTracking;
-                if (useEyeTracking && eyeTrackingOptional == null)
+                
+                foreach (var togglable in togglables)
                 {
-                    eyeTrackingOptional = new HEyeTrackingOverlay(_routine, dashboard);
-                    eyeTrackingOptional.Start();
-                    overlayables.Add(eyeTrackingOptional);
-                }
-                else if (!useEyeTracking && eyeTrackingOptional != null)
-                {
-                    dashboard.ForgetEyeTracking();
-                    eyeTrackingOptional.Teardown();
-                    overlayables.Remove(eyeTrackingOptional);
-                    eyeTrackingOptional = null;
+                    togglable.Check();
                 }
 
-                var interactAction = OpenVRUtils.GetDigitalInput(_ovr.ActionInteract);
-                if (interactAction.bChanged && interactAction.bState)
+                if (OpenVRUtils.IfDigitalInputChanged(_ovr.ActionInteract, out var interact) && interact)
                 {
                     _routine.InteractDown();
                 }
 
-                var rightAction = OpenVRUtils.GetDigitalInput(_ovr.ActionOpenRight);
-                if (rightAction.bChanged && rightAction.bState)
+                if (OpenVRUtils.IfDigitalInputChanged(_ovr.ActionOpenRight, out var openRight) && openRight)
                 {
                     _routine.ToggleCostumes();
                 }

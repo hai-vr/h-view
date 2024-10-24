@@ -39,6 +39,7 @@
             </PropertyGroup>
             <ItemGroup>
                 <ProjectReference Include="..\h-ocr\h-ocr.csproj" />
+                <ProjectReference Include="..\h-pynet-translate\h-pynet-translate.csproj" />
             </ItemGroup>
         </When>
         <Otherwise>
@@ -160,6 +161,15 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="HThirdParty\THIRDPARTY-LICENSES\VORTICEWINDOWS-AMERKOLECI-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\OPENVROVERLAYMODEL-CNLOHR-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\ARGOSTRANSLATE-ARGOSOPENTECH-MIT.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="HThirdParty\THIRDPARTY-LICENSES\PYTHONNET-PYTHONNET-MIT.md">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

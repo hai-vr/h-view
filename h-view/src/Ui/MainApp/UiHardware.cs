@@ -10,16 +10,16 @@ namespace Hai.HView.Ui.MainApp;
 
 internal class UiHardware
 {
-    private readonly ImGuiVRCore ImGuiVR;
+    private readonly ImGuiVRCore VrGui;
     private readonly HVRoutine _routine;
     private readonly SavedData _config;
     private readonly Stopwatch _time;
 
     private bool _editNames;
 
-    public UiHardware(ImGuiVRCore imGuiVr, HVRoutine routine, SavedData config)
+    public UiHardware(ImGuiVRCore vrGui, HVRoutine routine, SavedData config)
     {
-        ImGuiVR = imGuiVr;
+        VrGui = vrGui;
         _routine = routine;
         _config = config;
         
@@ -46,15 +46,15 @@ internal class UiHardware
     private void OptionsWindow()
     {
         var changed = false;
-        changed |= ImGui.Checkbox(HLocalizationPhrase.ShowLighthousesLabel, ref _config.showLighthouses);
+        changed |= VrGui.HapticCheckbox(HLocalizationPhrase.ShowLighthousesLabel, ref _config.showLighthouses);
         ImGui.SameLine();
-        changed |= ImGui.Checkbox(HLocalizationPhrase.ShowSerialLabel, ref _config.showSerial);
+        changed |= VrGui.HapticCheckbox(HLocalizationPhrase.ShowSerialLabel, ref _config.showSerial);
         if (changed)
         {
             _config.SaveConfig();
         }
         ImGui.SameLine();
-        if (ImGui.Checkbox(HLocalizationPhrase.EditNamesLabel, ref _editNames))
+        if (VrGui.HapticCheckbox(HLocalizationPhrase.EditNamesLabel, ref _editNames))
         {
             // Only save when unchecking
             if (!_editNames) _config.SaveConfig();
@@ -133,7 +133,7 @@ internal class UiHardware
                     ImGui.InputText($"##edit{hardware.SerialNumber}", ref options.ovrSerialToPreference[hardware.SerialNumber].name, 10_000);
                     ItemHovered(hardware, color);
                     ImGui.SameLine();
-                    if (ImGuiVR.HapticButton($"{HLocalizationPhrase.OkLabel}##ok{hardware.SerialNumber}"))
+                    if (VrGui.HapticButton($"{HLocalizationPhrase.OkLabel}##ok{hardware.SerialNumber}"))
                     {
                         _config.SaveConfig();
                         _editNames = false;
