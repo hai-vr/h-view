@@ -1,171 +1,32 @@
 Third party acknowledgements
 =====
 
-- **A3ESimpleOSC for C#, version 0.1**
-
-  https://github.com/lyuma/Av3Emulator/blob/master/Runtime/Scripts/A3ESimpleOSC.cs (MIT license)
-
-- **ImGui.NET**
-
-  https://github.com/ImGuiNET/ImGui.NET (MIT license)
-
-- **ImGui.NET SampleProgram**
-
-  https://github.com/ImGuiNET/ImGui.NET/tree/master/src/ImGui.NET.SampleProgram (MIT license)
-
-- **OpenVR API**
-
-  https://github.com/ValveSoftware/openvr (BSD-3-Clause license)
-
-- **Facepunch.Steamworks**
-
-  https://github.com/Facepunch/Facepunch.Steamworks (MIT license)
-
-- **Fredoka** font -- Designed by Milena Brandão, Hafontia
-
-  https://fonts.google.com/specimen/Fredoka/about (SIL Open Font License)
-
-- **Kiwi Maru** font -- Designed by Hiroki-Chan
-
-  https://fonts.google.com/specimen/Kiwi+Maru/about (SIL Open Font License)
-
-- **K14** font -- Developed by Hiroshi Tachibana
-
-  https://ja.wikipedia.org/wiki/K14_(フォント) (Public domain)
-
-- **ProggyClean** font -- Developed by Tristan Grimmer
-
-  http://www.proggyfonts.net/ (Embedded according to https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#monospace-fonts )
+Third party acknowledgements can also be found in the HThirdParty/ subfolder:
+- Open HThirdParty/thirdparty-lookup.json
+- For the full license text of the third party dependencies, open HThirdParty/THIRDPARTY-LICENSES/ folder
+- The same information can be found through the user interface within the application, in `Options > Third party acknowledgements`
 
 ---
 
-### Licenses of respective libraries
-
-
-- **A3ESimpleOSC for C#, version 0.1**
-
-  https://github.com/lyuma/Av3Emulator/blob/master/Runtime/Scripts/A3ESimpleOSC.cs (MIT license)
-
-```
-Copyright (c) 2022 Lyuma <xn.lyuma@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-- **ImGui.NET**
-
-  https://github.com/ImGuiNET/ImGui.NET (MIT license)
-
-```
-The MIT License (MIT)
-
-Copyright (c) 2017 Eric Mellino and ImGui.NET contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-- **ImGui.NET SampleProgram**
-
-  https://github.com/ImGuiNET/ImGui.NET (MIT license)
-
-```
-The MIT License (MIT)
-
-Copyright (c) 2017 Eric Mellino and ImGui.NET contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-- **OpenVR API**
-
-  https://github.com/ValveSoftware/openvr (BSD-3-Clause license)
-
-```
-Copyright (c) 2015, Valve Corporation
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation and/or
-other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors
-may be used to endorse or promote products derived from this software without
-specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-```
-
-- **Facepunch.Steamworks**
-
-  https://github.com/Facepunch/Facepunch.Steamworks (MIT license)
-
-> Copyright (c) 2016 Facepunch Studios LTD
-> 
-> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-> 
-> The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+- Included in source code form and DLLs:
+    - A3ESimpleOSC for C#, version 0.1 @ https://github.com/lyuma/Av3Emulator/blob/master/Runtime/Scripts/A3ESimpleOSC.cs ([MIT license](https://github.com/lyuma/Av3Emulator/blob/master/Runtime/Scripts/A3ESimpleOSC.cs)) by Lyuma
+    - ImGui.NET SampleProgram @ https://github.com/ImGuiNET/ImGui.NET/tree/master/src/ImGui.NET.SampleProgram ([MIT license](https://github.com/ImGuiNET/ImGui.NET/blob/master/LICENSE)) by Eric Mellino and ImGui.NET contributors
+    - OpenVR API @ https://github.com/ValveSoftware/openvr ([BSD-3-Clause license](https://github.com/ValveSoftware/openvr/blob/master/LICENSE)) by Valve Corporation
+    - openvr-screengrab @ https://github.com/cnlohr/openvr-screengrab ([MIT license](https://github.com/cnlohr/openvr-screengrab/blob/master/LICENSE)) by CNLohr
+    - openvr_overlay_model @ https://github.com/cnlohr/openvr_overlay_model ([MIT license](https://github.com/cnlohr/openvr_overlay_model/blob/master/LICENSE)) by CNLohr
+- Other dependencies included through NuGet: [h-view/h-view.csproj](h-view/h-view.csproj)
+    - Dear ImGui @ https://github.com/ocornut/imgui ([MIT license](https://github.com/ocornut/imgui/blob/master/LICENSE.txt)) by Omar Cornut
+    - ImGui.NET @ https://github.com/ImGuiNET/ImGui.NET ([MIT license](https://github.com/ImGuiNET/ImGui.NET/blob/master/LICENSE)) by Eric Mellino and ImGui.NET contributors
+    - Veldrid @ https://github.com/veldrid/veldrid ([MIT license](https://github.com/veldrid/veldrid/blob/master/LICENSE)) by Eric Mellino and Veldrid contributors
+    - VRChat.OSCQuery @ https://github.com/vrchat-community/vrc-oscquery-lib ([MIT license](https://github.com/Facepunch/Facepunch.Steamworks/blob/master/LICENSE)) by VRChat Inc.
+    - Vortice.Windows @ https://github.com/amerkoleci/Vortice.Windows ([MIT license](https://github.com/amerkoleci/Vortice.Windows/blob/main/LICENSE)) by Amer Koleci and Contributors
+    - Newtonsoft.Json @ https://github.com/JamesNK/Newtonsoft.Json ([MIT license](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md)) by James Newton-King
+    - *Facepunch.Steamworks* @ https://github.com/Facepunch/Facepunch.Steamworks ([MIT license](https://github.com/Facepunch/Facepunch.Steamworks/blob/master/LICENSE)) by Facepunch Studios LTD (conditionally included when INCLUDES_STEAMWORKS flag is set)
+    - *Argos Translate* @ https://github.com/argosopentech/argos-translate ([MIT license](https://github.com/argosopentech/argos-translate/blob/master/LICENSE)) by Argos Open Technologies, LLC (conditionally included when INCLUDES_OCR flag is set)
+    - *Python.NET* @ https://github.com/pythonnet/pythonnet ([MIT license](https://github.com/pythonnet/pythonnet/blob/master/LICENSE)) by the contributors of the Python.NET project (conditionally included when INCLUDES_OCR flag is set)
+    - (there may be other implicit packages)
+- Asset dependencies:
+    - Fredoka font @ https://fonts.google.com/specimen/Fredoka/about ([SIL Open Font License](https://fonts.google.com/attribution)) by Milena Brandão, Hafontia
+    - Kiwi Maru font @ https://fonts.google.com/specimen/Kiwi+Maru/about ([SIL Open Font License](https://fonts.google.com/attribution)) by Hiroki-Chan
+    - K14 font @ https://ja.wikipedia.org/wiki/K14_(フォント) ([Public domain](https://ja.wikipedia.org/wiki/K14_(フォント))) by Hiroshi Tachibana (橘浩志)
+    - ProggyClean font @ http://www.proggyfonts.net/ ([MIT License (According to https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#creditslicenses-for-fonts-included-in-repository)](https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#creditslicenses-for-fonts-included-in-repository)) by Tristan Grimmer

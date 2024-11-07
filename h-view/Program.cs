@@ -1,9 +1,11 @@
 ﻿using System.Globalization;
+using System.Text;
 using Hai.HNetworking.Steamworks;
 using Hai.HView;
 using Hai.HView.Core;
 using Hai.HView.Data;
 using Hai.HView.Gui;
+using Hai.HView.HThirdParty;
 using Hai.HView.OSC;
 using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;
@@ -27,6 +29,10 @@ internal class HViewProgram
 
     public HViewProgram(string[] arguments)
     {
+#if HV_DEBUG
+        WriteThirdPartyRegistrySummaryToFile();
+#endif
+        
         var isOverlay = ConditionalCompilation.IncludesOpenVR && !arguments.Contains("--no-overlay");
         
         var registerManifest = ConditionalCompilation.RegisterManifest ? !arguments.Contains("--no-register-manifest") : arguments.Contains("--register-manifest");
@@ -82,7 +88,57 @@ internal class HViewProgram
             Name = isOverlay ? "VR-Thread" : "UI-Thread"
         };
     }
+
+    private void WriteThirdPartyRegistrySummaryToFile()
+    {
+        var registry = new HThirdPartyRegistry(File.ReadAllText(HAssets.ThirdPartyLookup.Absolute(), Encoding.UTF8));
+
+        var sb = new StringBuilder();
+        var sw = new StringWriter(sb);
+        var entries = registry.GetEntries();
+        sw.WriteLine("### Third-party acknowledgements");
+        sw.WriteLine("");
+        sw.WriteLine("- Included in source code form and DLLs:");
+        foreach (var entry in entries.Where(IsSourceOrDLL))
+        {
+            sw.WriteLine(FormatEntry(entry));
+        }
+        sw.WriteLine("- Other dependencies included through NuGet: [h-view/h-view.csproj](h-view/h-view.csproj)");
+        var thirdPartyEntries = entries
+            .Where(entry => !IsSourceOrDLL(entry) && !entry.kind.Contains("Asset-Included"))
+            .OrderBy(entry => entry.conditionallyIncludedWhen.Length)
+            .ToArray();
+        foreach (var entry in thirdPartyEntries)
+        {
+            sw.WriteLine(FormatEntry(entry));
+        }
+        sw.WriteLine("  - (there may be other implicit packages)");
+        sw.WriteLine("- Asset dependencies:");
+        foreach (var entry in entries.Where(entry => entry.kind.Contains("Asset-Included")))
+        {
+            sw.WriteLine(FormatEntry(entry));
+        }
         
+        File.WriteAllText("THIRDPARTY-generated.md", sb.ToString(), Encoding.UTF8);
+    }
+
+    private static bool IsSourceOrDLL(HThirdPartyEntry entry)
+    {
+        return entry.kind.Contains("Source-Included") || entry.kind.Contains("Binary-DLL-Included");
+    }
+
+    private static string FormatEntry(HThirdPartyEntry entry)
+    {
+        if (entry.conditionallyIncludedWhen.Length > 0)
+        {
+            return $"  - *{entry.projectName}* @ {entry.projectUrl} ([{entry.licenseName}]({entry.licenseUrl})) by {entry.attributedTo} (conditionally included when {string.Join(", ", entry.conditionallyIncludedWhen)} flag is set)";
+        }
+        else
+        {
+            return $"  - {entry.projectName} @ {entry.projectUrl} ([{entry.licenseName}]({entry.licenseUrl})) by {entry.attributedTo}";
+        }
+    }
+
     private void WhenWindowClosed()
     {
         routine.Finish();
