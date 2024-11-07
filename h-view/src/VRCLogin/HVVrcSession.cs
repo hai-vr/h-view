@@ -13,7 +13,10 @@ namespace Hai.HView.VRCLogin;
 /// Exercise extreme caution when printing information to the output logs.
 public class HVVrcSession
 {
-    private const string RootUrl = "https://vrchat.com/api/1";
+    // https://github.com/vrchatapi/specification/commit/558c0ca50202c45194a49d515f27e64f62079ba4#diff-5fa520d3bb34f9ae444cdbdf2b9eccff2361eb89a0cd3f4dba1e2e0fa9bba452R15
+    // https://discord.com/channels/418093857394262020/418512124529344523/1303873667473866752
+    // "Yes, going forward, all API requests need to go through api.vrchat.cloud instead"
+    private const string RootUrl = "https://api.vrchat.cloud/api/1"; // Formerly: "https://vrchat.com/api/1"
     private const string AuthUrl = RootUrl + "/auth/user";
     private const string LogoutUrl = RootUrl + "/logout";
     private const string EmailOtpUrl = RootUrl + "/auth/twofactorauth/emailotp/verify";
