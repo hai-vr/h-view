@@ -24,5 +24,6 @@ namespace Hai.HView.Hardware
         public string ModelNumber;
         public float ClosestTrackerDistance;
         public DateTime LastIssueTime;
+        public bool IsBatteryCharging;
     }
 }

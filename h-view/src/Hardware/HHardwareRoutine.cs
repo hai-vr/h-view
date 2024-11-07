@@ -104,6 +104,7 @@ namespace Hai.HView.Hardware
                         Vel = vel,
                         DebugTrackingResult = device.eTrackingResult,
                         BatteryLevel = GetBatteryLevel(deviceIndex),
+                        IsBatteryCharging = IsBatteryCharging(deviceIndex),
                         // Euler = Geofunctions.ToUnityForumsZXYEulerDegrees(quat),
                         // SimpleAngle = Geofunctions.QuaternionAngleDeg_IgnoreNaN(quat)
                         ClosestTrackerDistance = 0,
@@ -143,6 +144,12 @@ namespace Hai.HView.Hardware
         {
             var propError = ETrackedPropertyError.TrackedProp_Success;
             return OpenVR.System.GetFloatTrackedDeviceProperty(deviceIndex, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float, ref propError);
+        }
+
+        private bool IsBatteryCharging(uint deviceIndex)
+        {
+            var propError = ETrackedPropertyError.TrackedProp_Success;
+            return OpenVR.System.GetBoolTrackedDeviceProperty(deviceIndex, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool, ref propError);
         }
 
         private static string GetDevicePropertyStringOrNull(uint deviceIndex, ETrackedDeviceProperty which)

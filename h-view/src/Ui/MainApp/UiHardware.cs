@@ -160,7 +160,9 @@ internal class UiHardware
                 }
                 else
                 {
+                    ImGui.BeginDisabled(hardware.IsBatteryCharging);
                     ImGui.SliderFloat($"###battery_slider{hardware.DeviceIndex}", ref battery, 0f, 100f, $"{(int)battery} %%", ImGuiSliderFlags.NoInput);
+                    ImGui.EndDisabled();
                 }
                 ImGui.TableSetColumnIndex(tableIndex++);
                 ImGui.Text(hardware.DeviceClass == ETrackedDeviceClass.TrackingReference
