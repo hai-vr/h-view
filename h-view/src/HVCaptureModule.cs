@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using Windows.Media.Ocr;
 using Hai.HView.OVR;
 #if INCLUDES_OCR
+using Windows.Media.Ocr;
 using Hai.HView.OCR;
 #endif
 

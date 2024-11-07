@@ -121,6 +121,7 @@ internal class UiProcessing
         ImGui.SetCursorPosY(centerYY - textSize.Y * 0.5f + textSize.Y * verticalMul);
     }
 
+#if INCLUDES_OCR
     private static void FindMinMaxes(OcrLine line, out float minX, out float minY, out float maxX, out float maxY)
     {
         minX = float.MaxValue;
@@ -140,4 +141,5 @@ internal class UiProcessing
             if (yyp > maxY) maxY = yyp;
         }
     }
+#endif
 }
