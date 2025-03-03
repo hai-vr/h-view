@@ -43,8 +43,11 @@ public class HEyeTrackingOverlay : IOverlayable
         _poseData = poseData;
         
         var eyeTracking = _routine.EyeTracking;
-        var xx = (float)(Math.Asin(eyeTracking.XAvg) * (180 / Math.PI));
-        var yy = (float)(Math.Asin(-eyeTracking.Y) * (180 / Math.PI));
+        // EDIT: Turns out it's arctan, not arcsin https://github.com/VRCFaceTracking/docs/pull/76#issuecomment-2693320019
+        // according to regzo2 (who provides the source https://pmc.ncbi.nlm.nih.gov/articles/PMC7527608/ ),
+        // where the input X/Y has a max theoretical value of 45deg, and Vive Pro Eye saturates at ~30deg.
+        var xx = (float)(Math.Atan(eyeTracking.XAvg) * (180 / Math.PI));
+        var yy = (float)(Math.Atan(-eyeTracking.Y) * (180 / Math.PI));
         var eyeRot = HVGeofunctions.QuaternionFromAngles(new Vector3(yy, xx, 0), HVRotationMulOrder.YZX);
 
         var absToHead = HVOvrGeofunctions.OvrToOvrnum(_poseData.Poses[0].mDeviceToAbsoluteTracking);
