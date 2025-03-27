@@ -13,23 +13,23 @@
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DefineConstants>TRACE;HV_DEBUG;INCLUDES_OPENVR;COOKIES_SUPPORTED;INCLUDES_STEAMWORKS;INCLUDES_OCR</DefineConstants>
+        <DefineConstants>TRACE;HV_DEBUG;INCLUDES_OPENVR;INCLUDES_STEAMWORKS;INCLUDES_OCR</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DefineConstants>TRACE;INCLUDES_OPENVR;COOKIES_SUPPORTED;REGISTER_MANIFEST;USE_CONSTS_IN_RELEASE</DefineConstants>
+        <DefineConstants>TRACE;INCLUDES_OPENVR;REGISTER_MANIFEST;USE_CONSTS_IN_RELEASE</DefineConstants>
     </PropertyGroup>
     
     <PropertyGroup Condition=" '$(Configuration)' == 'DebugNoOpenVR' ">
-        <DefineConstants>TRACE;HV_DEBUG;COOKIES_SUPPORTED</DefineConstants>
+        <DefineConstants>TRACE;HV_DEBUG</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'ReleaseNoOpenVR' ">
-        <DefineConstants>TRACE;COOKIES_SUPPORTED;USE_CONSTS_IN_RELEASE</DefineConstants>
+        <DefineConstants>TRACE;USE_CONSTS_IN_RELEASE</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'ReleaseSteamworks' ">
-        <DefineConstants>TRACE;INCLUDES_OPENVR;COOKIES_SUPPORTED;REGISTER_MANIFEST;INCLUDES_STEAMWORKS;USE_CONSTS_IN_RELEASE</DefineConstants>
+        <DefineConstants>TRACE;INCLUDES_OPENVR;REGISTER_MANIFEST;INCLUDES_STEAMWORKS;USE_CONSTS_IN_RELEASE</DefineConstants>
     </PropertyGroup>
 
     <Choose>
