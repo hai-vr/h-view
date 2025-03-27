@@ -20,24 +20,9 @@ https://github.com/user-attachments/assets/889a2648-7cda-4cba-bb0b-23cf1c96ddaf
 
 https://github.com/user-attachments/assets/253ae182-1db5-4dd5-a260-9eb78ceb48f0
 
-### Optional: VRChat Login
+### About VRChat login
 
-If you choose to log-in into the VRChat account, it can switch between avatars.
-
-Logging into the VRChat account is **only** needed to switch between avatars.
-- If you don't need to switch avatars, do not log in.
-- This app doesn't do anything else with the VRChat account. It doesn't even try to list all of your avatars.
-
-The code responsible for all VRChat account actions [can be inspected here](https://github.com/hai-vr/h-view/blob/main/h-view/src/VRCLogin/HVVrcSession.cs).
-- Logging into the VRChat account `Login(username, password)` ([API docs](https://vrchatapi.github.io/docs/api/#get-/auth/user))
-- Sending a 2FA code to VRChat `VerifyTwofer(code, method)` ([API docs](https://vrchatapi.github.io/docs/api/#post-/auth/twofactorauth/emailotp/verify))
-- Logging out `Logout()` ([API docs](https://vrchatapi.github.io/docs/api/#put-/logout))
-- Switching avatars `SelectAvatar(avatarId)` ([API docs](https://vrchatapi.github.io/docs/api/#put-/avatars/-avatarId-/select))
-
-Logging in will save a cookie file in the `%APPDATA%/H-View/` folder, called `hview.vrc.cookies.txt`
-- This file is used to communicate with your VRChat account. Do not share that file.
-- This cookie file will be loaded when you start the program.
-- To delete this cookie file, go to Costumes > Login > Logout.
+This page previously had a section about VRChat login. It can be found [at this link](removed.md).
 
 ### Launch options
 
@@ -46,12 +31,25 @@ Logging in will save a cookie file in the `%APPDATA%/H-View/` folder, called `hv
 - `--register-manifest` On `Debug` config only: Register the application path to SteamVR. By default, debug builds do not register themselves.
 - `--no-register-manifest` On `Release` config only: Do not register the application path to SteamVR.
 
+### Conditional compilation
+
+This project has various compilation constants available, see h-view/src/ConditionalCompilation.cs
+
+- INCLUDES_OCR (~~Release~~, Debug): Include OCR text recognition and translation from screenshots.
+- INCLUDES_OPENVR (**Release**, Debug): Include OpenVR/SteamVR functionality. When not set, only desktop functions will be active.
+- INCLUDES_STEAMWORKS (~~Release~~, Debug): Include Steamworks DLL, intended for use with Steam distribution.
+- REGISTER_MANIFEST (**Release**, ~~Debug~~): Register the application manifest path, so that SteamVR can provide the option to auto-start it with SteamVR.
+- COOKIES_SUPPORTED (~~Release~~, ~~Debug~~): Enable communication with VRChat API, see [VRChat Login](#about-vrchat-login) section above.
+- ENABLE_FAKE_VRC_OSC (~~Release~~, ~~Debug~~): Create a fake VRChat OSC server, so that other applications may send data to H-View when VRChat is not running (i.e. face tracking).
+- USE_CONSTS_IN_RELEASE (**Release**, ~~Debug~~): Replace static bool properties with const bool fields in ConditionalCompilation.cs.
+
 ### Third-party acknowledgements
 
 - Third party acknowledgements can also be found in the HThirdParty/ subfolder:
   - Open HThirdParty/thirdparty-lookup.json
   - For the full license text of the third party dependencies, open HThirdParty/THIRDPARTY-LICENSES/ folder
   - The same information can be found through the user interface within the application, in `Options > Third party acknowledgements`
+  - When h-view is executed as a debug build, the file `THIRDPARTY-generated.md` will be generated in the executable folder.
 
 
 - Included in source code form and DLLs:

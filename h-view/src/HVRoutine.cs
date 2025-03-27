@@ -7,6 +7,7 @@ using Hai.ExternalExpressionsMenu;
 using Hai.HNetworking.Steamworks;
 using Hai.HView.Data;
 using Hai.HView.OSC;
+using Hai.HView.OSC.OtherHardwareDevice;
 using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;
 using hcontroller.Lyuma;
@@ -476,6 +477,11 @@ public class HVRoutine
     public void SendVrcTracker(int oscTrackerNumber, Vector3 unityPos, Quaternion unityRot)
     {
         _osc.SendVrcTracker(oscTrackerNumber, unityPos, unityRot);
+    }
+
+    public void OscSelectAvatar(string avatarId)
+    {
+        UpdateMessage(CommonOSCAddresses.AvatarChangeOscAddress, avatarId);
     }
 }
 

@@ -17,11 +17,12 @@ public class HVVrcSession
     // https://discord.com/channels/418093857394262020/418512124529344523/1303873667473866752
     // "Yes, going forward, all API requests need to go through api.vrchat.cloud instead"
     private const string RootUrl = "https://api.vrchat.cloud/api/1"; // Formerly: "https://vrchat.com/api/1"
+    private const string CookieDomainBit = "vrchat.com";
+    private const string CookieDomain = $"https://{CookieDomainBit}";
     private const string AuthUrl = RootUrl + "/auth/user";
     private const string LogoutUrl = RootUrl + "/logout";
     private const string EmailOtpUrl = RootUrl + "/auth/twofactorauth/emailotp/verify";
     private const string OtpUrl = RootUrl + "/auth/twofactorauth/otp/verify";
-    private const string CookieDomain = "https://vrchat.com";
     public bool IsLoggedIn => _isLoggedIn;
 
     private static string SwitchAvatarUrl(string safe_avatarId) => $"{RootUrl}/avatars/{safe_avatarId}/select";
@@ -38,7 +39,7 @@ public class HVVrcSession
             CookieContainer = _cookies
         };
         _client = new HttpClient(handler);
-        _client.DefaultRequestHeaders.UserAgent.ParseAdd($"Hai.HView/{VERSION.version} (docs.hai-vr.dev/docs/products/h-view)");
+        _client.DefaultRequestHeaders.UserAgent.ParseAdd($"Hai.HView/{VERSION.version} (docs.hai-vr.dev/docs/products/h-view#user-agent)");
     }
 
     public string GetAllCookies__Sensitive()
@@ -75,7 +76,7 @@ public class HVVrcSession
     {
         return new Cookie
         {
-            Domain = "vrchat.com",
+            Domain = CookieDomainBit,
             Name = name,
             Value = cookie.Value,
             Expires = cookie.Expires,

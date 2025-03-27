@@ -38,7 +38,8 @@ internal class UiCostumes
         var uiExternalService = _routine.UiExternalService();
         var currentAvi = oscMessages.TryGetValue(CommonOSCAddresses.AvatarChangeOscAddress, out var c) ? (string)c.Values[0] : "";
 
-        if (!uiExternalService.IsLoggedIn)
+        // Vestigial code: Logging in is no longer needed to switch avatars.
+        if (false && !uiExternalService.IsLoggedIn)
         {
             ImGui.SeparatorText(HLocalizationPhrase.LoginToVrchatLabel);
             LoginScreen(uiExternalService);
@@ -48,7 +49,12 @@ internal class UiCostumes
         ImGui.BeginTabBar("##tabs_costumes");
         _scrollManager.MakeTab(HLocalizationPhrase.SelectTabLabel, () => Costumes(uiExternalService, currentAvi));
         _scrollManager.MakeTab(HLocalizationPhrase.SwitchTabLabel, () => SwitchAvatar(uiExternalService, currentAvi));
-        if (uiExternalService.IsLoggedIn) _scrollManager.MakeTab(HLocalizationPhrase.SignInTabLabel, () => LoginScreen(uiExternalService));
+        
+        // Vestigial code: Show if you're still logged in, so you can log out and clear the cookies
+        if (uiExternalService.IsLoggedIn)
+        {
+            _scrollManager.MakeTab(HLocalizationPhrase.SignInTabLabel, () => LoginScreen(uiExternalService));
+        }
         ImGui.EndTabBar();
     }
 
@@ -75,13 +81,17 @@ internal class UiCostumes
         {
             _routine.EjectUserFromCostumeMenu();
             var userinput_avatarId = _avatarIdBuffer;
-            uiExternalService.SelectAvatar(userinput_avatarId);
+            // uiExternalService.SelectAvatar(userinput_avatarId);
+            _routine.OscSelectAvatar(userinput_avatarId);
         }
         ImGui.EndDisabled();
 
-        ImGui.SameLine();
-        ImGui.Text($"{HLocalizationPhrase.StatusLabel}: " + Enum.GetName(uiExternalService.SwitchStatus));
-        ImGui.Text("");
+        if (false)
+        {
+            ImGui.SameLine();
+            ImGui.Text($"{HLocalizationPhrase.StatusLabel}: " + Enum.GetName(uiExternalService.SwitchStatus));
+            ImGui.Text("");
+        }
     }
 
     private void Costumes(HVExternalService uiExternalService, string currentAvi)
@@ -114,7 +124,8 @@ internal class UiCostumes
         if (VrGui.HapticImageButton($"###switch_{avatarId}", _imageLoader.GetOrLoadImage(pngPath), _portraitSize))
         {
             _routine.EjectUserFromCostumeMenu();
-            uiExternalService.SelectAvatar(avatarId);
+            // uiExternalService.SelectAvatar(avatarId);
+            _routine.OscSelectAvatar(avatarId);
         }
         if (avatarId == currentAvi) ImGui.PopStyleColor();
     }
