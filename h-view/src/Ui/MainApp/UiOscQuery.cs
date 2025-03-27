@@ -27,6 +27,7 @@ internal class UiOscQuery
     private const string IntOscTypeI = "i";
     private const string ChatboxOscSpecialtyTypeSTT = "sTT";
 
+    private string _avatarBuffer = "";
     private string _chatboxBuffer = "";
     private bool _chatboxB;
     private bool _chatboxN;
@@ -334,6 +335,20 @@ internal class UiOscQuery
                     _routine.UpdateMessage(oscItem.Key, ii > 0 ? 0 : 1);
                 }
             }
+            else if (oscItem.Key == AvatarChangePath)
+            {
+                var avatarIdStr = (string)oscItem.Values[0];
+                if (VrGui.HapticButton($"{HLocalizationPhrase.OpenBrowserLabel} ({avatarIdStr})"))
+                {
+                    UiUtil.OpenAvatarUrl(avatarIdStr);
+                }
+                ImGui.InputText($"##{oscItem.Key}.input", ref _avatarBuffer, 10_000);
+                if (VrGui.HapticButton($"{HLocalizationPhrase.SwitchAvatarLabel}"))
+                {
+                    var userinput_avatarId = _avatarBuffer;
+                    _routine.OscSelectAvatar(userinput_avatarId);
+                }
+            }
             else if (oscItem.OscType == ChatboxOscSpecialtyTypeSTT)
             {
                 ImGui.InputText($"##{oscItem.Key}.input", ref _chatboxBuffer, 10_000);
@@ -370,7 +385,7 @@ internal class UiOscQuery
             {
                 ImGui.Text("");
             }
-            else if (oscItem.Key == AvatarChangePath)
+            else if (oscItem.Key == AvatarChangePath) // This is only in legacy versions of VRC, as AvatarChangePath is now writable
             {
                 var avatarIdStr = (string)oscItem.Values[0];
                 if (VrGui.HapticButton($"{HLocalizationPhrase.OpenBrowserLabel} ({avatarIdStr})"))
