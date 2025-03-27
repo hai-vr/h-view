@@ -7,7 +7,6 @@ using Hai.ExternalExpressionsMenu;
 using Hai.HNetworking.Steamworks;
 using Hai.HView.Data;
 using Hai.HView.OSC;
-using Hai.HView.OSC.OtherHardwareDevice;
 using Hai.HView.OSC.PretendToBeVRC;
 using Hai.HView.OVR;
 using hcontroller.Lyuma;
