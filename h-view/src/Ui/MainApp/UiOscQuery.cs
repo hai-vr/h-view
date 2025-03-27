@@ -237,7 +237,7 @@ internal class UiOscQuery
             }
             if (oscItem.Values != null)
             {
-                var join = string.Join(",", oscItem.Values.Select(o => o.ToString()));
+                var join = string.Join(",", oscItem.Values.Select(o => o == null ? "(null)" : o.ToString()));
                 if (ImGui.Selectable($"{HLocalizationPhrase.CopyLabel} \"{join}\" ({HLocalizationPhrase.ValueLabel})")) ImGui.SetClipboardText(join);
             }
             ImGui.EndPopup();
@@ -351,9 +351,16 @@ internal class UiOscQuery
             else
             {
                 // TODO: Handle type mismatches
-                var value = oscItem.WriteOnlyValueRef;
+                var valueNullable = oscItem.WriteOnlyValueRef;
                 ImGui.PushStyleColor(ImGuiCol.Text, UiColors.StaleParameter);
-                ImGui.Text($"{value} ({oscItem.OscType} | {oscItem.WriteOnlyValueRef.GetType().Name})");
+                if (valueNullable != null)
+                {
+                    ImGui.Text($"{valueNullable} ({oscItem.OscType} | {oscItem.WriteOnlyValueRef.GetType().Name})");
+                }
+                else
+                {
+                    ImGui.Text($"? ({oscItem.OscType})");
+                }
                 ImGui.PopStyleColor();
             }
         }
